@@ -1,0 +1,68 @@
+name: galois-field
+version: 0.1.0
+synopsis: Galois fields
+description: Finite field library
+maintainer: Adjoint Inc (info@adjoint.io)
+license: MIT
+github: adjoint-io/galois-field
+category: Cryptography
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+flags:
+  static:
+    description: Emit statically-linked binary
+    manual: False
+    default: False
+
+  optimized:
+    description: Perform compiler optimizations
+    manual: False
+    default: False
+
+dependencies:
+  # Prelude
+  - base >= 4.7 && < 5
+  - protolude >= 0.2
+  - QuickCheck
+
+library:
+  source-dirs: src
+
+  ghc-options:
+    -fwarn-tabs
+    -fwarn-incomplete-patterns
+    -fwarn-incomplete-record-updates
+    -fwarn-redundant-constraints
+    -fwarn-implicit-prelude
+    -fwarn-overflowed-literals
+    -fwarn-orphans
+    -fwarn-identities
+    -fwarn-dodgy-exports
+    -fwarn-dodgy-imports
+    -fwarn-duplicate-exports
+    -fwarn-overlapping-patterns
+    -fwarn-missing-fields
+    -fwarn-missing-methods
+    -fwarn-missing-signatures
+    -fwarn-noncanonical-monad-instances
+    -fwarn-unused-pattern-binds
+    -fwarn-unused-type-patterns
+    -fwarn-unrecognised-pragmas
+    -fwarn-wrong-do-bind
+    -fno-warn-name-shadowing
+    -fno-warn-unused-binds
+    -fno-warn-unused-matches
+    -fno-warn-unused-do-bind
+
+  default-extensions:
+    - LambdaCase
+    - RecordWildCards
+    - OverloadedStrings
+    - NoImplicitPrelude
+    - FlexibleInstances
+
+  exposed-modules:
+    - GaloisField

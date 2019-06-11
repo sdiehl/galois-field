@@ -1,0 +1,6 @@
+flags: {}
+packages:
+- .
+extra-deps:
+- arithmoi-0.8.0.0
+resolver: lts-12.20
