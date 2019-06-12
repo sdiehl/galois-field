@@ -72,7 +72,7 @@ instance KnownNat p => Real (PrimeField p) where
 instance KnownNat p => Semigroup (PrimeField p) where
   (<>) = (+)
 
--- | Inverse in field
+-- | Modular inverse
 {-# INLINABLE modInv #-}
 modInv :: Integral a => a -> a -> Either a a
 modInv x p = let (g, (y, _)) = extGCD p x in if g == 1 then Right y else Left g

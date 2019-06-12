@@ -69,3 +69,4 @@ library:
 
   exposed-modules:
     - GaloisField
+    - PrimeField
