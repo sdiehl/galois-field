@@ -63,6 +63,9 @@ library:
     - OverloadedStrings
     - NoImplicitPrelude
     - FlexibleInstances
+    - FlexibleContexts
+    - ScopedTypeVariables
+    - RankNTypes
 
   exposed-modules:
     - GaloisField
