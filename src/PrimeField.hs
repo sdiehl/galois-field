@@ -17,27 +17,29 @@ newtype PrimeField (p :: Nat) = PF Integer
 instance KnownNat p => GaloisField (PrimeField p) where
   ch = natVal
 
--- | Prime fields have endpoints
+-- | Prime fields are bounded
 instance KnownNat p => Bounded (PrimeField p) where
   minBound = fromInteger 0
   maxBound = fromInteger $ -1
 
--- | Prime fields are linearly ordered
-instance KnownNat p => Enum (PrimeField p) where
-  toEnum   = fromIntegral
-  fromEnum = fromInteger . toInteger
-
--- | Prime fields are normal models
+-- | Prime fields are equatable
 instance KnownNat p => Eq (PrimeField p) where
   (==) = (. toInteger) . (==) . toInteger
 
--- | Prime fields are division rings
+-- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
   recip f@(PF n)        = case modInv n $ natVal f of
     Right n' -> fromIntegral n'
     Left n'  -> panic "no multiplicative inverse."
+instance KnownNat p => Num (PrimeField p) where
+  PF n + PF n'  = fromInteger $ n + n'
+  PF n * PF n'  = fromInteger $ n * n'
+  abs f         = f
+  signum f      = if f == 0 then 0 else 1
+  fromInteger n = fix $ PF . mod n . natVal
+  negate (PF n) = fromInteger $ negate n
 
 -- | Prime fields are integral domains
 instance KnownNat p => Integral (PrimeField p) where
@@ -46,34 +48,16 @@ instance KnownNat p => Integral (PrimeField p) where
     where
       (q', r') = quotRem (toInteger q) (toInteger r)
   toInteger f@(PF n) = mod n $ natVal f
-
--- | Prime fields are additive monoids
-instance KnownNat p => Monoid (PrimeField p) where
-  mempty = fromInteger 0
-
--- | Prime fields are rings
-instance KnownNat p => Num (PrimeField p) where
-  PF n + PF n'  = fromInteger $ n + n'
-  PF n * PF n'  = fromInteger $ n * n'
-  abs f         = f
-  signum f      = if f == 0 then 0 else 1
-  fromInteger n = let f = PF . mod n $ natVal f in f
-  negate (PF n) = fromInteger $ negate n
-
--- | Prime fields are ordered fields
+instance KnownNat p => Enum (PrimeField p) where
+  toEnum   = fromIntegral
+  fromEnum = fromInteger . toInteger
+instance KnownNat p => Real (PrimeField p) where
+  toRational = fromInteger . toInteger
 instance KnownNat p => Ord (PrimeField p) where
   (<=) = (. toInteger) . (<=) . toInteger
 
--- | Prime fields inject to the reals
-instance KnownNat p => Real (PrimeField p) where
-  toRational = fromInteger . toInteger
-
--- | Prime fields are additive semigroups
-instance KnownNat p => Semigroup (PrimeField p) where
-  (<>) = (+)
-
--- | Modular inverse
 {-# INLINABLE modInv #-}
+-- | Modular inverse
 modInv :: Integral a => a -> a -> Either a a
 modInv x p = let (g, (y, _)) = extGCD p x in if g == 1 then Right y else Left g
   where
