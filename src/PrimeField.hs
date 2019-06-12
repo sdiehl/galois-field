@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds, KindSignatures #-}
 {-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving #-}
 
 module PrimeField
@@ -8,72 +9,67 @@ import Protolude
 
 import GaloisField (GaloisField(..))
 
--- | Prime number @p@
-class Prime p where
-  {-# MINIMAL p #-}
-  p :: p -> Integer
-
 -- | Prime fields @GF(p)@ for @p@ prime
-newtype PrimeField p = PF Integer
+newtype PrimeField (p :: Nat) = PF Integer
   deriving (Show, Generic, NFData)
 
 -- | Prime fields are Galois fields
-instance Prime p => GaloisField (PrimeField p) where
-  ch = const $ p (undefined :: p)
+instance KnownNat p => GaloisField (PrimeField p) where
+  ch = natVal
 
 -- | Prime fields have endpoints
-instance Prime p => Bounded (PrimeField p) where
+instance KnownNat p => Bounded (PrimeField p) where
   minBound = fromInteger 0
   maxBound = fromInteger $ -1
 
 -- | Prime fields are linearly ordered
-instance Prime p => Enum (PrimeField p) where
+instance KnownNat p => Enum (PrimeField p) where
   toEnum   = fromIntegral
   fromEnum = fromInteger . toInteger
 
 -- | Prime fields are normal models
-instance Prime p => Eq (PrimeField p) where
+instance KnownNat p => Eq (PrimeField p) where
   (==) = (. toInteger) . (==) . toInteger
 
 -- | Prime fields are division rings
-instance Prime p => Fractional (PrimeField p) where
+instance KnownNat p => Fractional (PrimeField p) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip (PF n)          = case modInv n $ p (undefined :: p) of
+  recip f@(PF n)        = case modInv n $ natVal f of
     Right n' -> fromIntegral n'
     Left n'  -> panic "no multiplicative inverse."
 
 -- | Prime fields are integral domains
-instance Prime p => Integral (PrimeField p) where
+instance KnownNat p => Integral (PrimeField p) where
   {-# INLINE quotRem #-}
-  quotRem q r      = (fromInteger q', fromInteger r')
+  quotRem q r        = (fromInteger q', fromInteger r')
     where
       (q', r') = quotRem (toInteger q) (toInteger r)
-  toInteger (PF n) = mod n $ p (undefined :: p)
+  toInteger f@(PF n) = mod n $ natVal f
 
 -- | Prime fields are additive monoids
-instance Prime p => Monoid (PrimeField p) where
+instance KnownNat p => Monoid (PrimeField p) where
   mempty = fromInteger 0
 
 -- | Prime fields are rings
-instance Prime p => Num (PrimeField p) where
+instance KnownNat p => Num (PrimeField p) where
   PF n + PF n'  = fromInteger $ n + n'
   PF n * PF n'  = fromInteger $ n * n'
-  abs           = notImplemented
-  signum        = notImplemented
-  fromInteger n = PF . mod n $ p (undefined :: p)
+  abs f         = f
+  signum f      = if f == 0 then 0 else 1
+  fromInteger n = let f = PF . mod n $ natVal f in f
   negate (PF n) = fromInteger $ negate n
 
 -- | Prime fields are ordered fields
-instance Prime p => Ord (PrimeField p) where
+instance KnownNat p => Ord (PrimeField p) where
   (<=) = (. toInteger) . (<=) . toInteger
 
 -- | Prime fields inject to the reals
-instance Prime p => Real (PrimeField p) where
+instance KnownNat p => Real (PrimeField p) where
   toRational = fromInteger . toInteger
 
 -- | Prime fields are additive semigroups
-instance Prime p => Semigroup (PrimeField p) where
+instance KnownNat p => Semigroup (PrimeField p) where
   (<>) = (+)
 
 -- | Inverse in field
