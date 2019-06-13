@@ -15,22 +15,17 @@ newtype PrimeField (p :: Nat) = PF Integer
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
-  ch = natVal
-
--- | Prime fields are bounded
-instance KnownNat p => Bounded (PrimeField p) where
-  minBound = fromInteger 0
-  maxBound = fromInteger $ -1
+  char = natVal
 
 -- | Prime fields are equatable
 instance KnownNat p => Eq (PrimeField p) where
-  (==) = (. toInteger) . (==) . toInteger
+  (==) = (. toInt) . (==) . toInt
 
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip f               = case modInv (toInteger f) (natVal f) of
+  recip f               = case modInv (toInt f) (natVal f) of
     Right n' -> fromIntegral n'
     Left n'  -> panic "no multiplicative inverse."
 instance KnownNat p => Num (PrimeField p) where
@@ -41,20 +36,9 @@ instance KnownNat p => Num (PrimeField p) where
   fromInteger n = fix $ PF . mod n . natVal
   negate (PF n) = fromInteger $ negate n
 
--- | Prime fields are integral domains
-instance KnownNat p => Integral (PrimeField p) where
-  {-# INLINE quotRem #-}
-  quotRem q r        = (fromInteger q', fromInteger r')
-    where
-      (q', r') = quotRem (toInteger q) (toInteger r)
-  toInteger f@(PF n) = mod n $ natVal f
-instance KnownNat p => Enum (PrimeField p) where
-  toEnum   = fromIntegral
-  fromEnum = fromInteger . toInteger
-instance KnownNat p => Real (PrimeField p) where
-  toRational = fromInteger . toInteger
-instance KnownNat p => Ord (PrimeField p) where
-  (<=) = (. toInteger) . (<=) . toInteger
+-- | Conversion to integer
+toInt :: KnownNat p => PrimeField p -> Integer
+toInt f@(PF n) = mod n $ natVal f
 
 {-# INLINABLE modInv #-}
 -- | Modular inverse
