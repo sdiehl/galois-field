@@ -67,5 +67,3 @@ modInv x p = let (g, (y, _)) = extGCD p x in if g == 1 then Right y else Left g
       where
         (q, r)      = quotRem y x
         (g, (s, t)) = extGCD x r
-
-type F2 = PrimeField 2
