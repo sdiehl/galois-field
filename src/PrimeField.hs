@@ -30,7 +30,7 @@ instance KnownNat p => Eq (PrimeField p) where
 instance KnownNat p => Fractional (PrimeField p) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip f@(PF n)        = case modInv n $ natVal f of
+  recip f               = case modInv (toInteger f) (natVal f) of
     Right n' -> fromIntegral n'
     Left n'  -> panic "no multiplicative inverse."
 instance KnownNat p => Num (PrimeField p) where
@@ -67,3 +67,5 @@ modInv x p = let (g, (y, _)) = extGCD p x in if g == 1 then Right y else Left g
       where
         (q, r)      = quotRem y x
         (g, (s, t)) = extGCD x r
+
+type F2 = PrimeField 2

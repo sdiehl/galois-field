@@ -26,7 +26,6 @@ dependencies:
   # Prelude
   - base >= 4.7 && < 5
   - protolude >= 0.2
-  - QuickCheck
 
 library:
   source-dirs: src
@@ -70,3 +69,16 @@ library:
   exposed-modules:
     - GaloisField
     - PrimeField
+    - ExtensionField
+
+tests:
+  test-galois-field:
+    main: Driver.hs
+    source-dirs: tests
+    dependencies:
+      - base >= 4.7 && < 5
+      - protolude >= 0.2
+      - galois-field
+      - tasty
+      - tasty-discover
+      - tasty-quickcheck
