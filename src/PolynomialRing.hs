@@ -1,79 +1,89 @@
 {-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving, ScopedTypeVariables #-}
 
 module PolynomialRing
-  ( R(..)
+  ( Polynomial(..)
+  , getPoly
   , polyDiv
   , polyInv
   ) where
 
 import Protolude
 
+import GaloisField (GaloisField(..))
+
 -- | Polynomial rings
-newtype R k = R [k]
+newtype Polynomial k = X [k]
   deriving (Eq, Show, Generic, NFData)
 
 -- | Polynomial ring is a ring
-instance (Eq k, Fractional k) => Num (R k) where
+instance GaloisField k => Num (Polynomial k) where
   {-# INLINE (+) #-}
-  R []     + R xs       = R xs
-  R xs     + R []       = R xs
-  R (x:xs) + R (y:ys)
+  X []     + X xs       = X xs
+  X xs     + X []       = X xs
+  X (x:xs) + X (y:ys)
     | z == 0 && null zs = 0
-    | otherwise         = R $ z : zs
+    | otherwise         = X $ z : zs
     where
       z    = x + y
-      R zs = R xs + R ys
+      X zs = X xs + X ys
   {-# INLINE (*) #-}
-  R []     * _          = 0
-  _        * R []       = 0
-  R (x:xs) * R ys
+  X []     * _          = 0
+  _        * X []       = 0
+  X (x:xs) * X ys
     | null xs           = ws
-    | otherwise         = ws + R (0 : zs)
+    | otherwise         = ws + X (0 : zs)
     where
-      ws   = R $ map (* x) ys
-      R zs = R xs * R ys
+      ws   = X $ map (* x) ys
+      X zs = X xs * X ys
   abs xs                = xs
   signum xs             = xs
   {-# INLINE fromInteger #-}
   fromInteger n
-    | m == 0            = R []
-    | otherwise         = R [m]
+    | m == 0            = X []
+    | otherwise         = X [m]
     where
       m = fromInteger n
-  negate (R xs)         = R $ map negate xs
+  negate (X xs)         = X $ map negate xs
 
-{-# INLINABLE degree #-}
+-- | Polynomial from list
+getPoly :: GaloisField k => [k] -> Polynomial k
+getPoly = X . reverse . dropWhile (== 0) . reverse
+
 -- | Polynomial degree
-degree :: R k -> Int
-degree (R xs) = length xs
+degree :: Polynomial k -> Int
+degree (X xs) = length xs
 
-{-# INLINABLE last #-}
+{-# INLINE last #-}
 -- | Polynomial leading coefficient
-last :: Num k => R k -> k
-last (R [])     = 0
-last (R [x])    = x
-last (R (x:xs)) = last $ R xs
+last :: GaloisField k => Polynomial k -> k
+last (X [])     = 0
+last (X [x])    = x
+last (X (x:xs)) = last $ X xs
 
-{-# INLINABLE polyDiv #-}
+{-# INLINE polyDiv #-}
 -- | Polynomial divide
-polyDiv :: forall k . (Eq k, Fractional k) => R k -> R k -> (R k, R k)
+polyDiv :: forall k . GaloisField k
+  => Polynomial k -> Polynomial k -> (Polynomial k, Polynomial k)
 polyDiv ns ds = polyQR (0, ns)
   where
-    polyQR :: (R k, R k) -> (R k, R k)
+    polyQR :: (Polynomial k, Polynomial k) -> (Polynomial k, Polynomial k)
     polyQR qr@(qs, rs)
       | degree rs < degree ds = qr
       | otherwise             = polyQR (qs + ts, rs - ts * ds)
       where
-        ts = R $ replicate (degree rs - degree ds) 0 ++ [last rs / last ds]
+        ts = X $ replicate (degree rs - degree ds) 0 ++ [last rs / last ds]
 
-{-# INLINABLE polyInv #-}
+{-# INLINE polyInv #-}
 -- | Polynomial inverse
-polyInv :: forall k . (Eq k, Fractional k) => R k -> R k -> Maybe (R k)
-polyInv (R xs) (R ps) = case extGCD (R ps) (R xs) of
-  (R [_], (ys, _)) -> Just ys
-  _                -> Nothing
+polyInv :: forall k . GaloisField k
+  => Polynomial k -> Polynomial k -> Maybe (Polynomial k)
+polyInv (X [x]) _ = Just $ X [recip x]
+polyInv xs ps     = case extGCD ps xs of
+  (X [y], (X ys, _)) -> Just . X $ map (/ y) ys
+  _                  -> Nothing
   where
-    extGCD :: R k -> R k -> (R k, (R k, R k))
+    extGCD :: Polynomial k -> Polynomial k
+      -> (Polynomial k, (Polynomial k, Polynomial k))
     extGCD y 0 = (y, (0, 1))
     extGCD y x = (g, (t - s * q, s))
       where

@@ -69,11 +69,12 @@ library:
   exposed-modules:
     - GaloisField
     - PrimeField
+    - PolynomialRing
     - ExtensionField
 
 tests:
   test-galois-field:
-    main: Driver.hs
+    main: Main.hs
     source-dirs: tests
     dependencies:
       - base >= 4.7 && < 5

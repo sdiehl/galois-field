@@ -42,7 +42,7 @@ instance KnownNat p => Num (PrimeField p) where
 toInteger :: KnownNat p => PrimeField p -> Integer
 toInteger a@(PF n) = mod n $ natVal a
 
-{-# INLINABLE modInv #-}
+{-# INLINE modInv #-}
 -- | Modular inverse
 modInv :: forall a . Integral a => a -> a -> Maybe a
 modInv x p = case extGCD p x of
