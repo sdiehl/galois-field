@@ -65,15 +65,21 @@ library:
     - FlexibleContexts
     - ScopedTypeVariables
     - RankNTypes
+    - DataKinds
+    - DeriveGeneric
+    - GeneralizedNewtypeDeriving
+    - KindSignatures
+    - MultiParamTypeClasses
 
   exposed-modules:
     - GaloisField
     - PrimeField
+    - PolynomialRing
     - ExtensionField
 
 tests:
   test-galois-field:
-    main: Driver.hs
+    main: Main.hs
     source-dirs: tests
     dependencies:
       - base >= 4.7 && < 5
@@ -82,3 +88,18 @@ tests:
       - tasty
       - tasty-discover
       - tasty-quickcheck
+    default-extensions:
+      - LambdaCase
+      - RecordWildCards
+      - OverloadedStrings
+      - NoImplicitPrelude
+      - FlexibleInstances
+      - FlexibleContexts
+      - ScopedTypeVariables
+      - RankNTypes
+      - DataKinds
+      - DeriveGeneric
+      - GeneralizedNewtypeDeriving
+      - KindSignatures
+      - MultiParamTypeClasses
+
