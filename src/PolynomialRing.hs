@@ -1,9 +1,9 @@
-{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving, ScopedTypeVariables #-}
 
 module PolynomialRing
   ( R(..)
-  , division
-  , euclidean
+  , polyDiv
+  , polyInv
   ) where
 
 import Protolude
@@ -54,19 +54,28 @@ last (R [])     = 0
 last (R [x])    = x
 last (R (x:xs)) = last $ R xs
 
-{-# INLINABLE division #-}
--- | Polynomial division algorithm
-division :: forall k . (Eq k, Fractional k) => R k -> R k -> (R k, R k)
-division ns ds = divide (0, ns)
+{-# INLINABLE polyDiv #-}
+-- | Polynomial divide
+polyDiv :: forall k . (Eq k, Fractional k) => R k -> R k -> (R k, R k)
+polyDiv ns ds = polyQR (0, ns)
   where
-    divide :: (R k, R k) -> (R k, R k)
-    divide qr@(qs, rs)
+    polyQR :: (R k, R k) -> (R k, R k)
+    polyQR qr@(qs, rs)
       | degree rs < degree ds = qr
-      | otherwise             = divide (qs + ts, rs - ts * ds)
+      | otherwise             = polyQR (qs + ts, rs - ts * ds)
       where
         ts = R $ replicate (degree rs - degree ds) 0 ++ [last rs / last ds]
 
-{-# INLINABLE euclidean #-}
--- | Polynomial extended euclidean algorithm
-euclidean :: (Eq k, Fractional k, Num k) => R k -> R k -> (R k, (R k, R k))
-euclidean (R xs) (R ps) = notImplemented
+{-# INLINABLE polyInv #-}
+-- | Polynomial inverse
+polyInv :: forall k . (Eq k, Fractional k) => R k -> R k -> Maybe (R k)
+polyInv (R xs) (R ps) = case extGCD (R ps) (R xs) of
+  (R [_], (ys, _)) -> Just ys
+  _                -> Nothing
+  where
+    extGCD :: R k -> R k -> (R k, (R k, R k))
+    extGCD y 0 = (y, (0, 1))
+    extGCD y x = (g, (t - s * q, s))
+      where
+        (q, r)      = polyDiv y x
+        (g, (s, t)) = extGCD x r

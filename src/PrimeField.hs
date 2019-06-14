@@ -1,5 +1,5 @@
 {-# LANGUAGE DataKinds, KindSignatures #-}
-{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving, ScopedTypeVariables #-}
 
 module PrimeField
   ( PrimeField(..)
@@ -44,12 +44,12 @@ toInteger a@(PF n) = mod n $ natVal a
 
 {-# INLINABLE modInv #-}
 -- | Modular inverse
-modInv :: Integral a => a -> a -> Maybe a
+modInv :: forall a . Integral a => a -> a -> Maybe a
 modInv x p = case extGCD p x of
   (1, (y, _)) -> Just y
   _           -> Nothing
   where
-    extGCD :: Integral a => a -> a -> (a, (a, a))
+    extGCD :: a -> a -> (a, (a, a))
     extGCD y 0 = (y, (0, 1))
     extGCD y x = (g, (t - s * q, s))
       where

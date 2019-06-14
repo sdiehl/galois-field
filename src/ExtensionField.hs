@@ -3,15 +3,16 @@
 
 module ExtensionField
   ( ExtensionField(..)
+  , KnownNats(..)
   ) where
 
 import Protolude
 
 import GaloisField (GaloisField(..))
 import PrimeField (PrimeField(..))
-import PolynomialRing (R(..), division, euclidean)
+import PolynomialRing (R(..), polyDiv, polyInv)
 
--- | Analogue of KnownNat and natVal
+-- | Analogues of KnownNat, natSing, SNat, and natVal
 class KnownNats (ns :: [Nat]) where natsSing :: SNats ns
 newtype SNats (ns :: [Nat]) = SNats [Integer]
 natsVal :: forall ns proxy . KnownNats ns => proxy ns -> [Integer]
@@ -30,9 +31,9 @@ instance (KnownNats ps, GaloisField k) => Eq (ExtensionField k ps) where
 instance (KnownNats ps, GaloisField k) => Fractional (ExtensionField k ps) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip a               = case euclidean (toPoly a) (getPoly a) of
-    (R [_], (f, _)) -> fromPoly f
-    _               -> panic "no multiplicative inverse."
+  recip a               = case polyInv (toPoly a) (polyVal a) of
+    Just f -> fromPoly f
+    _      -> panic "no multiplicative inverse."
 
 -- | Extension fields are Galois fields
 instance (KnownNats ps, GaloisField k) => GaloisField (ExtensionField k ps) where
@@ -48,13 +49,15 @@ instance (KnownNats ps, GaloisField k) => Num (ExtensionField k ps) where
   negate      = fromPoly . negate . toPoly
 
 -- | Monic irreducible polynomial
-getPoly :: (KnownNats ps, GaloisField k) => ExtensionField k ps -> R k
-getPoly = R . map fromInteger . natsVal
+polyVal :: (KnownNats ps, GaloisField k) => ExtensionField k ps -> R k
+polyVal = R . map fromInteger . natsVal
 
 -- | Conversion from polynomial
 fromPoly :: (KnownNats ps, GaloisField k) => R k -> ExtensionField k ps
-fromPoly f = fix $ EF . snd . division f . getPoly
+fromPoly f = fix $ EF . snd . polyDiv f . polyVal
 
 -- | Conversion to polynomial
 toPoly :: (KnownNats ps, GaloisField k) => ExtensionField k ps -> R k
-toPoly a@(EF f) = snd . division f $ getPoly a
+toPoly a@(EF f) = snd . polyDiv f $ polyVal a
+
+type F2X = R (PrimeField 2)
