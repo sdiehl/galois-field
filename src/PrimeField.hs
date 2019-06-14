@@ -1,6 +1,3 @@
-{-# LANGUAGE DataKinds, KindSignatures #-}
-{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving, ScopedTypeVariables #-}
-
 module PrimeField
   ( PrimeField(..)
   ) where

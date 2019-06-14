@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module GaloisFieldTests where
 
 import Protolude
@@ -45,7 +43,7 @@ ringAxioms _ str = testGroup ("Test ring axioms of " <> str)
   ]
 
 fieldAxioms :: forall k . (Arbitrary k, Eq k, Fractional k, Show k)
-  => Proxy r -> TestName -> TestTree
+  => Proxy k -> TestName -> TestTree
 fieldAxioms p str = testGroup ("Test field axioms of " <> str)
   [ ringAxioms p str
   , testProperty "multiplicative inverses"

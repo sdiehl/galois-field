@@ -65,6 +65,11 @@ library:
     - FlexibleContexts
     - ScopedTypeVariables
     - RankNTypes
+    - DataKinds
+    - DeriveGeneric
+    - GeneralizedNewtypeDeriving
+    - KindSignatures
+    - MultiParamTypeClasses
 
   exposed-modules:
     - GaloisField
@@ -83,3 +88,18 @@ tests:
       - tasty
       - tasty-discover
       - tasty-quickcheck
+    default-extensions:
+      - LambdaCase
+      - RecordWildCards
+      - OverloadedStrings
+      - NoImplicitPrelude
+      - FlexibleInstances
+      - FlexibleContexts
+      - ScopedTypeVariables
+      - RankNTypes
+      - DataKinds
+      - DeriveGeneric
+      - GeneralizedNewtypeDeriving
+      - KindSignatures
+      - MultiParamTypeClasses
+

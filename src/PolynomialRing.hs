@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving, ScopedTypeVariables #-}
-
 module PolynomialRing
   ( Polynomial(..)
   , getPoly

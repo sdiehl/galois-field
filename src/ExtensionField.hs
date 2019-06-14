@@ -1,10 +1,7 @@
-{-# LANGUAGE DataKinds, KindSignatures #-}
-{-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving #-}
-
 module ExtensionField
   ( ExtensionField(..)
   , IrreducibleMonic(..)
-  , Poly(..)
+  , x
   ) where
 
 import Protolude
@@ -14,37 +11,36 @@ import PrimeField (PrimeField(..))
 import PolynomialRing (Polynomial(..), getPoly, polyDiv, polyInv)
 
 -- | Extension fields @GF(p^q)[X]/<f(X)>@ for @p@ prime, @q@ non-negative, and
--- @f(X)@ irreducible monic in @GF(p)[X]@
-newtype ExtensionField k (ps :: [Nat]) = EF (Polynomial k)
+-- @f(X)@ irreducible monic in @GF(p^q)[X]@
+newtype ExtensionField k im = EF (Polynomial k)
   deriving (Show, Generic, NFData)
 
--- | Irreducible monic splitting polynomial of extension fields
-newtype Poly (ns :: [Nat]) = Poly {poly :: [Integer]}
-class IrreducibleMonic (ns :: [Nat])
-  where splitting :: Poly ns
+-- | Irreducible monic splitting polynomial of extension field
+class IrreducibleMonic k im where
+  split :: (k, im) -> Polynomial k
 
 -- | Extension fields are equatable
-instance (GaloisField k, IrreducibleMonic ps)
-  => Eq (ExtensionField k ps) where
+instance (GaloisField k, IrreducibleMonic k im)
+  => Eq (ExtensionField k im) where
   (==) = (. toPoly) . (==) . toPoly
 
 -- | Extension fields are fields
-instance (GaloisField k, IrreducibleMonic ps)
-  => Fractional (ExtensionField k ps) where
+instance (GaloisField k, IrreducibleMonic k im)
+  => Fractional (ExtensionField k im) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip a               = case polyInv (toPoly a) (polyVal a) of
+  recip a               = case polyInv (toPoly a) (split (fix(\x->x)::(k,im))) of
     Just f -> fromPoly f
     _      -> panic "no multiplicative inverse."
 
 -- | Extension fields are Galois fields
-instance (GaloisField k, IrreducibleMonic ps)
-  => GaloisField (ExtensionField k ps) where
-  char = const $ char (undefined :: k) -- TODO
+instance (GaloisField k, IrreducibleMonic k im)
+  => GaloisField (ExtensionField k im) where
+  char = const $ char (fix(\x->x)::k)
 
 -- | Extension fields are rings
-instance (GaloisField k, IrreducibleMonic ps)
-  => Num (ExtensionField k ps) where
+instance (GaloisField k, IrreducibleMonic k im)
+  => Num (ExtensionField k im) where
   a + b       = fromPoly $ toPoly a + toPoly b
   a * b       = fromPoly $ toPoly a * toPoly b
   abs a       = a
@@ -52,17 +48,16 @@ instance (GaloisField k, IrreducibleMonic ps)
   fromInteger = fromPoly . getPoly . return . fromInteger
   negate      = fromPoly . negate . toPoly
 
--- | Get splitting polynomial
-polyVal :: forall k ps . (GaloisField k, IrreducibleMonic ps)
-  => ExtensionField k ps -> Polynomial k
-polyVal = X . (++ [1]) . map fromInteger . const (poly (splitting :: Poly ps))
-
 -- | Conversion from polynomial
-fromPoly :: (GaloisField k, IrreducibleMonic ps)
-  => Polynomial k -> ExtensionField k ps
-fromPoly f = fix $ EF . snd . polyDiv f . polyVal
+fromPoly :: forall k im . (GaloisField k, IrreducibleMonic k im)
+  => Polynomial k -> ExtensionField k im
+fromPoly f = fix $ EF . snd . polyDiv f . const (split (fix(\x->x)::(k,im)))
 
 -- | Conversion to polynomial
-toPoly :: (GaloisField k, IrreducibleMonic ps)
-  => ExtensionField k ps -> Polynomial k
-toPoly a@(EF f) = snd . polyDiv f $ polyVal a
+toPoly :: forall k im . (GaloisField k, IrreducibleMonic k im)
+  => ExtensionField k im -> Polynomial k
+toPoly (EF f) = snd . polyDiv f $ split (fix(\x->x)::(k,im))
+
+-- | Indeterminate variable X
+x :: GaloisField k => Polynomial k
+x = X [0, 1]

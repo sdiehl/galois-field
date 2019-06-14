@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 module PrimeFieldTests where
 
 import Protolude

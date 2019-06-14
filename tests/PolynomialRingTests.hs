@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 module PolynomialRingTests where
 
 import Protolude
