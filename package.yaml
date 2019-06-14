@@ -26,7 +26,6 @@ dependencies:
   # Prelude
   - base >= 4.7 && < 5
   - protolude >= 0.2
-  - singletons
 
 library:
   source-dirs: src

@@ -6,70 +6,55 @@ module ExtensionField
   ) where
 
 import Protolude
-import Data.Singletons (SingI)
 
 import GaloisField (GaloisField(..))
 import PrimeField (PrimeField(..))
+import PolynomialRing (R(..), division, euclid)
+
+-- | Analogue of KnownNat and natVal
+class KnownNats (ns :: [Nat]) where natsSing :: SNats ns
+newtype SNats (ns :: [Nat]) = SNats [Integer]
+natsVal :: forall ns proxy . KnownNats ns => proxy ns -> [Integer]
+natsVal _ = case natsSing :: SNats ns of SNats xs -> xs
 
 -- | Extension fields @GF(p^q)[X]/<f(X)>@ for @p@ prime, @q@ non-negative, and
 -- @f(X)@ monic irreducible in @GF(p)[X]@
-newtype ExtensionField k (ps :: [Nat]) = EF [k]
+newtype ExtensionField k (ps :: [Nat]) = EF (R k)
   deriving (Show, Generic, NFData)
 
--- | Extension fields are Galois fields
-instance (SingI ps, GaloisField k) => GaloisField (ExtensionField k ps) where
-  char = const $ char (undefined :: k) -- TODO
-
 -- | Extension fields are equatable
-instance (SingI ps, GaloisField k) => Eq (ExtensionField k ps) where
+instance (KnownNats ps, GaloisField k) => Eq (ExtensionField k ps) where
   (==) = (. toPoly) . (==) . toPoly
 
 -- | Extension fields are fields
-instance (SingI ps, GaloisField k) => Fractional (ExtensionField k ps) where
+instance (KnownNats ps, GaloisField k) => Fractional (ExtensionField k ps) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip a               = case polyEEA (toPoly a) (getPoly a) of
-    ([], (f, _)) -> fromPoly f
-    _            -> panic "no multiplicative inverse."
-instance (SingI ps, GaloisField k) => Num (ExtensionField k ps) where
-  a + b         = fromPoly $ polyAdd (toPoly a) (toPoly b)
-  a * b         = fromPoly $ polyMul (toPoly a) (toPoly b)
-  abs a         = a
-  signum a      = if a == 0 then 0 else 1
-  fromInteger n = fromPoly $ let m = fromInteger n in if m == 0 then [] else [m]
-  negate        = fromPoly . map negate . toPoly
+  recip a               = case euclid (toPoly a) (getPoly a) of
+    (R [_], (f, _)) -> fromPoly f
+    _               -> panic "no multiplicative inverse."
+
+-- | Extension fields are Galois fields
+instance (KnownNats ps, GaloisField k) => GaloisField (ExtensionField k ps) where
+  char = const $ char (undefined :: k) -- TODO
+
+-- | Extension fields are rings
+instance (KnownNats ps, GaloisField k) => Num (ExtensionField k ps) where
+  a + b       = fromPoly $ toPoly a + toPoly b
+  a * b       = fromPoly $ toPoly a * toPoly b
+  abs a       = a
+  signum a    = if a == 0 then 0 else 1
+  fromInteger = fromPoly . R . return . fromInteger
+  negate      = fromPoly . negate . toPoly
 
 -- | Monic irreducible polynomial
-getPoly :: (SingI ps, GaloisField k) => ExtensionField k ps -> [k]
-getPoly = notImplemented -- TODO map fromInteger . fromSing
+getPoly :: (KnownNats ps, GaloisField k) => ExtensionField k ps -> R k
+getPoly = R . map fromInteger . natsVal
 
 -- | Conversion from polynomial
-fromPoly :: (SingI ps, GaloisField k) => [k] -> ExtensionField k ps
-fromPoly f = fix $ EF . fst . polyEEA f . getPoly
+fromPoly :: (KnownNats ps, GaloisField k) => R k -> ExtensionField k ps
+fromPoly f = fix $ EF . snd . division f . getPoly
 
 -- | Conversion to polynomial
-toPoly :: (SingI ps, GaloisField k) => ExtensionField k ps -> [k]
-toPoly a@(EF f) = fst . polyEEA f $ getPoly a
-
-{-# INLINABLE polyAdd #-}
--- | Polynomial addition
-polyAdd :: (Eq a, Num a) => [a] -> [a] -> [a]
-polyAdd [] xs         = xs
-polyAdd xs []         = xs
-polyAdd (x:xs) (y:ys) = case (x + y, polyAdd xs ys) of
-  (0, []) -> []
-  (z, zs) -> z : zs
-
-{-# INLINABLE polyMul #-}
--- | Polynomial multiplication
-polyMul :: (Eq a, Num a) => [a] -> [a] -> [a]
-polyMul [] _      = []
-polyMul _ []      = []
-polyMul (x:xs) ys = case (xs, map (* x) ys) of
-  ([], zs) -> zs
-  (_ , zs) -> polyAdd zs $ 0 : polyMul xs ys
-
-{-# INLINABLE polyEEA #-}
--- | Polynomial extended euclidean algorithm
-polyEEA :: [a] -> [a] -> ([a], ([a], [a]))
-polyEEA xs ps = notImplemented -- TODO
+toPoly :: (KnownNats ps, GaloisField k) => ExtensionField k ps -> R k
+toPoly a@(EF f) = snd . division f $ getPoly a
