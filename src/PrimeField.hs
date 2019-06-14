@@ -5,7 +5,7 @@ module PrimeField
   ( PrimeField(..)
   ) where
 
-import Protolude
+import Protolude hiding (toInteger)
 
 import GaloisField (GaloisField(..))
 
@@ -15,14 +15,14 @@ newtype PrimeField (p :: Nat) = PF Integer
 
 -- | Prime fields are equatable
 instance KnownNat p => Eq (PrimeField p) where
-  (==) = (. toInt) . (==) . toInt
+  (==) = (. toInteger) . (==) . toInteger
 
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
-  fromRational (a :% b) = fromInt a / fromInt b
+  fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip a               = case modInv (toInt a) (natVal a) of
-    Just n -> fromInt n
+  recip a               = case modInv (toInteger a) (natVal a) of
+    Just n -> fromInteger n
     _      -> panic "no multiplicative inverse."
 
 -- | Prime fields are Galois fields
@@ -31,20 +31,16 @@ instance KnownNat p => GaloisField (PrimeField p) where
 
 -- | Prime fields are rings
 instance KnownNat p => Num (PrimeField p) where
-  a + b       = fromInt $ toInt a + toInt b
-  a * b       = fromInt $ toInt a * toInt b
-  abs a       = a
-  signum a    = if a == 0 then 0 else 1
-  fromInteger = fromInt
-  negate      = fromInt . negate . toInt
-
--- | Conversion from integer
-fromInt :: KnownNat p => Integer -> PrimeField p
-fromInt n = fix $ PF . mod n . natVal
+  a + b         = fromInteger $ toInteger a + toInteger b
+  a * b         = fromInteger $ toInteger a * toInteger b
+  abs a         = a
+  signum a      = if a == 0 then 0 else 1
+  fromInteger n = fix $ PF . mod n . natVal
+  negate        = fromInteger . negate . toInteger
 
 -- | Conversion to integer
-toInt :: KnownNat p => PrimeField p -> Integer
-toInt a@(PF n) = mod n $ natVal a
+toInteger :: KnownNat p => PrimeField p -> Integer
+toInteger a@(PF n) = mod n $ natVal a
 
 {-# INLINABLE modInv #-}
 -- | Modular inverse

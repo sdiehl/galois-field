@@ -9,7 +9,7 @@ import Protolude
 
 import GaloisField (GaloisField(..))
 import PrimeField (PrimeField(..))
-import PolynomialRing (R(..), division, euclid)
+import PolynomialRing (R(..), division, euclidean)
 
 -- | Analogue of KnownNat and natVal
 class KnownNats (ns :: [Nat]) where natsSing :: SNats ns
@@ -30,7 +30,7 @@ instance (KnownNats ps, GaloisField k) => Eq (ExtensionField k ps) where
 instance (KnownNats ps, GaloisField k) => Fractional (ExtensionField k ps) where
   fromRational (a :% b) = fromInteger a / fromInteger b
   {-# INLINE recip #-}
-  recip a               = case euclid (toPoly a) (getPoly a) of
+  recip a               = case euclidean (toPoly a) (getPoly a) of
     (R [_], (f, _)) -> fromPoly f
     _               -> panic "no multiplicative inverse."
 

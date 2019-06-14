@@ -3,7 +3,7 @@
 module PolynomialRing
   ( R(..)
   , division
-  , euclid
+  , euclidean
   ) where
 
 import Protolude
@@ -66,7 +66,7 @@ division ns ds = divide (0, ns)
       where
         ts = R $ replicate (degree rs - degree ds) 0 ++ [last rs / last ds]
 
-{-# INLINABLE euclid #-}
+{-# INLINABLE euclidean #-}
 -- | Polynomial extended euclidean algorithm
-euclid :: (Eq k, Fractional k, Num k) => R k -> R k -> (R k, (R k, R k))
-euclid (R xs) (R ps) = notImplemented
+euclidean :: (Eq k, Fractional k, Num k) => R k -> R k -> (R k, (R k, R k))
+euclidean (R xs) (R ps) = notImplemented
