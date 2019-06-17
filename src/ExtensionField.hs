@@ -1,8 +1,9 @@
 module ExtensionField
   ( ExtensionField(..)
   , IrreducibleMonic(..)
-  , x
   , d
+  , fromPoly
+  , x
   ) where
 
 import Protolude

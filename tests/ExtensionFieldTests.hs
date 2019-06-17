@@ -14,7 +14,7 @@ import PrimeFieldTests
 
 instance (Arbitrary k, GaloisField k, IrreducibleMonic k ps)
   => Arbitrary (ExtensionField k ps) where
-  arbitrary = EF <$> arbitrary
+  arbitrary = fromPoly <$> arbitrary
 
 type F2 = PrimeField 2
 data P11; instance IrreducibleMonic F2 P11 where split _ = x^2 + x + 1
@@ -63,3 +63,17 @@ test_X = fieldAxioms (Proxy :: Proxy (ExtensionField FX P10)) "FX2"
 type FZ = PrimeField 741640062627530801524787141901937474059940781097519023905821316144415759504705008092818711693940737
 instance IrreducibleMonic FZ P10 where split _ = x^2 + 1
 test_Z = fieldAxioms (Proxy :: Proxy (ExtensionField FZ P10)) "FZ2"
+
+type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689037894645226208583
+data Pu
+instance IrreducibleMonic Fq Pu where split _ = x^2 + 1
+type Fq2 = ExtensionField Fq Pu
+test_Fq2 = fieldAxioms (Proxy :: Proxy Fq2) "Fq2"
+data Pv
+instance IrreducibleMonic Fq2 Pv where split _ = x^3 - (9 + d x)
+type Fq6 = ExtensionField Fq2 Pv
+test_Fq6 = fieldAxioms (Proxy :: Proxy Fq6) "Fq6"
+data Pw
+instance IrreducibleMonic Fq6 Pw where split _ = x^2 - d x
+type Fq12 = ExtensionField Fq6 Pw
+test_Fq12 = fieldAxioms (Proxy :: Proxy Fq12) "Fq12"
