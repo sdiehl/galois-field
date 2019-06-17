@@ -1,5 +1,5 @@
 module ExtensionField
-  ( ExtensionField(..)
+  ( ExtensionField
   , IrreducibleMonic(..)
   , extend
   , t

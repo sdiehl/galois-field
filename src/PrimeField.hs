@@ -1,5 +1,5 @@
 module PrimeField
-  ( PrimeField(..)
+  ( PrimeField
   ) where
 
 import Protolude
