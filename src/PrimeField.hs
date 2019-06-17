@@ -2,25 +2,21 @@ module PrimeField
   ( PrimeField(..)
   ) where
 
-import Protolude hiding (toInteger)
+import Protolude
 
 import GaloisField (GaloisField(..))
 
 -- | Prime fields @GF(p)@ for @p@ prime
 newtype PrimeField (p :: Nat) = PF Integer
-  deriving (Show, Generic, NFData)
-
--- | Prime fields are equatable
-instance KnownNat p => Eq (PrimeField p) where
-  (==) = (. toInteger) . (==) . toInteger
+  deriving (Eq, Generic, NFData, Show)
 
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
-  fromRational (a :% b) = fromInteger a / fromInteger b
-  {-# INLINE recip #-}
-  recip a               = case modInv (toInteger a) (natVal a) of
-    Just n -> fromInteger n
+  recip (PF x)        = case modInv x (natVal (witness :: PrimeField p)) of
+    Just y -> fromInteger y
     _      -> panic "no multiplicative inverse."
+  {-# INLINE recip #-}
+  fromRational (x:%y) = fromInteger x / fromInteger y
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
@@ -28,18 +24,14 @@ instance KnownNat p => GaloisField (PrimeField p) where
 
 -- | Prime fields are rings
 instance KnownNat p => Num (PrimeField p) where
-  a + b         = fromInteger $ toInteger a + toInteger b
-  a * b         = fromInteger $ toInteger a * toInteger b
-  abs a         = a
-  signum a      = if a == 0 then 0 else 1
-  fromInteger n = fix $ PF . mod n . natVal
-  negate        = fromInteger . negate . toInteger
+  PF x + PF y   = fromInteger (x + y)
+  PF x * PF y   = fromInteger (x * y)
+  PF x - PF y   = fromInteger (x - y)
+  negate (PF x) = fromInteger (-x)
+  fromInteger x = PF (mod x (natVal (witness :: PrimeField p)))
+  abs           = panic "not implemented."
+  signum        = panic "not implemented."
 
--- | Conversion to integer
-toInteger :: KnownNat p => PrimeField p -> Integer
-toInteger a@(PF n) = mod n $ natVal a
-
-{-# INLINE modInv #-}
 -- | Modular inverse
 modInv :: forall a . Integral a => a -> a -> Maybe a
 modInv x p = case extGCD p x of
@@ -52,3 +44,4 @@ modInv x p = case extGCD p x of
       where
         (q, r)      = quotRem y x
         (g, (s, t)) = extGCD x r
+{-# INLINE modInv #-}

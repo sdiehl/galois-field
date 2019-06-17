@@ -11,54 +11,55 @@ import GaloisField (GaloisField(..))
 
 -- | Polynomial rings
 newtype Polynomial k = X [k]
-  deriving (Eq, Show, Generic, NFData)
+  deriving (Eq, Generic, NFData, Show)
 
--- | Polynomial ring is a ring
+-- | Polynomial rings are rings
 instance GaloisField k => Num (Polynomial k) where
-  {-# INLINE (+) #-}
   X []     + X xs       = X xs
   X xs     + X []       = X xs
   X (x:xs) + X (y:ys)
     | z == 0 && null zs = 0
-    | otherwise         = X $ z : zs
+    | otherwise         = X (z : zs)
     where
       z    = x + y
       X zs = X xs + X ys
-  {-# INLINE (*) #-}
+  {-# INLINE (+) #-}
   X []     * _          = 0
   _        * X []       = 0
   X (x:xs) * X ys
     | null xs           = ws
     | otherwise         = ws + X (0 : zs)
     where
-      ws   = X $ map (* x) ys
+      ws   = X (map (* x) ys)
       X zs = X xs * X ys
-  abs xs                = xs
-  signum xs             = xs
-  {-# INLINE fromInteger #-}
+  {-# INLINE (*) #-}
+  negate (X xs)         = X (map negate xs)
   fromInteger n
     | m == 0            = X []
     | otherwise         = X [m]
     where
       m = fromInteger n
-  negate (X xs)         = X $ map negate xs
+  {-# INLINE fromInteger #-}
+  abs                   = panic "not implemented."
+  signum                = panic "not implemented."
 
 -- | Polynomial from list
 getPoly :: GaloisField k => [k] -> Polynomial k
 getPoly = X . reverse . dropWhile (== 0) . reverse
+{-# INLINE getPoly #-}
 
 -- | Polynomial degree
 degree :: Polynomial k -> Int
 degree (X xs) = length xs
+{-# INLINE degree #-}
 
-{-# INLINE last #-}
 -- | Polynomial leading coefficient
 last :: GaloisField k => Polynomial k -> k
 last (X [])     = 0
 last (X [x])    = x
-last (X (x:xs)) = last $ X xs
+last (X (x:xs)) = last (X xs)
+{-# INLINE last #-}
 
-{-# INLINE polyDiv #-}
 -- | Polynomial divide
 polyDiv :: forall k . GaloisField k
   => Polynomial k -> Polynomial k -> (Polynomial k, Polynomial k)
@@ -69,15 +70,15 @@ polyDiv ns ds = polyQR (0, ns)
       | degree rs < degree ds = qr
       | otherwise             = polyQR (qs + ts, rs - ts * ds)
       where
-        ts = X $ replicate (degree rs - degree ds) 0 ++ [last rs / last ds]
+        ts = X (replicate (degree rs - degree ds) 0 ++ [last rs / last ds])
+{-# INLINE polyDiv #-}
 
-{-# INLINE polyInv #-}
 -- | Polynomial inverse
 polyInv :: forall k . GaloisField k
   => Polynomial k -> Polynomial k -> Maybe (Polynomial k)
-polyInv (X [x]) _ = Just $ X [recip x]
+polyInv (X [x]) _ = Just (X [recip x])
 polyInv xs ps     = case extGCD ps xs of
-  (X [y], (X ys, _)) -> Just . X $ map (/ y) ys
+  (X [y], (X ys, _)) -> Just (X (map (/ y) ys))
   _                  -> Nothing
   where
     extGCD :: Polynomial k -> Polynomial k
@@ -87,3 +88,4 @@ polyInv xs ps     = case extGCD ps xs of
       where
         (q, r)      = polyDiv y x
         (g, (s, t)) = extGCD x r
+{-# INLINE polyInv #-}
