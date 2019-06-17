@@ -8,13 +8,17 @@ import Test.Tasty.QuickCheck
 import ExtensionField
 import GaloisField
 import GaloisFieldTests
+import PolynomialRing
 import PolynomialRingTests
 import PrimeField
 import PrimeFieldTests
 
 instance (Arbitrary k, GaloisField k, IrreducibleMonic k ps)
   => Arbitrary (ExtensionField k ps) where
-  arbitrary = fromPoly <$> arbitrary
+  arbitrary = extend . fromList <$> sized (const poly)
+    where
+      poly = choose (1, degree (split (witness :: (k, ps))) - 1)
+        >>= mapM (const arbitrary) . enumFromTo 1
 
 type F2 = PrimeField 2
 data P11; instance IrreducibleMonic F2 P11 where split _ = x^2 + x + 1
@@ -70,10 +74,10 @@ instance IrreducibleMonic Fq Pu where split _ = x^2 + 1
 type Fq2 = ExtensionField Fq Pu
 test_Fq2 = fieldAxioms (Proxy :: Proxy Fq2) "Fq2"
 data Pv
-instance IrreducibleMonic Fq2 Pv where split _ = x^3 - (9 + d x)
+instance IrreducibleMonic Fq2 Pv where split _ = x^3 - (9 + t x)
 type Fq6 = ExtensionField Fq2 Pv
 test_Fq6 = fieldAxioms (Proxy :: Proxy Fq6) "Fq6"
 data Pw
-instance IrreducibleMonic Fq6 Pw where split _ = x^2 - d x
+instance IrreducibleMonic Fq6 Pw where split _ = x^2 - t x
 type Fq12 = ExtensionField Fq6 Pw
 test_Fq12 = fieldAxioms (Proxy :: Proxy Fq12) "Fq12"

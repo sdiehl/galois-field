@@ -11,7 +11,7 @@ import PrimeField
 import PrimeFieldTests
 
 instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
-  arbitrary = getPoly <$> arbitrary
+  arbitrary = fromList <$> arbitrary
 
 test_S2X = ringAxioms (Proxy :: Proxy (Polynomial (PrimeField 2))) "FS2[X]"
 

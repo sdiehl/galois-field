@@ -1,6 +1,7 @@
 module PolynomialRing
   ( Polynomial(..)
-  , getPoly
+  , degree
+  , fromList
   , polyDiv
   , polyInv
   ) where
@@ -15,38 +16,46 @@ newtype Polynomial k = X [k]
 
 -- | Polynomial rings are rings
 instance GaloisField k => Num (Polynomial k) where
-  X []     + X xs       = X xs
-  X xs     + X []       = X xs
-  X (x:xs) + X (y:ys)
-    | z == 0 && null zs = 0
-    | otherwise         = X (z : zs)
+  X xs + X ys   = X (polyAdd xs ys)
+  X xs * X ys   = X (polyMul xs ys)
+  negate (X xs) = X (map negate xs)
+  fromInteger   = fromInt
+  abs           = panic "not implemented."
+  signum        = panic "not implemented."
+
+-- | Polynomial addition
+polyAdd :: GaloisField k => [k] -> [k] -> [k]
+polyAdd []     xs     = xs
+polyAdd xs     []     = xs
+polyAdd (x:xs) (y:ys)
+  | z == 0 && null zs = []
+  | otherwise         = z:zs
+  where
+    z  = x + y
+    zs = polyAdd xs ys
+{-# INLINE polyAdd #-}
+
+-- | Polynomial multiplication
+polyMul :: GaloisField k => [k] -> [k] -> [k]
+polyMul []     _  = []
+polyMul _      [] = []
+polyMul (x:xs) ys
+    | null xs     = ws
+    | otherwise   = polyAdd ws (0 : zs)
     where
-      z    = x + y
-      X zs = X xs + X ys
-  {-# INLINE (+) #-}
-  X []     * _          = 0
-  _        * X []       = 0
-  X (x:xs) * X ys
-    | null xs           = ws
-    | otherwise         = ws + X (0 : zs)
-    where
-      ws   = X (map (* x) ys)
-      X zs = X xs * X ys
-  {-# INLINE (*) #-}
-  negate (X xs)         = X (map negate xs)
-  fromInteger n
-    | m == 0            = X []
-    | otherwise         = X [m]
-    where
-      m = fromInteger n
-  {-# INLINE fromInteger #-}
-  abs                   = panic "not implemented."
-  signum                = panic "not implemented."
+      ws = map (* x) ys
+      zs = polyMul xs ys
+{-# INLINE polyMul #-}
+
+-- | Polynomial from integer
+fromInt :: GaloisField k => Integer -> Polynomial k
+fromInt n = X (let m = fromInteger n in if m == 0 then [] else [m])
+{-# INLINE fromInt #-}
 
 -- | Polynomial from list
-getPoly :: GaloisField k => [k] -> Polynomial k
-getPoly = X . reverse . dropWhile (== 0) . reverse
-{-# INLINE getPoly #-}
+fromList :: GaloisField k => [k] -> Polynomial k
+fromList = X . reverse . dropWhile (== 0) . reverse
+{-# INLINE fromList #-}
 
 -- | Polynomial degree
 degree :: Polynomial k -> Int
@@ -60,7 +69,7 @@ last (X [x])    = x
 last (X (x:xs)) = last (X xs)
 {-# INLINE last #-}
 
--- | Polynomial divide
+-- | Polynomial division
 polyDiv :: forall k . GaloisField k
   => Polynomial k -> Polynomial k -> (Polynomial k, Polynomial k)
 polyDiv ns ds = polyQR (0, ns)
@@ -73,7 +82,7 @@ polyDiv ns ds = polyQR (0, ns)
         ts = X (replicate (degree rs - degree ds) 0 ++ [last rs / last ds])
 {-# INLINE polyDiv #-}
 
--- | Polynomial inverse
+-- | Polynomial inversion
 polyInv :: forall k . GaloisField k
   => Polynomial k -> Polynomial k -> Maybe (Polynomial k)
 polyInv (X [x]) _ = Just (X [recip x])
