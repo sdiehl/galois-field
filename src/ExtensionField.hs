@@ -2,6 +2,7 @@ module ExtensionField
   ( ExtensionField
   , IrreducibleMonic(..)
   , extend
+  , extract
   , t
   , x
   ) where
@@ -49,6 +50,11 @@ instance (GaloisField k, IrreducibleMonic k im)
 extend :: Polynomial k -> ExtensionField k im
 extend = EF
 {-# INLINE extend #-}
+
+-- | Extract field coefficients
+extract :: ExtensionField k im -> [k]
+extract (EF (X ks)) = ks
+{-# INLINE extract #-}
 
 -- | Current indeterminate variable
 x :: GaloisField k => Polynomial k
