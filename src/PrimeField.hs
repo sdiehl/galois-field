@@ -1,6 +1,6 @@
 module PrimeField
   ( PrimeField
-  , embed
+  , toInt
   ) where
 
 import Protolude
@@ -48,6 +48,6 @@ modInv x p = case extGCD p x of
 {-# INLINE modInv #-}
 
 -- | Embed to integers
-embed :: PrimeField p -> Integer
-embed (PF x) = x
-{-# INLINE embed #-}
+toInt :: PrimeField p -> Integer
+toInt (PF x) = x
+{-# INLINE toInt #-}

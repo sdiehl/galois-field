@@ -15,7 +15,7 @@ import PrimeFieldTests
 
 instance (Arbitrary k, GaloisField k, IrreducibleMonic k ps)
   => Arbitrary (ExtensionField k ps) where
-  arbitrary = extend . fromList <$> sized (const poly)
+  arbitrary = fromPoly . PolynomialRing.fromList <$> sized (const poly)
     where
       poly = choose (1, degree (split (witness :: (k, ps))) - 1)
         >>= mapM (const arbitrary) . enumFromTo 1
