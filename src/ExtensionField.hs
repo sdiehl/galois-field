@@ -3,7 +3,6 @@ module ExtensionField
   , IrreducibleMonic(..)
   , fromField
   , fromList
-  , fromPoly
   , t
   , x
   ) where
@@ -53,8 +52,8 @@ fromField (EF (X ks)) = ks
 {-# INLINE fromField #-}
 
 -- | Field from list
-fromList :: [k] -> ExtensionField k im
-fromList = fromPoly . X
+fromList :: GaloisField k => [k] -> ExtensionField k im
+fromList = EF . X . reverse . dropWhile (== 0) . reverse
 {-# INLINE fromList #-}
 
 -- | Field from polynomial

@@ -1,9 +1,10 @@
 module PolynomialRing
   ( Polynomial(..)
   , degree
-  , fromList
+  , last
   , polyDiv
   , polyInv
+  , toPoly
   ) where
 
 import Protolude
@@ -29,7 +30,7 @@ polyAdd []     xs     = xs
 polyAdd xs     []     = xs
 polyAdd (x:xs) (y:ys)
   | z == 0 && null zs = []
-  | otherwise         = z:zs
+  | otherwise         = z : zs
   where
     z  = x + y
     zs = polyAdd xs ys
@@ -51,11 +52,6 @@ polyMul (x:xs) ys
 fromInt :: GaloisField k => Integer -> Polynomial k
 fromInt n = X (let m = fromInteger n in if m == 0 then [] else [m])
 {-# INLINE fromInt #-}
-
--- | Polynomial from list
-fromList :: GaloisField k => [k] -> Polynomial k
-fromList = X . reverse . dropWhile (== 0) . reverse
-{-# INLINE fromList #-}
 
 -- | Polynomial degree
 degree :: Polynomial k -> Int
@@ -98,3 +94,8 @@ polyInv xs ps     = case extGCD ps xs of
         (q, r)      = polyDiv y x
         (g, (s, t)) = extGCD x r
 {-# INLINE polyInv #-}
+
+-- | List to polynomial
+toPoly :: GaloisField k => [k] -> Polynomial k
+toPoly = X . reverse . dropWhile (== 0) . reverse
+{-# INLINE toPoly #-}

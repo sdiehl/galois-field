@@ -1,6 +1,6 @@
 name: galois-field
 version: 0.1.0
-synopsis: Galois fields
+synopsis: Galois field
 description: Finite field library
 maintainer: Adjoint Inc (info@adjoint.io)
 license: MIT
@@ -8,8 +8,8 @@ github: adjoint-io/galois-field
 category: Cryptography
 
 extra-source-files:
-- README.md
-- ChangeLog.md
+  - README.md
+  - ChangeLog.md
 
 flags:
   static:
@@ -23,13 +23,11 @@ flags:
     default: False
 
 dependencies:
-  # Prelude
   - base >= 4.7 && < 5
   - protolude >= 0.2
 
 library:
   source-dirs: src
-
   ghc-options:
     -fwarn-tabs
     -fwarn-incomplete-patterns
@@ -55,7 +53,6 @@ library:
     -fno-warn-unused-binds
     -fno-warn-unused-matches
     -fno-warn-unused-do-bind
-
   default-extensions:
     - LambdaCase
     - RecordWildCards
@@ -70,21 +67,22 @@ library:
     - GeneralizedNewtypeDeriving
     - KindSignatures
     - MultiParamTypeClasses
-
   exposed-modules:
     - GaloisField
     - PrimeField
-    - PolynomialRing
     - ExtensionField
+  other-modules:
+    - PolynomialRing
 
 tests:
   test-galois-field:
     main: Main.hs
-    source-dirs: tests
+    source-dirs:
+      - src
+      - tests
     dependencies:
       - base >= 4.7 && < 5
       - protolude >= 0.2
-      - galois-field
       - tasty
       - tasty-discover
       - tasty-quickcheck
@@ -102,3 +100,12 @@ tests:
       - GeneralizedNewtypeDeriving
       - KindSignatures
       - MultiParamTypeClasses
+    other-modules:
+      - GaloisField
+      - PrimeField
+      - PolynomialRing
+      - ExtensionField
+      - GaloisFieldTests
+      - PrimeFieldTests
+      - PolynomialRingTests
+      - ExtensionFieldTests
