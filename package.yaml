@@ -25,6 +25,7 @@ flags:
 dependencies:
   - base >= 4.7 && < 5
   - protolude >= 0.2
+  - integer-gmp
 
 library:
   source-dirs: src

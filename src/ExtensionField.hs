@@ -25,7 +25,7 @@ class IrreducibleMonic k im where
 instance (GaloisField k, IrreducibleMonic k im)
   => Fractional (ExtensionField k im) where
   recip (EF x)        = case polyInv x (split (witness :: (k, im))) of
-    Just y -> fromPoly y
+    Just y -> EF y
     _      -> panic "no multiplicative inverse."
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
@@ -38,11 +38,11 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are rings
 instance (GaloisField k, IrreducibleMonic k im)
   => Num (ExtensionField k im) where
-  EF x + EF y   = fromPoly (x + y)
-  EF x * EF y   = fromPoly (snd (polyDiv (x * y) (split (witness :: (k, im)))))
-  EF x - EF y   = fromPoly (x - y)
-  negate (EF x) = fromPoly (-x)
-  fromInteger   = fromPoly . fromInteger
+  EF x + EF y   = EF (x + y)
+  EF x * EF y   = EF (snd (polyDiv (x * y) (split (witness :: (k, im)))))
+  EF x - EF y   = EF (x - y)
+  negate (EF x) = EF (-x)
+  fromInteger   = EF . fromInteger
   abs           = panic "not implemented."
   signum        = panic "not implemented."
 
@@ -55,11 +55,6 @@ fromField (EF (X ks)) = ks
 fromList :: GaloisField k => [k] -> ExtensionField k im
 fromList = EF . X . reverse . dropWhile (== 0) . reverse
 {-# INLINE fromList #-}
-
--- | Field from polynomial
-fromPoly :: Polynomial k -> ExtensionField k im
-fromPoly = EF
-{-# INLINE fromPoly #-}
 
 -- | Current indeterminate variable
 x :: GaloisField k => Polynomial k

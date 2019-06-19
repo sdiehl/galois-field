@@ -5,6 +5,8 @@ module PrimeField
 
 import Protolude
 
+import GHC.Integer.GMP.Internals (recipModInteger)
+
 import GaloisField (GaloisField(..))
 
 -- | Prime fields @GF(p)@ for @p@ prime
@@ -13,10 +15,7 @@ newtype PrimeField (p :: Nat) = PF Integer
 
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
-  recip (PF x)        = case modInv x (natVal (witness :: PrimeField p)) of
-    Just y -> fromInteger y
-    _      -> panic "no multiplicative inverse."
-  {-# INLINE recip #-}
+  recip y@(PF x)      = PF (recipModInteger x (natVal y))
   fromRational (x:%y) = fromInteger x / fromInteger y
 
 -- | Prime fields are Galois fields
@@ -25,27 +24,24 @@ instance KnownNat p => GaloisField (PrimeField p) where
 
 -- | Prime fields are rings
 instance KnownNat p => Num (PrimeField p) where
-  PF x + PF y   = fromInteger (x + y)
-  PF x * PF y   = fromInteger (x * y)
-  PF x - PF y   = fromInteger (x - y)
-  negate (PF x) = fromInteger (-x)
-  fromInteger x = PF (mod x (natVal (witness :: PrimeField p)))
-  abs           = panic "not implemented."
-  signum        = panic "not implemented."
-
--- | Modular inverse
-modInv :: forall a . Integral a => a -> a -> Maybe a
-modInv x p = case extGCD p x of
-  (1, (y, _)) -> Just y
-  _           -> Nothing
-  where
-    extGCD :: a -> a -> (a, (a, a))
-    extGCD y 0 = (y, (0, 1))
-    extGCD y x = (g, (t - s * q, s))
-      where
-        (q, r)      = quotRem y x
-        (g, (s, t)) = extGCD x r
-{-# INLINE modInv #-}
+  z@(PF x) + PF y = PF (if xy >= p then xy - p else xy)
+    where
+      xy = x + y
+      p  = natVal z
+  {-# INLINE (+) #-}
+  z@(PF x) * PF y = PF (rem (x * y) (natVal z))
+  z@(PF x) - PF y = PF (if xy >= 0 then xy else xy + natVal z)
+    where
+      xy = x - y
+  {-# INLINE (-) #-}
+  negate y@(PF x) = PF (if x == 0 then 0 else -x + natVal y)
+  fromInteger x   = PF (if y >= 0 then y else y + p)
+    where
+      y = rem x p
+      p = natVal (witness :: PrimeField p)
+  {-# INLINE fromInteger #-}
+  abs             = panic "not implemented."
+  signum          = panic "not implemented."
 
 -- | Embed to integers
 toInt :: PrimeField p -> Integer

@@ -28,9 +28,7 @@ instance GaloisField k => Num (Polynomial k) where
 polyAdd :: GaloisField k => [k] -> [k] -> [k]
 polyAdd []     xs     = xs
 polyAdd xs     []     = xs
-polyAdd (x:xs) (y:ys)
-  | z == 0 && null zs = []
-  | otherwise         = z : zs
+polyAdd (x:xs) (y:ys) = if z == 0 && null zs then [] else z : zs
   where
     z  = x + y
     zs = polyAdd xs ys
@@ -40,12 +38,10 @@ polyAdd (x:xs) (y:ys)
 polyMul :: GaloisField k => [k] -> [k] -> [k]
 polyMul []     _  = []
 polyMul _      [] = []
-polyMul (x:xs) ys
-    | null xs     = ws
-    | otherwise   = polyAdd ws (0 : zs)
-    where
-      ws = map (* x) ys
-      zs = polyMul xs ys
+polyMul (x:xs) ys = if null xs then ws else polyAdd ws (0 : zs)
+  where
+    ws = map (* x) ys
+    zs = polyMul xs ys
 {-# INLINE polyMul #-}
 
 -- | Polynomial from integer
