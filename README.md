@@ -2,7 +2,7 @@
   <a href="http://www.adjoint.io"><img src="https://www.adjoint.io/assets/img/adjoint-logo@2x.png" width="250"/></a>
 </p>
 
-[![CircleCI](https://circleci.com/gh/adjoint-io/galois-field.svg?style=svg&circle-token=ac95d02ba07e02b88585397f91cfe92a8c833343)](https://circleci.com/gh/adjoint-io/galois-field)
+[![CircleCI](https://circleci.com/gh/adjoint-io/galois-field.svg?style=svg)](https://circleci.com/gh/adjoint-io/galois-field)
 
 # Galois Field
 
