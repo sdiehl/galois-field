@@ -58,7 +58,7 @@ degree (X xs) = length xs
 last :: GaloisField k => Polynomial k -> k
 last (X [])     = 0
 last (X [x])    = x
-last (X (x:xs)) = last (X xs)
+last (X (_:xs)) = last (X xs)
 {-# INLINE last #-}
 
 -- | Polynomial division
