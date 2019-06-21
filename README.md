@@ -159,7 +159,15 @@ fq12' = fromList
 arithmeticFq12 :: (Fq12, Fq12, Fq12, Fq12)
 arithmeticFq12 = (fq12 + fq12', fq12 - fq12', fq12 * fq12', fq12 / fq12')
 ```
-Note that the length of the lists *must* respect the dimension of the vector spaces.
+Note that
+```
+a + bx + (c + dx)y + (e + fx)y^2 + (g + hx + (i + jx)y + (k + lx)y^2)z
+```
+where `x, y, z` is a tower of indeterminate variables is constructed by
+```haskell
+fromList [ fromList [fromList [a, b], fromList [c, d], fromList [e, f]]
+         , fromList [fromList [g, h], fromList [i, j], fromList [k, l]] ] :: Fq12
+```
 
 ## License
 
