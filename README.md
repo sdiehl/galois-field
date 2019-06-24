@@ -67,8 +67,8 @@ arithmeticFq = (fq + fq', fq - fq', fq * fq', fq / fq')
 The following data type declaration creates a splitting polynomial given an irreducible monic polynomial.
 ```haskell
 data P2
-instance IrreducibleMonic Fq P2
-  where split _ = x^2 + 1
+instance IrreducibleMonic Fq P2 where
+  split _ = x^2 + 1
 ```
 The following type declaration then creates an extension field with this splitting polynomial.
 ```haskell
