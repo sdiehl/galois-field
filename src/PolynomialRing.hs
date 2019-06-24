@@ -9,11 +9,17 @@ module PolynomialRing
 
 import Protolude
 
+import Test.Tasty.QuickCheck (Arbitrary(..))
+
 import GaloisField (GaloisField(..))
 
 -- | Polynomial rings
 newtype Polynomial k = X [k]
   deriving (Eq, Generic, NFData, Show)
+
+-- | Polynomial rings are arbitrary
+instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
+  arbitrary = toPoly <$> arbitrary
 
 -- | Polynomial rings are rings
 instance GaloisField k => Num (Polynomial k) where

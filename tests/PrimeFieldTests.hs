@@ -2,13 +2,8 @@ module PrimeFieldTests where
 
 import Protolude
 
-import Test.Tasty.QuickCheck
-
 import PrimeField
 import GaloisFieldTests
-
-instance KnownNat p => Arbitrary (PrimeField p) where
-  arbitrary = fromInteger <$> arbitrary
 
 test_S2 = fieldAxioms (Proxy :: Proxy (PrimeField 2)) "FS2"
 
