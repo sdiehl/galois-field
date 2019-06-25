@@ -12,7 +12,7 @@ import GaloisField (GaloisField(..))
 
 -- | Prime fields @GF(p)@ for @p@ prime
 newtype PrimeField (p :: Nat) = PF Integer
-  deriving (Eq, Generic, NFData, Show)
+  deriving (Bits, Eq, Generic, NFData, Show)
 
 -- | Prime fields are arbitrary
 instance KnownNat p => Arbitrary (PrimeField p) where
