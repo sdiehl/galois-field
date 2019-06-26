@@ -1,25 +1,15 @@
-name: galois-field
-version: 0.1.0
-synopsis: Galois field
+name:        galois-field
+version:     0.1.0
+synopsis:    Galois field
 description: Finite field library
-maintainer: Adjoint Inc (info@adjoint.io)
-license: MIT
-github: adjoint-io/galois-field
-category: Cryptography
+maintainer:  Adjoint Inc (info@adjoint.io)
+license:     MIT
+github:      adjoint-io/galois-field
+category:    Cryptography
 
 extra-source-files:
   - README.md
   - ChangeLog.md
-
-flags:
-  static:
-    description: Emit statically-linked binary
-    manual: False
-    default: False
-  optimized:
-    description: Perform compiler optimizations
-    manual: False
-    default: False
 
 dependencies:
   - base >= 4.7 && < 5
@@ -29,6 +19,7 @@ dependencies:
 library:
   source-dirs: src
   ghc-options:
+    -O2
     -Wall
   default-extensions:
     - LambdaCase
