@@ -17,37 +17,46 @@ newtype Polynomial k = X [k]
 
 -- | Polynomial rings are rings
 instance GaloisField k => Num (Polynomial k) where
-  X xs + X ys   = X (polyAdd xs ys)
-  X xs * X ys   = X (polyMul xs ys)
+  X xs + X ys   = X (add xs ys)
+    where
+      add :: [k] -> [k] -> [k]
+      add []     as     = as
+      add as     []     = as
+      add (a:as) (b:bs) = let c  = a + b
+                              cs = add as bs
+                          in if c == 0 && null cs then [] else c : cs
+  {-# INLINE (+) #-}
+  X xs * X ys   = X (mul xs ys)
+    where
+      mul :: [k] -> [k] -> [k]
+      mul []     _  = []
+      mul _      [] = []
+      mul (a:as) bs = let ds = map (* a) bs
+                          cs = mul as bs
+                      in if null as then ds else add ds (0 : cs)
+        where
+          add :: [k] -> [k] -> [k]
+          add []     cs     = cs
+          add cs     []     = cs
+          add (c:cs) (d:ds) = let e  = c + d
+                                  es = add cs ds
+                              in if e == 0 && null es then [] else e : es
+  {-# INLINE (*) #-}
+  X xs - X ys   = X (sub xs ys)
+    where
+      sub :: [k] -> [k] -> [k]
+      sub []     as     = map negate as
+      sub as     []     = as
+      sub (a:as) (b:bs) = let c  = a - b
+                              cs = sub as bs
+                          in if c == 0 && null cs then [] else c : cs
+  {-# INLINE (-) #-}
   negate (X xs) = X (map negate xs)
-  fromInteger   = fromInt
+  {-# INLINE negate #-}
+  fromInteger n = X (let m = fromInteger n in if m == 0 then [] else [m])
+  {-# INLINABLE fromInteger #-}
   abs           = panic "not implemented."
   signum        = panic "not implemented."
-
--- | Polynomial addition
-polyAdd :: GaloisField k => [k] -> [k] -> [k]
-polyAdd []     xs     = xs
-polyAdd xs     []     = xs
-polyAdd (x:xs) (y:ys) = if z == 0 && null zs then [] else z : zs
-  where
-    z  = x + y
-    zs = polyAdd xs ys
-{-# INLINE polyAdd #-}
-
--- | Polynomial multiplication
-polyMul :: GaloisField k => [k] -> [k] -> [k]
-polyMul []     _  = []
-polyMul _      [] = []
-polyMul (x:xs) ys = if null xs then ws else polyAdd ws (0 : zs)
-  where
-    ws = map (* x) ys
-    zs = polyMul xs ys
-{-# INLINE polyMul #-}
-
--- | Polynomial from integer
-fromInt :: GaloisField k => Integer -> Polynomial k
-fromInt n = X (let m = fromInteger n in if m == 0 then [] else [m])
-{-# INLINE fromInt #-}
 
 -- | Polynomial degree
 degree :: Polynomial k -> Int
@@ -94,4 +103,4 @@ polyInv xs ps     = case extGCD ps xs of
 -- | List to polynomial
 toPoly :: GaloisField k => [k] -> Polynomial k
 toPoly = X . reverse . dropWhile (== 0) . reverse
-{-# INLINE toPoly #-}
+{-# INLINABLE toPoly #-}

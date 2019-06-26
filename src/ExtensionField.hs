@@ -29,6 +29,7 @@ instance (GaloisField k, IrreducibleMonic k im)
     _      -> panic "no multiplicative inverse."
   {-# INLINE recip #-}
   fromRational (y:%z) = fromInteger y / fromInteger z
+  {-# INLINABLE fromRational #-}
 
 -- | Extension fields are Galois fields
 instance (GaloisField k, IrreducibleMonic k im)
@@ -39,23 +40,28 @@ instance (GaloisField k, IrreducibleMonic k im)
 instance (GaloisField k, IrreducibleMonic k im)
   => Num (ExtensionField k im) where
   EF y + EF z   = EF (y + z)
+  {-# INLINE (+) #-}
   EF y * EF z   = EF (snd (polyDiv (y * z) (split (witness :: (k, im)))))
+  {-# INLINE (*) #-}
   EF y - EF z   = EF (y - z)
+  {-# INLINE (-) #-}
   negate (EF y) = EF (-y)
+  {-# INLINE negate #-}
   fromInteger   = EF . fromInteger
+  {-# INLINABLE fromInteger #-}
   abs           = panic "not implemented."
   signum        = panic "not implemented."
 
 -- | List from field
 fromField :: ExtensionField k im -> [k]
 fromField (EF (X ks)) = ks
-{-# INLINE fromField #-}
+{-# INLINABLE fromField #-}
 
 -- | Field from list
 fromList :: forall k im . (GaloisField k, IrreducibleMonic k im)
   => [k] -> ExtensionField k im
 fromList = EF . snd . flip polyDiv (split (witness :: (k, im))) . toPoly
-{-# INLINE fromList #-}
+{-# INLINABLE fromList #-}
 
 -- | Current indeterminate variable
 x :: GaloisField k => Polynomial k

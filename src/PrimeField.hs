@@ -16,7 +16,9 @@ newtype PrimeField (p :: Nat) = PF Integer
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
   recip y@(PF x)      = PF (recipModInteger x (natVal y))
+  {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
+  {-# INLINABLE fromRational #-}
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
@@ -30,20 +32,22 @@ instance KnownNat p => Num (PrimeField p) where
       p  = natVal z
   {-# INLINE (+) #-}
   z@(PF x) * PF y = PF (rem (x * y) (natVal z))
+  {-# INLINE (*) #-}
   z@(PF x) - PF y = PF (if xy >= 0 then xy else xy + natVal z)
     where
       xy = x - y
   {-# INLINE (-) #-}
   negate y@(PF x) = PF (if x == 0 then 0 else -x + natVal y)
+  {-# INLINE negate #-}
   fromInteger x   = PF (if y >= 0 then y else y + p)
     where
       y = rem x p
       p = natVal (witness :: PrimeField p)
-  {-# INLINE fromInteger #-}
+  {-# INLINABLE fromInteger #-}
   abs             = panic "not implemented."
   signum          = panic "not implemented."
 
 -- | Embed to integers
 toInt :: PrimeField p -> Integer
 toInt (PF x) = x
-{-# INLINE toInt #-}
+{-# INLINABLE toInt #-}
