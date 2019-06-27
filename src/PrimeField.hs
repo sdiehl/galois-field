@@ -6,6 +6,7 @@ module PrimeField
 import Protolude
 
 import GHC.Integer.GMP.Internals (recipModInteger)
+import Test.QuickCheck (Arbitrary, arbitrary)
 
 import GaloisField (GaloisField(..))
 
@@ -47,3 +48,7 @@ instance KnownNat p => Num (PrimeField p) where
 toInt :: PrimeField p -> Integer
 toInt (PF x) = x
 {-# INLINE toInt #-}
+
+
+instance KnownNat p => Arbitrary (PrimeField p) where
+  arbitrary = fromInteger <$> arbitrary

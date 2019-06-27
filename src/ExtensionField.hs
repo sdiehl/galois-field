@@ -8,9 +8,9 @@ module ExtensionField
   ) where
 
 import Protolude
-
+import Test.QuickCheck (Arbitrary, arbitrary, choose, sized)
 import GaloisField (GaloisField(..))
-import PolynomialRing (Polynomial(..), polyDiv, polyInv, toPoly)
+import PolynomialRing (Polynomial(..), polyDiv, polyInv, toPoly, degree)
 
 -- | Extension fields @GF(p^q)[X]/<f(X)>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@
@@ -66,3 +66,11 @@ x = X [0, 1]
 t :: Polynomial k -> Polynomial (ExtensionField k im)
 t = X . return . EF
 {-# INLINE t #-}
+
+
+instance (Arbitrary k, GaloisField k, IrreducibleMonic k ps)
+  => Arbitrary (ExtensionField k ps) where
+  arbitrary = fromList <$> sized (const poly)
+    where
+      poly = choose (1, degree (split (witness :: (k, ps))) - 1)
+        >>= mapM (const arbitrary) . enumFromTo 1
