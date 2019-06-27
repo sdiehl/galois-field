@@ -2,23 +2,9 @@ module ExtensionFieldTests where
 
 import Protolude
 
-import Test.Tasty
-import Test.Tasty.QuickCheck
-
 import ExtensionField
-import GaloisField
 import GaloisFieldTests
-import PolynomialRing
-import PolynomialRingTests
 import PrimeField
-import PrimeFieldTests
-
-instance (Arbitrary k, GaloisField k, IrreducibleMonic k ps)
-  => Arbitrary (ExtensionField k ps) where
-  arbitrary = fromList <$> sized (const poly)
-    where
-      poly = choose (1, degree (split (witness :: (k, ps))) - 1)
-        >>= mapM (const arbitrary) . enumFromTo 1
 
 type F2 = PrimeField 2
 data P11; instance IrreducibleMonic F2 P11 where split _ = x^2 + x + 1

@@ -2,16 +2,9 @@ module PolynomialRingTests where
 
 import Protolude
 
-import Test.Tasty.QuickCheck
-
-import GaloisField
 import GaloisFieldTests
 import PolynomialRing
 import PrimeField
-import PrimeFieldTests
-
-instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
-  arbitrary = toPoly <$> arbitrary
 
 test_S2X = ringAxioms (Proxy :: Proxy (Polynomial (PrimeField 2))) "FS2[X]"
 
