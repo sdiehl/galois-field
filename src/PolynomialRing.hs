@@ -8,13 +8,17 @@ module PolynomialRing
   ) where
 
 import Protolude
-import Test.QuickCheck (Arbitrary, arbitrary)
+import Test.QuickCheck (Arbitrary(..))
 
 import GaloisField (GaloisField(..))
 
 -- | Polynomial rings
 newtype Polynomial k = X [k]
   deriving (Eq, Generic, NFData, Show)
+
+-- | Polynomial rings are arbitrary
+instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
+  arbitrary = toPoly <$> arbitrary
 
 -- | Polynomial rings are rings
 instance GaloisField k => Num (Polynomial k) where
@@ -96,6 +100,3 @@ polyInv xs ps     = case extGCD ps xs of
 toPoly :: GaloisField k => [k] -> Polynomial k
 toPoly = X . reverse . dropWhile (== 0) . reverse
 {-# INLINE toPoly #-}
-
-instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
-  arbitrary = toPoly <$> arbitrary

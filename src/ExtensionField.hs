@@ -8,7 +8,7 @@ module ExtensionField
   ) where
 
 import Protolude
-import Test.QuickCheck (Arbitrary, arbitrary, choose, sized)
+import Test.QuickCheck (Arbitrary(..), choose, sized)
 import GaloisField (GaloisField(..))
 import PolynomialRing (Polynomial(..), polyDiv, polyInv, toPoly, degree)
 
@@ -20,6 +20,14 @@ newtype ExtensionField k im = EF (Polynomial k)
 -- | Irreducible monic splitting polynomial of extension field
 class IrreducibleMonic k im where
   split :: (k, im) -> Polynomial k
+
+-- | Extension fields are arbitrary
+instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
+  => Arbitrary (ExtensionField k im) where
+  arbitrary = fromList <$> sized (const poly)
+    where
+      poly = choose (1, degree (split (witness :: (k, im))) - 1)
+        >>= mapM (const arbitrary) . enumFromTo 1
 
 -- | Extension fields are fields
 instance (GaloisField k, IrreducibleMonic k im)
@@ -66,11 +74,3 @@ x = X [0, 1]
 t :: Polynomial k -> Polynomial (ExtensionField k im)
 t = X . return . EF
 {-# INLINE t #-}
-
-
-instance (Arbitrary k, GaloisField k, IrreducibleMonic k ps)
-  => Arbitrary (ExtensionField k ps) where
-  arbitrary = fromList <$> sized (const poly)
-    where
-      poly = choose (1, degree (split (witness :: (k, ps))) - 1)
-        >>= mapM (const arbitrary) . enumFromTo 1

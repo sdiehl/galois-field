@@ -2,16 +2,9 @@ module ExtensionFieldTests where
 
 import Protolude
 
-import Test.Tasty
-import Test.Tasty.QuickCheck
-
 import ExtensionField
-import GaloisField
 import GaloisFieldTests
-import PolynomialRing
-import PolynomialRingTests
 import PrimeField
-import PrimeFieldTests
 
 type F2 = PrimeField 2
 data P11; instance IrreducibleMonic F2 P11 where split _ = x^2 + x + 1

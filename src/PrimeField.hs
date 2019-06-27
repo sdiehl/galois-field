@@ -6,13 +6,17 @@ module PrimeField
 import Protolude
 
 import GHC.Integer.GMP.Internals (recipModInteger)
-import Test.QuickCheck (Arbitrary, arbitrary)
+import Test.QuickCheck (Arbitrary(..))
 
 import GaloisField (GaloisField(..))
 
 -- | Prime fields @GF(p)@ for @p@ prime
 newtype PrimeField (p :: Nat) = PF Integer
-  deriving (Eq, Generic, NFData, Show)
+  deriving (Bits, Eq, Generic, NFData, Show)
+
+-- | Prime fields are arbitrary
+instance KnownNat p => Arbitrary (PrimeField p) where
+  arbitrary = fromInteger <$> arbitrary
 
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
@@ -48,7 +52,3 @@ instance KnownNat p => Num (PrimeField p) where
 toInt :: PrimeField p -> Integer
 toInt (PF x) = x
 {-# INLINE toInt #-}
-
-
-instance KnownNat p => Arbitrary (PrimeField p) where
-  arbitrary = fromInteger <$> arbitrary

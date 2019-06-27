@@ -2,8 +2,6 @@ module PrimeFieldTests where
 
 import Protolude
 
-import Test.Tasty.QuickCheck
-
 import PrimeField
 import GaloisFieldTests
 
