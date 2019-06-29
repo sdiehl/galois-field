@@ -9,10 +9,16 @@ module PolynomialRing
 
 import Protolude
 
+import Test.Tasty.QuickCheck (Arbitrary(..))
+import Text.PrettyPrint.Leijen.Text (Pretty(..))
+
 import GaloisField (GaloisField(..))
 
 newtype Polynomial k = X [k]
   deriving (Eq, Generic, NFData, Show)
+
+instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
+  arbitrary = toPoly <$> arbitrary
 
 instance GaloisField k => Num (Polynomial k) where
   X xs + X ys   = X (polyAdd xs ys)
@@ -27,6 +33,9 @@ instance GaloisField k => Num (Polynomial k) where
   {-# INLINABLE fromInteger #-}
   abs           = panic "not implemented."
   signum        = panic "not implemented."
+
+instance GaloisField k => Pretty (Polynomial k) where
+  pretty (X xs) = pretty xs
 
 polyAdd :: GaloisField k => [k] -> [k] -> [k]
 polyAdd xs     []     = xs

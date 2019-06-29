@@ -1,5 +1,5 @@
 name:        galois-field
-version:     0.1.0
+version:     0.1.1
 synopsis:    Galois field
 description: Finite field library
 maintainer:  Adjoint Inc (info@adjoint.io)
@@ -15,6 +15,8 @@ dependencies:
   - base >= 4.7 && < 5
   - protolude >= 0.2
   - integer-gmp
+  - tasty-quickcheck
+  - wl-pprint-text
 
 library:
   source-dirs: src
@@ -52,7 +54,6 @@ tests:
       - base >= 4.7 && < 5
       - protolude >= 0.2
       - tasty
-      - tasty-discover
       - tasty-quickcheck
     default-extensions:
       - LambdaCase

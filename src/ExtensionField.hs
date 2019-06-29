@@ -9,6 +9,9 @@ module ExtensionField
 
 import Protolude
 
+import Test.Tasty.QuickCheck (Arbitrary(..), choose, sized)
+import Text.PrettyPrint.Leijen.Text (Pretty(..))
+
 import GaloisField (GaloisField(..))
 import PolynomialRing (Polynomial(..), cut, polyInv, polyMul, polyQR)
 
@@ -20,6 +23,15 @@ newtype ExtensionField k im = EF (Polynomial k)
 -- | Irreducible monic splitting polynomial of extension field
 class IrreducibleMonic k im where
   split :: (k, im) -> Polynomial k
+
+-- | Extension fields are arbitrary
+instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
+  => Arbitrary (ExtensionField k im) where
+  arbitrary = fromList <$> sized (const poly)
+    where
+      poly = choose (1, length xs - 1) >>= mapM (const arbitrary) . enumFromTo 1
+        where
+          X xs = split (witness :: (k, im))
 
 -- | Extension fields are fields
 instance (GaloisField k, IrreducibleMonic k im)
@@ -55,6 +67,11 @@ instance (GaloisField k, IrreducibleMonic k im)
   {-# INLINABLE fromInteger #-}
   abs                   = panic "not implemented."
   signum                = panic "not implemented."
+
+-- | Extension fields are pretty
+instance (GaloisField k, IrreducibleMonic k im)
+  => Pretty (ExtensionField k im) where
+  pretty (EF y) = pretty y
 
 -- | List from field
 fromField :: ExtensionField k im -> [k]
