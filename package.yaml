@@ -54,6 +54,7 @@ tests:
       - base >= 4.7 && < 5
       - protolude >= 0.2
       - tasty
+      - tasty-discover
       - tasty-quickcheck
     default-extensions:
       - LambdaCase
