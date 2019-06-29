@@ -10,7 +10,7 @@ module ExtensionField
 import Protolude
 
 import GaloisField (GaloisField(..))
-import PolynomialRing (Polynomial(..), polyDiv, polyInv, toPoly)
+import PolynomialRing (Polynomial(..), cut, polyInv, polyMul, polyQR)
 
 -- | Extension fields @GF(p^q)[X]/<f(X)>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@
@@ -24,9 +24,11 @@ class IrreducibleMonic k im where
 -- | Extension fields are fields
 instance (GaloisField k, IrreducibleMonic k im)
   => Fractional (ExtensionField k im) where
-  recip (EF y)        = case polyInv y (split (witness :: (k, im))) of
-    Just z -> EF z
-    _      -> panic "no multiplicative inverse."
+  recip (EF (X ys))   = case polyInv ys xs of
+    Just zs -> EF (X zs)
+    _       -> panic "no multiplicative inverse."
+    where
+      X xs = split (witness :: (k, im))
   {-# INLINE recip #-}
   fromRational (y:%z) = fromInteger y / fromInteger z
   {-# INLINABLE fromRational #-}
@@ -39,18 +41,20 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are rings
 instance (GaloisField k, IrreducibleMonic k im)
   => Num (ExtensionField k im) where
-  EF y + EF z   = EF (y + z)
+  EF y + EF z           = EF (y + z)
   {-# INLINE (+) #-}
-  EF y * EF z   = EF (snd (polyDiv (y * z) (split (witness :: (k, im)))))
+  EF (X ys) * EF (X zs) = EF (X (snd (polyQR (polyMul ys zs) xs)))
+    where
+      X xs = split (witness :: (k, im))
   {-# INLINE (*) #-}
-  EF y - EF z   = EF (y - z)
+  EF y - EF z           = EF (y - z)
   {-# INLINE (-) #-}
-  negate (EF y) = EF (-y)
+  negate (EF y)         = EF (-y)
   {-# INLINE negate #-}
-  fromInteger   = EF . fromInteger
+  fromInteger           = EF . fromInteger
   {-# INLINABLE fromInteger #-}
-  abs           = panic "not implemented."
-  signum        = panic "not implemented."
+  abs                   = panic "not implemented."
+  signum                = panic "not implemented."
 
 -- | List from field
 fromField :: ExtensionField k im -> [k]
@@ -60,7 +64,9 @@ fromField (EF (X ks)) = ks
 -- | Field from list
 fromList :: forall k im . (GaloisField k, IrreducibleMonic k im)
   => [k] -> ExtensionField k im
-fromList = EF . snd . flip polyDiv (split (witness :: (k, im))) . toPoly
+fromList = EF . X . snd . flip polyQR xs . cut
+  where
+    X xs = split (witness :: (k, im))
 {-# INLINABLE fromList #-}
 
 -- | Current indeterminate variable
