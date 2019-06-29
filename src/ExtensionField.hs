@@ -22,6 +22,8 @@ newtype ExtensionField k im = EF (Polynomial k)
 
 -- | Irreducible monic splitting polynomial of extension field
 class IrreducibleMonic k im where
+  {-# MINIMAL split #-}
+  -- | Splitting polynomial
   split :: (k, im) -> Polynomial k
 
 -- | Extension fields are arbitrary
@@ -48,7 +50,10 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are Galois fields
 instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
-  char = const (char (witness :: k))
+  char   = const (char (witness :: k))
+  degree = const (length xs * degree (witness :: k))
+    where
+      X xs = split (witness :: (k, im))
 
 -- | Extension fields are rings
 instance (GaloisField k, IrreducibleMonic k im)

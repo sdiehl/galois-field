@@ -28,7 +28,8 @@ instance KnownNat p => Fractional (PrimeField p) where
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
-  char = natVal
+  char   = natVal
+  degree = const 1
 
 -- | Prime fields are rings
 instance KnownNat p => Num (PrimeField p) where
