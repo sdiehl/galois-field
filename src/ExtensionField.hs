@@ -8,7 +8,10 @@ module ExtensionField
   ) where
 
 import Protolude
-import Test.QuickCheck (Arbitrary(..), choose, sized)
+
+import Test.Tasty.QuickCheck (Arbitrary(..), choose, sized)
+import Text.PrettyPrint.Leijen.Text (Pretty(..))
+
 import GaloisField (GaloisField(..))
 import PolynomialRing (Polynomial(..), polyDiv, polyInv, toPoly, degree)
 
@@ -53,6 +56,11 @@ instance (GaloisField k, IrreducibleMonic k im)
   fromInteger   = EF . fromInteger
   abs           = panic "not implemented."
   signum        = panic "not implemented."
+
+-- | Extension fields are pretty
+instance (GaloisField k, IrreducibleMonic k im)
+  => Pretty (ExtensionField k im) where
+  pretty (EF y) = pretty y
 
 -- | List from field
 fromField :: ExtensionField k im -> [k]

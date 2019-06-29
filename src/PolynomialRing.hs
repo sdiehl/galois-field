@@ -8,7 +8,9 @@ module PolynomialRing
   ) where
 
 import Protolude
-import Test.QuickCheck (Arbitrary(..))
+
+import Test.Tasty.QuickCheck (Arbitrary(..))
+import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
@@ -28,6 +30,10 @@ instance GaloisField k => Num (Polynomial k) where
   fromInteger   = fromInt
   abs           = panic "not implemented."
   signum        = panic "not implemented."
+
+-- | Polynomial rings are pretty
+instance GaloisField k => Pretty (Polynomial k) where
+  pretty (X xs) = pretty xs
 
 -- | Polynomial addition
 polyAdd :: GaloisField k => [k] -> [k] -> [k]

@@ -6,7 +6,8 @@ module PrimeField
 import Protolude
 
 import GHC.Integer.GMP.Internals (recipModInteger)
-import Test.QuickCheck (Arbitrary(..))
+import Test.Tasty.QuickCheck (Arbitrary(..))
+import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
@@ -47,6 +48,10 @@ instance KnownNat p => Num (PrimeField p) where
   {-# INLINE fromInteger #-}
   abs             = panic "not implemented."
   signum          = panic "not implemented."
+
+-- | Prime fields are pretty
+instance KnownNat p => Pretty (PrimeField p) where
+  pretty (PF x) = pretty [x]
 
 -- | Embed to integers
 toInt :: PrimeField p -> Integer
