@@ -5,6 +5,7 @@ module PrimeField
 
 import Protolude
 
+import Control.Monad.Random (Random(..), getRandom)
 import GHC.Integer.GMP.Internals (recipModInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..))
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
@@ -28,8 +29,12 @@ instance KnownNat p => Fractional (PrimeField p) where
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
-  char   = natVal
-  degree = const 1
+  char = natVal
+  {-# INLINE char #-}
+  deg  = const 1
+  {-# INLINE deg #-}
+  rnd  = getRandom
+  {-# INLINE rnd #-}
 
 -- | Prime fields are rings
 instance KnownNat p => Num (PrimeField p) where
@@ -57,6 +62,11 @@ instance KnownNat p => Num (PrimeField p) where
 -- | Prime fields are pretty
 instance KnownNat p => Pretty (PrimeField p) where
   pretty (PF x) = pretty [x]
+
+-- | Prime fields are random
+instance KnownNat p => Random (PrimeField p) where
+  random  = first PF . randomR (0, natVal (witness :: PrimeField p) - 1)
+  randomR = panic "not implemented."
 
 -- | Embed to integers
 toInt :: PrimeField p -> Integer

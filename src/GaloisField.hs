@@ -4,16 +4,21 @@ module GaloisField
 
 import Protolude
 
+import Control.Monad.Random (MonadRandom, Random)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative
-class (Arbitrary k, Eq k, Fractional k, Pretty k, Show k) => GaloisField k where
-  {-# MINIMAL char, degree #-}
-  -- | Characteristic @q@ of field
-  char   :: k -> Integer
-  -- | Degree @q@ of field
-  degree :: k -> Int
-  -- | Order @p^q@ of field
-  order  :: k -> Integer
-  order k = char k ^ degree k
+class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
+  => GaloisField k where
+  {-# MINIMAL char, deg, rnd #-}
+
+  char  :: k -> Integer         -- ^ Characteristic @q@ of field
+
+  deg   :: k -> Int             -- ^ Degree @q@ of field
+
+  order :: k -> Integer         -- ^ Order @p^q@ of field
+  order k = char k ^ deg k
+  {-# INLINE order #-}
+
+  rnd   :: MonadRandom m => m k -- ^ Random element of field
