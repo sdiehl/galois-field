@@ -3,7 +3,6 @@ module Benchmarks where
 import Protolude
 
 import Criterion.Main
-
 import ExtensionField
 import PrimeField
 
@@ -16,7 +15,8 @@ fq' :: Fq
 fq' = 10757805228921058098980668000791497318123219899766237205512608761387909753942
 
 data Pu
-instance IrreducibleMonic Fq Pu where split _ = x^2 + 1
+instance IrreducibleMonic Fq Pu where
+  split _ = x^2 + 1
 type Fq2 = ExtensionField Fq Pu
 
 fq2 :: Fq2
@@ -32,7 +32,8 @@ fq2' = fromList
   ]
 
 data Pv
-instance IrreducibleMonic Fq2 Pv where split _ = x^3 - (9 + t x)
+instance IrreducibleMonic Fq2 Pv where
+  split _ = x^3 - (9 + t x)
 type Fq6 = ExtensionField Fq2 Pv
 
 fq6 :: Fq6
@@ -68,7 +69,8 @@ fq6' = fromList
   ]
 
 data Pw
-instance IrreducibleMonic Fq6 Pw where split _ = x^2 - t x
+instance IrreducibleMonic Fq6 Pw where
+  split _ = x^2 - t x
 type Fq12 = ExtensionField Fq6 Pw
 
 fq12 :: Fq12
