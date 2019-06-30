@@ -6,7 +6,8 @@ module PrimeField
 import Protolude
 
 import GHC.Integer.GMP.Internals (recipModInteger)
-import Test.QuickCheck (Arbitrary(..))
+import Test.Tasty.QuickCheck (Arbitrary(..))
+import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
@@ -21,7 +22,9 @@ instance KnownNat p => Arbitrary (PrimeField p) where
 -- | Prime fields are fields
 instance KnownNat p => Fractional (PrimeField p) where
   recip y@(PF x)      = PF (recipModInteger x (natVal y))
+  {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
+  {-# INLINABLE fromRational #-}
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
@@ -35,20 +38,26 @@ instance KnownNat p => Num (PrimeField p) where
       p  = natVal z
   {-# INLINE (+) #-}
   z@(PF x) * PF y = PF (rem (x * y) (natVal z))
+  {-# INLINE (*) #-}
   z@(PF x) - PF y = PF (if xy >= 0 then xy else xy + natVal z)
     where
       xy = x - y
   {-# INLINE (-) #-}
   negate y@(PF x) = PF (if x == 0 then 0 else -x + natVal y)
+  {-# INLINE negate #-}
   fromInteger x   = PF (if y >= 0 then y else y + p)
     where
       y = rem x p
       p = natVal (witness :: PrimeField p)
-  {-# INLINE fromInteger #-}
+  {-# INLINABLE fromInteger #-}
   abs             = panic "not implemented."
   signum          = panic "not implemented."
+
+-- | Prime fields are pretty
+instance KnownNat p => Pretty (PrimeField p) where
+  pretty (PF x) = pretty [x]
 
 -- | Embed to integers
 toInt :: PrimeField p -> Integer
 toInt (PF x) = x
-{-# INLINE toInt #-}
+{-# INLINABLE toInt #-}

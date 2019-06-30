@@ -1,11 +1,11 @@
-# Changelog for galois-field
+# Change log for galois-field
 
 ## 0.1.1
 
-* Add `Bits` instances
-* Add `Arbitary` instances
-* Move Arbitrary instances of galois fields, extensions and polynomials rings to ``src`
-* Add tasty-discover
+* Add `Arbitrary` instances to PrimeField, PolynomialRing, and ExtensionField.
+* Add `Bits` instances to PrimeField.
+* Add `Pretty` instances to PrimeField, PolynomialRing, and ExtensionField.
+* Minor optimisations to multiplication and inversion with `INLINE`.
 
 ## 0.1.0
 
