@@ -71,15 +71,6 @@ tests:
       - GeneralizedNewtypeDeriving
       - KindSignatures
       - MultiParamTypeClasses
-    other-modules:
-      - GaloisField
-      - PrimeField
-      - PolynomialRing
-      - ExtensionField
-      - GaloisFieldTests
-      - PrimeFieldTests
-      - PolynomialRingTests
-      - ExtensionFieldTests
 
 benchmarks:
   benchmarks:
@@ -105,9 +96,3 @@ benchmarks:
       - GeneralizedNewtypeDeriving
       - KindSignatures
       - MultiParamTypeClasses
-    other-modules:
-      - GaloisField
-      - PrimeField
-      - PolynomialRing
-      - ExtensionField
-      - Benchmarks

@@ -143,10 +143,14 @@ benchmarks = bgroup "GaloisField"
     [ bgroup "Fq"
       [ bench "Addition"
         $ whnf (uncurry (+)) (fq, fq')
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq, fq')
       , bench "Multiplication"
         $ whnf (uncurry (*)) (fq, fq')
+      , bench "Negation"
+        $ whnf negate fq
+      , bench "Subtraction"
+        $ whnf (uncurry (-)) (fq, fq')
+      , bench "Inversion"
+        $ whnf recip fq
       , bench "Division"
         $ whnf (uncurry (/)) (fq, fq')
       ]
@@ -155,30 +159,42 @@ benchmarks = bgroup "GaloisField"
     [ bgroup "Fq2"
       [ bench "Addition"
         $ whnf (uncurry (+)) (fq2, fq2')
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq2, fq2')
       , bench "Multiplication"
         $ whnf (uncurry (*)) (fq2, fq2')
+      , bench "Negation"
+        $ whnf negate fq2
+      , bench "Subtraction"
+        $ whnf (uncurry (-)) (fq2, fq2')
+      , bench "Inversion"
+        $ whnf recip fq2
       , bench "Division"
         $ whnf (uncurry (/)) (fq2, fq2')
       ]
     , bgroup "Fq6"
       [ bench "Addition"
         $ whnf (uncurry (+)) (fq6, fq6')
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq6, fq6')
       , bench "Multiplication"
         $ whnf (uncurry (*)) (fq6, fq6')
+      , bench "Negation"
+        $ whnf negate fq6
+      , bench "Subtraction"
+        $ whnf (uncurry (-)) (fq6, fq6')
+      , bench "Inversion"
+        $ whnf recip fq6
       , bench "Division"
         $ whnf (uncurry (/)) (fq6, fq6')
       ]
     , bgroup "Fq12"
       [ bench "Addition"
         $ whnf (uncurry (+)) (fq12, fq12')
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq12, fq12')
       , bench "Multiplication"
         $ whnf (uncurry (*)) (fq12, fq12')
+      , bench "Negation"
+        $ whnf negate fq12
+      , bench "Subtraction"
+        $ whnf (uncurry (-)) (fq12, fq12')
+      , bench "Inversion"
+        $ whnf recip fq12
       , bench "Division"
         $ whnf (uncurry (/)) (fq12, fq12')
       ]
