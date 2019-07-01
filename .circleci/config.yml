@@ -8,7 +8,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - pairing-{{ checksum "package.yaml" }}
+            - galois-field-{{ checksum "package.yaml" }}
       - run:
           name: Resolve/Update Dependencies
           command: stack setup
@@ -17,6 +17,6 @@ jobs:
           command: stack test
       - save_cache:
           name: Cache Dependencies
-          key: pairing-{{ checksum "package.yaml" }}
+          key: galois-field-{{ checksum "package.yaml" }}
           paths:
             - ".stack-work"
