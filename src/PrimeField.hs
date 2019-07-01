@@ -6,7 +6,7 @@ module PrimeField
 import Protolude
 
 import Control.Monad.Random (Random(..), getRandom)
-import GHC.Integer.GMP.Internals (recipModInteger)
+import GHC.Integer.GMP.Internals (powModInteger, recipModInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..))
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
@@ -29,19 +29,21 @@ instance KnownNat p => Fractional (PrimeField p) where
 
 -- | Prime fields are Galois fields
 instance KnownNat p => GaloisField (PrimeField p) where
-  char = natVal
+  char           = natVal
   {-# INLINE char #-}
-  deg  = const 1
+  deg            = const 1
   {-# INLINE deg #-}
-  rnd  = getRandom
+  pow y@(PF x) n = PF (powModInteger x n (natVal y))
+  {-# INLINE pow #-}
+  rnd            = getRandom
   {-# INLINE rnd #-}
 
 -- | Prime fields are rings
 instance KnownNat p => Num (PrimeField p) where
-  z@(PF x) + PF y = PF (if xy >= p then xy - p else xy)
+  z@(PF x) + PF y = PF (if xyp >= 0 then xyp else xy)
     where
-      xy = x + y
-      p  = natVal z
+      xy  = x + y
+      xyp = xy - natVal z
   {-# INLINE (+) #-}
   z@(PF x) * PF y = PF (rem (x * y) (natVal z))
   {-# INLINE (*) #-}

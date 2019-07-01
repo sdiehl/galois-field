@@ -50,13 +50,25 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are Galois fields
 instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
-  char = const (char (witness :: k))
+  char          = const (char (witness :: k))
   {-# INLINE char #-}
-  deg  = const (deg (witness :: k) * length xs - 1)
+  deg           = const (deg (witness :: k) * length xs - 1)
     where
       X xs = split (witness :: ExtensionField k im)
   {-# INLINE deg #-}
-  rnd  = getRandom
+  pow y@(EF (X ys)) n
+    | n < 0     = pow (recip y) (-n)
+    | otherwise = EF (X (pow' [1] ys n))
+    where
+      X xs = split (witness :: ExtensionField k im)
+      mul = (.) (snd . flip polyQR xs) . polyMul
+      pow' ws zs m
+        | m == 0    = ws
+        | m == 1    = mul ws zs
+        | even m    = pow' ws (mul zs zs) (div m 2)
+        | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
+  {-# INLINE pow #-}
+  rnd           = getRandom
   {-# INLINE rnd #-}
 
 -- | Extension fields are rings
