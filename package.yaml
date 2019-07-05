@@ -1,5 +1,5 @@
 name:        galois-field
-version:     0.2
+version:     0.2.0
 synopsis:    Galois field library
 description: Galois field library
 maintainer:  Adjoint Inc (info@adjoint.io)
