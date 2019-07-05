@@ -1,112 +1,71 @@
 name:        galois-field
-version:     0.1.1
-synopsis:    Galois field
-description: Finite field library
+version:     0.2.0
+synopsis:    Galois field library
+description: Galois field library
 maintainer:  Adjoint Inc (info@adjoint.io)
 license:     MIT
 github:      adjoint-io/galois-field
 category:    Cryptography
 
-extra-source-files:
-  - README.md
-  - ChangeLog.md
+default-extensions:
+  - LambdaCase
+  - RecordWildCards
+  - OverloadedStrings
+  - NoImplicitPrelude
+  - FlexibleInstances
+  - FlexibleContexts
+  - ScopedTypeVariables
+  - RankNTypes
+  - DataKinds
+  - DeriveGeneric
+  - GeneralizedNewtypeDeriving
+  - KindSignatures
+  - MultiParamTypeClasses
 
 dependencies:
   - base >= 4.7 && < 5
   - protolude >= 0.2
   - integer-gmp
+  - MonadRandom
   - tasty-quickcheck
   - wl-pprint-text
 
+extra-source-files:
+  - README.md
+  - ChangeLog.md
+
 library:
-  source-dirs: src
-  ghc-options:
-    -O2
-    -Wall
-  default-extensions:
-    - LambdaCase
-    - RecordWildCards
-    - OverloadedStrings
-    - NoImplicitPrelude
-    - FlexibleInstances
-    - FlexibleContexts
-    - ScopedTypeVariables
-    - RankNTypes
-    - DataKinds
-    - DeriveGeneric
-    - GeneralizedNewtypeDeriving
-    - KindSignatures
-    - MultiParamTypeClasses
   exposed-modules:
     - GaloisField
     - PrimeField
     - ExtensionField
+  ghc-options:
+    - -O2
+    - -Wall
   other-modules:
     - PolynomialRing
+  source-dirs:
+    - src
 
 tests:
-  tests:
-    main: Main.hs
-    source-dirs:
-      - src
-      - tests
+  galois-field-tests:
+    main: Main
     dependencies:
-      - base >= 4.7 && < 5
-      - protolude >= 0.2
       - tasty
       - tasty-discover
-      - tasty-quickcheck
-    default-extensions:
-      - LambdaCase
-      - RecordWildCards
-      - OverloadedStrings
-      - NoImplicitPrelude
-      - FlexibleInstances
-      - FlexibleContexts
-      - ScopedTypeVariables
-      - RankNTypes
-      - DataKinds
-      - DeriveGeneric
-      - GeneralizedNewtypeDeriving
-      - KindSignatures
-      - MultiParamTypeClasses
-    other-modules:
-      - GaloisField
-      - PrimeField
-      - PolynomialRing
-      - ExtensionField
-      - GaloisFieldTests
-      - PrimeFieldTests
-      - PolynomialRingTests
-      - ExtensionFieldTests
+    ghc-options:
+      - -O2
+    source-dirs:
+      - tests
+      - src
 
 benchmarks:
-  benchmarks:
-    main: Main.hs
-    source-dirs:
-      - src
-      - benchmarks
+  galois-field-benchmarks:
+    main: Main
     dependencies:
-      - base >= 4.7 && < 5
-      - protolude >= 0.2
       - criterion
-    default-extensions:
-      - LambdaCase
-      - RecordWildCards
-      - OverloadedStrings
-      - NoImplicitPrelude
-      - FlexibleInstances
-      - FlexibleContexts
-      - ScopedTypeVariables
-      - RankNTypes
-      - DataKinds
-      - DeriveGeneric
-      - GeneralizedNewtypeDeriving
-      - KindSignatures
-      - MultiParamTypeClasses
-    other-modules:
-      - GaloisField
-      - PrimeField
-      - PolynomialRing
-      - ExtensionField
-      - Benchmarks
+    ghc-options:
+      - -O2
+    source-dirs:
+      - benchmarks
+      - src

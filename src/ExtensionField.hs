@@ -9,20 +9,22 @@ module ExtensionField
 
 import Protolude
 
+import Control.Monad.Random (Random(..), getRandom)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose, sized)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 import PolynomialRing (Polynomial(..), cut, polyInv, polyMul, polyQR)
 
+-- | Irreducible monic splitting polynomial of extension field
+class IrreducibleMonic k im where
+  {-# MINIMAL split #-}
+  split :: ExtensionField k im -> Polynomial k -- ^ Splitting polynomial
+
 -- | Extension fields @GF(p^q)[X]/<f(X)>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@
 newtype ExtensionField k im = EF (Polynomial k)
   deriving (Eq, Generic, NFData, Show)
-
--- | Irreducible monic splitting polynomial of extension field
-class IrreducibleMonic k im where
-  split :: (k, im) -> Polynomial k
 
 -- | Extension fields are arbitrary
 instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
@@ -31,7 +33,7 @@ instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
     where
       poly = choose (1, length xs - 1) >>= mapM (const arbitrary) . enumFromTo 1
         where
-          X xs = split (witness :: (k, im))
+          X xs = split (witness :: ExtensionField k im)
 
 -- | Extension fields are fields
 instance (GaloisField k, IrreducibleMonic k im)
@@ -40,7 +42,7 @@ instance (GaloisField k, IrreducibleMonic k im)
     Just zs -> EF (X zs)
     _       -> panic "no multiplicative inverse."
     where
-      X xs = split (witness :: (k, im))
+      X xs = split (witness :: ExtensionField k im)
   {-# INLINE recip #-}
   fromRational (y:%z) = fromInteger y / fromInteger z
   {-# INLINABLE fromRational #-}
@@ -48,7 +50,26 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are Galois fields
 instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
-  char = const (char (witness :: k))
+  char          = const (char (witness :: k))
+  {-# INLINE char #-}
+  deg           = const (deg (witness :: k) * length xs - 1)
+    where
+      X xs = split (witness :: ExtensionField k im)
+  {-# INLINE deg #-}
+  pow y@(EF (X ys)) n
+    | n < 0     = pow (recip y) (-n)
+    | otherwise = EF (X (pow' [1] ys n))
+    where
+      X xs = split (witness :: ExtensionField k im)
+      mul = (.) (snd . flip polyQR xs) . polyMul
+      pow' ws zs m
+        | m == 0    = ws
+        | m == 1    = mul ws zs
+        | even m    = pow' ws (mul zs zs) (div m 2)
+        | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
+  {-# INLINE pow #-}
+  rnd           = getRandom
+  {-# INLINE rnd #-}
 
 -- | Extension fields are rings
 instance (GaloisField k, IrreducibleMonic k im)
@@ -57,7 +78,7 @@ instance (GaloisField k, IrreducibleMonic k im)
   {-# INLINE (+) #-}
   EF (X ys) * EF (X zs) = EF (X (snd (polyQR (polyMul ys zs) xs)))
     where
-      X xs = split (witness :: (k, im))
+      X xs = split (witness :: ExtensionField k im)
   {-# INLINE (*) #-}
   EF y - EF z           = EF (y - z)
   {-# INLINE (-) #-}
@@ -73,9 +94,19 @@ instance (GaloisField k, IrreducibleMonic k im)
   => Pretty (ExtensionField k im) where
   pretty (EF y) = pretty y
 
+-- | Extension fields are random
+instance (GaloisField k, IrreducibleMonic k im)
+  => Random (ExtensionField k im) where
+  random  = first (EF . X . cut) . unfold (length xs - 1) []
+    where
+      X xs = split (witness :: ExtensionField k im)
+      unfold n ys g = if n <= 0 then (ys, g) else
+        let (y, g') = random g in unfold (n - 1) (y : ys) g'
+  randomR = panic "not implemented."
+
 -- | List from field
 fromField :: ExtensionField k im -> [k]
-fromField (EF (X ks)) = ks
+fromField (EF (X xs)) = xs
 {-# INLINABLE fromField #-}
 
 -- | Field from list
@@ -83,7 +114,7 @@ fromList :: forall k im . (GaloisField k, IrreducibleMonic k im)
   => [k] -> ExtensionField k im
 fromList = EF . X . snd . flip polyQR xs . cut
   where
-    X xs = split (witness :: (k, im))
+    X xs = split (witness :: ExtensionField k im)
 {-# INLINABLE fromList #-}
 
 -- | Current indeterminate variable
