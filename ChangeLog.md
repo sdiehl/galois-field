@@ -1,5 +1,8 @@
 # Change log for galois-field
 
+## 0.2
+
+
 ## 0.1.1
 
 * Add `Arbitrary` instances to PrimeField, PolynomialRing, and ExtensionField.
