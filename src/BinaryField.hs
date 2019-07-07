@@ -21,7 +21,9 @@ instance KnownNat ib => Arbitrary (BinaryField ib) where
 
 -- | Binary fields are fields
 instance KnownNat ib => Fractional (BinaryField ib) where
-  recip               = notImplemented
+  recip y@(BF x)      = case polyInv (natVal y) x of
+    Just z -> BF z
+    _      -> panic "no multiplicative inverse."
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
@@ -30,27 +32,27 @@ instance KnownNat ib => Fractional (BinaryField ib) where
 instance KnownNat ib => GaloisField (BinaryField ib) where
   char = const 2
   {-# INLINE char #-}
-  deg  = notImplemented
+  deg  = logPrime 2 . natVal
   {-# INLINE deg #-}
-  pow  = notImplemented
+  pow  = (^)
   {-# INLINE pow #-}
   rnd  = getRandom
   {-# INLINE rnd #-}
 
 -- | Binary fields are fields
 instance KnownNat ib => Num (BinaryField ib) where
-  BF x + BF y   = BF (xor x y)
+  BF x + BF y = BF (xor x y)
   {-# INLINE (+) #-}
-  (*)           = notImplemented
+  BF x * BF y = fromInteger (polyMul x y)
   {-# INLINE (*) #-}
-  BF x - BF y   = BF (xor x y)
+  BF x - BF y = BF (xor x y)
   {-# INLINE (-) #-}
-  negate        = identity
+  negate      = identity
   {-# INLINE negate #-}
-  fromInteger x = let y = rem x 2 in BF (if y >= 0 then y else y + 2)
+  fromInteger = BF . polyMod (natVal (witness :: BinaryField ib))
   {-# INLINABLE fromInteger #-}
-  abs           = panic "not implemented."
-  signum        = panic "not implemented."
+  abs         = panic "not implemented."
+  signum      = panic "not implemented."
 
 -- | Binary fields are pretty
 instance KnownNat ib => Pretty (BinaryField ib) where
@@ -60,3 +62,22 @@ instance KnownNat ib => Pretty (BinaryField ib) where
 instance KnownNat ib => Random (BinaryField ib) where
   random  = first BF . randomR (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
   randomR = panic "not implemented."
+
+-- | Prime base logarithm
+logPrime :: Integer -> Integer -> Int
+logPrime p x = if x < p then 0 else logQuot l (quot x (p ^ l))
+  where
+    l           = 2 * logPrime (p * p) x
+    logQuot q y = if y < p then q else logQuot (q + 1) (quot y p)
+
+-- | Polynomial modulus
+polyMod :: Integer -> Integer -> Integer
+polyMod = notImplemented
+
+-- | Polynomial multiplication
+polyMul :: Integer -> Integer -> Integer
+polyMul = notImplemented
+
+-- | Polynomial inversion
+polyInv :: Integer -> Integer -> Maybe Integer
+polyInv = notImplemented
