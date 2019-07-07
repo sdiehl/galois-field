@@ -36,9 +36,10 @@ extra-source-files:
 
 library:
   exposed-modules:
+    - BinaryField
+    - ExtensionField
     - GaloisField
     - PrimeField
-    - ExtensionField
   ghc-options:
     - -O2
     - -Wall
