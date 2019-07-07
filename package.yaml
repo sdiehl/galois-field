@@ -1,7 +1,7 @@
 name:        galois-field
 version:     0.2.0
 synopsis:    Galois field library
-description: Galois field library
+description: Galois field library for cryptography research
 maintainer:  Adjoint Inc (info@adjoint.io)
 license:     MIT
 github:      adjoint-io/galois-field
