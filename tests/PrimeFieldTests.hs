@@ -26,37 +26,37 @@ type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689
 
 
 test_S2 :: TestTree
-test_S2 = fieldAxioms (Proxy :: Proxy FS2) "FS2"
+test_S2 = fieldAxioms (witness :: FS2) "FS2"
 
 test_S3 :: TestTree
-test_S3 = fieldAxioms (Proxy :: Proxy FS3) "FS3"
+test_S3 = fieldAxioms (witness :: FS3) "FS3"
 
 test_S5 :: TestTree
-test_S5 = fieldAxioms (Proxy :: Proxy FS5) "FS5"
+test_S5 = fieldAxioms (witness :: FS5) "FS5"
 
 test_S7 :: TestTree
-test_S7 = fieldAxioms (Proxy :: Proxy FS7) "FS7"
+test_S7 = fieldAxioms (witness :: FS7) "FS7"
 
 test_M0 :: TestTree
-test_M0 = fieldAxioms (Proxy :: Proxy FM0) "FM0"
+test_M0 = fieldAxioms (witness :: FM0) "FM0"
 
 test_M1 :: TestTree
-test_M1 = fieldAxioms (Proxy :: Proxy FM1) "FM1"
+test_M1 = fieldAxioms (witness :: FM1) "FM1"
 
 test_M2 :: TestTree
-test_M2 = fieldAxioms (Proxy :: Proxy FM2) "FM2"
+test_M2 = fieldAxioms (witness :: FM2) "FM2"
 
 test_M3 :: TestTree
-test_M3 = fieldAxioms (Proxy :: Proxy FM3) "FM3"
+test_M3 = fieldAxioms (witness :: FM3) "FM3"
 
 test_M4 :: TestTree
-test_M4 = fieldAxioms (Proxy :: Proxy FM4) "FM4"
+test_M4 = fieldAxioms (witness :: FM4) "FM4"
 
 test_VL :: TestTree
-test_VL = fieldAxioms (Proxy :: Proxy FVL) "FVL"
+test_VL = fieldAxioms (witness :: FVL) "FVL"
 
 test_XL :: TestTree
-test_XL = fieldAxioms (Proxy :: Proxy FXL) "FXL"
+test_XL = fieldAxioms (witness :: FXL) "FXL"
 
 test_ZL :: TestTree
-test_ZL = fieldAxioms (Proxy :: Proxy FZL) "FZL"
+test_ZL = fieldAxioms (witness :: FZL) "FZL"

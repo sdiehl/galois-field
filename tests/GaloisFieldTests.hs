@@ -22,7 +22,7 @@ inverses :: Eq a => (a -> a -> a) -> (a -> a) -> a -> a -> Bool
 inverses op inv e x = op x (inv x) == e && op (inv x) x == e
 
 ringAxioms :: forall r . (Arbitrary r, Eq r, Num r, Show r)
-  => Proxy r -> TestName -> TestTree
+  => r -> TestName -> TestTree
 ringAxioms _ str = testGroup ("Test ring axioms of " <> str)
   [ testProperty "commutativity of addition"
     $ commutativity ((+) :: r -> r -> r)
@@ -43,7 +43,7 @@ ringAxioms _ str = testGroup ("Test ring axioms of " <> str)
   ]
 
 fieldAxioms :: forall k . (Arbitrary k, Eq k, Fractional k, Show k)
-  => Proxy k -> TestName -> TestTree
+  => k -> TestName -> TestTree
 fieldAxioms p str = testGroup ("Test field axioms of " <> str)
   [ ringAxioms p str
   , testProperty "multiplicative inverses"

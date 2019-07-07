@@ -10,7 +10,7 @@ module ExtensionField
 import Protolude
 
 import Control.Monad.Random (Random(..), getRandom)
-import Test.Tasty.QuickCheck (Arbitrary(..), choose, sized)
+import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
@@ -29,11 +29,9 @@ newtype ExtensionField k im = EF (Polynomial k)
 -- | Extension fields are arbitrary
 instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
   => Arbitrary (ExtensionField k im) where
-  arbitrary = fromList <$> sized (const poly)
+  arbitrary = fromList <$> vector (length xs - 1)
     where
-      poly = choose (1, length xs - 1) >>= mapM (const arbitrary) . enumFromTo 1
-        where
-          X xs = split (witness :: ExtensionField k im)
+      X xs = split (witness :: ExtensionField k im)
 
 -- | Extension fields are fields
 instance (GaloisField k, IrreducibleMonic k im)
