@@ -36,11 +36,11 @@ instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are fields
 instance (GaloisField k, IrreducibleMonic k im)
   => Fractional (ExtensionField k im) where
-  recip (EF (X ys))   = case polyInv ys xs of
+  recip y@(EF (X ys)) = case polyInv ys xs of
     Just zs -> EF (X zs)
     _       -> panic "no multiplicative inverse."
     where
-      X xs = split (witness :: ExtensionField k im)
+      X xs = split y
   {-# INLINE recip #-}
   fromRational (y:%z) = fromInteger y / fromInteger z
   {-# INLINABLE fromRational #-}
@@ -50,15 +50,15 @@ instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
   char          = const (char (witness :: k))
   {-# INLINE char #-}
-  deg           = const (deg (witness :: k) * length xs - 1)
+  deg y         = deg (witness :: k) * length xs - 1
     where
-      X xs = split (witness :: ExtensionField k im)
+      X xs = split y
   {-# INLINE deg #-}
   pow y@(EF (X ys)) n
     | n < 0     = pow (recip y) (-n)
     | otherwise = EF (X (pow' [1] ys n))
     where
-      X xs = split (witness :: ExtensionField k im)
+      X xs = split y
       mul = (.) (snd . flip polyQR xs) . polyMul
       pow' ws zs m
         | m == 0    = ws
@@ -72,20 +72,20 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- | Extension fields are rings
 instance (GaloisField k, IrreducibleMonic k im)
   => Num (ExtensionField k im) where
-  EF y + EF z           = EF (y + z)
+  EF y + EF z               = EF (y + z)
   {-# INLINE (+) #-}
-  EF (X ys) * EF (X zs) = EF (X (snd (polyQR (polyMul ys zs) xs)))
+  y@(EF (X ys)) * EF (X zs) = EF (X (snd (polyQR (polyMul ys zs) xs)))
     where
-      X xs = split (witness :: ExtensionField k im)
+      X xs = split y
   {-# INLINE (*) #-}
-  EF y - EF z           = EF (y - z)
+  EF y - EF z               = EF (y - z)
   {-# INLINE (-) #-}
-  negate (EF y)         = EF (-y)
+  negate (EF y)             = EF (-y)
   {-# INLINE negate #-}
-  fromInteger           = EF . fromInteger
+  fromInteger               = EF . fromInteger
   {-# INLINABLE fromInteger #-}
-  abs                   = panic "not implemented."
-  signum                = panic "not implemented."
+  abs                       = panic "not implemented."
+  signum                    = panic "not implemented."
 
 -- | Extension fields are pretty
 instance (GaloisField k, IrreducibleMonic k im)
