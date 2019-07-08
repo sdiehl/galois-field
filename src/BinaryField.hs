@@ -17,11 +17,11 @@ newtype BinaryField (ib :: Nat) = BF Integer
 
 -- | Binary fields are arbitrary
 instance KnownNat ib => Arbitrary (BinaryField ib) where
-  arbitrary = BF <$> choose (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
+  arbitrary = BF <$> choose (0, 2 ^ (natVal (witness :: BinaryField ib)) - 1)
 
 -- | Binary fields are fields
 instance KnownNat ib => Fractional (BinaryField ib) where
-  recip y@(BF x)      = case polyInv (natVal y) x of
+  recip y@(BF x)      = case inv (natVal y) x of
     Just z -> BF z
     _      -> panic "no multiplicative inverse."
   {-# INLINE recip #-}
@@ -32,7 +32,7 @@ instance KnownNat ib => Fractional (BinaryField ib) where
 instance KnownNat ib => GaloisField (BinaryField ib) where
   char = const 2
   {-# INLINE char #-}
-  deg  = logPrime 2 . natVal
+  deg  = bin . natVal
   {-# INLINE deg #-}
   pow  = (^)
   {-# INLINE pow #-}
@@ -43,13 +43,13 @@ instance KnownNat ib => GaloisField (BinaryField ib) where
 instance KnownNat ib => Num (BinaryField ib) where
   BF x + BF y = BF (xor x y)
   {-# INLINE (+) #-}
-  BF x * BF y = fromInteger (polyMul x y)
+  BF x * BF y = fromInteger (mul x y)
   {-# INLINE (*) #-}
   BF x - BF y = BF (xor x y)
   {-# INLINE (-) #-}
   negate      = identity
   {-# INLINE negate #-}
-  fromInteger = BF . polyMod (natVal (witness :: BinaryField ib))
+  fromInteger = BF . red (natVal (witness :: BinaryField ib))
   {-# INLINABLE fromInteger #-}
   abs         = panic "not implemented."
   signum      = panic "not implemented."
@@ -63,21 +63,43 @@ instance KnownNat ib => Random (BinaryField ib) where
   random  = first BF . randomR (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
   randomR = panic "not implemented."
 
--- | Prime base logarithm
-logPrime :: Integer -> Integer -> Int
-logPrime p x = if x < p then 0 else logQuot l (quot x (p ^ l))
+-- | Binary logarithm
+bin :: Integer -> Int
+bin = logP 2
   where
-    l           = 2 * logPrime (p * p) x
-    logQuot q y = if y < p then q else logQuot (q + 1) (quot y p)
+    logP p x = let l = 2 * logP (p * p) x
+               in if x < p then 0 else log' l (quot x (p ^ l))
+      where
+        log' :: Int -> Integer -> Int
+        log' q y = if y < p then q else log' (q + 1) (quot y p)
+{-# INLINE bin #-}
 
--- | Polynomial modulus
-polyMod :: Integer -> Integer -> Integer
-polyMod = notImplemented
+-- | Binary multiplication
+mul :: Integer -> Integer -> Integer
+mul x y = mul' (bin y) (if testBit y 0 then x else 0)
+  where
+    mul' :: Int -> Integer -> Integer
+    mul' 0 n = n
+    mul' l n = mul' (l - 1) (if testBit y l then xor n (shift x l) else n)
+{-# INLINE mul #-}
 
--- | Polynomial multiplication
-polyMul :: Integer -> Integer -> Integer
-polyMul = notImplemented
+-- | Binary reduction
+red :: Integer -> Integer -> Integer
+red f = red'
+  where
+    red' :: Integer -> Integer
+    red' x = let n = bin x - bin f
+             in if n < 0 then x else red' (xor x (shift f n))
+{-# INLINE red #-}
 
--- | Polynomial inversion
-polyInv :: Integer -> Integer -> Maybe Integer
-polyInv = notImplemented
+-- | Binary inversion
+inv :: Integer -> Integer -> Maybe Integer
+inv f x = case inv' 1 x 0 f of
+  (y, 1) -> Just y
+  _      -> Nothing
+  where
+    inv' :: Integer -> Integer -> Integer -> Integer -> (Integer, Integer)
+    inv' t r _  0  = (t, r)
+    inv' t r t' r' = let q = max 0 (bin r - bin r')
+                     in inv' t' r' (xor t (shift t' q)) (xor r (shift r' q))
+{-# INLINE inv #-}
