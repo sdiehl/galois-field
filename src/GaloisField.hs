@@ -14,13 +14,17 @@ class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
   {-# MINIMAL char, deg, pow, rnd #-}
 
   -- Characteristics
-  char :: k -> Integer  -- ^ Characteristic @q@ of field
+  char :: k -> Integer  -- ^ Characteristic @p@ of field
 
   deg :: k -> Int       -- ^ Degree @q@ of field
 
   order :: k -> Integer -- ^ Order @p^q@ of field
   order = (^) <$> char <*> deg
   {-# INLINE order #-}
+
+  frob :: k -> k        -- ^ Frobenius endomorphism @x->x^p@ of field
+  frob = pow <*> char
+  {-# INLINE frob #-}
 
   -- Functions
   pow :: k -> Integer -> k -- @x@ to the power of @y@
