@@ -67,6 +67,7 @@ instance KnownNat ib => Random (BinaryField ib) where
 bin :: Integer -> Int
 bin = logP 2
   where
+    logP :: Integer -> Integer -> Int
     logP p x = let l = 2 * logP (p * p) x
                in if x < p then 0 else log' l (quot x (p ^ l))
       where

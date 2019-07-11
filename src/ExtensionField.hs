@@ -52,9 +52,9 @@ instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
   char          = const (char (witness :: k))
   {-# INLINE char #-}
-  deg           = const (deg (witness :: k) * length xs - 1)
+  deg y         = deg (witness :: k) * (length xs - 1)
     where
-      X xs = split (witness :: ExtensionField k im)
+      X xs = split y
   {-# INLINE deg #-}
   pow y@(EF (X ys)) n
     | n < 0     = pow (recip y) (-n)
