@@ -25,8 +25,11 @@ default-extensions:
 dependencies:
   - base >= 4.7 && < 5
   - protolude >= 0.2
+  - criterion
   - integer-gmp
   - MonadRandom
+  - tasty
+  - tasty-discover
   - tasty-quickcheck
   - wl-pprint-text
 
@@ -36,9 +39,10 @@ extra-source-files:
 
 library:
   exposed-modules:
+    - BinaryField
+    - ExtensionField
     - GaloisField
     - PrimeField
-    - ExtensionField
   ghc-options:
     - -O2
     - -Wall
@@ -50,9 +54,6 @@ library:
 tests:
   galois-field-tests:
     main: Main
-    dependencies:
-      - tasty
-      - tasty-discover
     ghc-options:
       - -O2
     source-dirs:
@@ -62,8 +63,6 @@ tests:
 benchmarks:
   galois-field-benchmarks:
     main: Main
-    dependencies:
-      - criterion
     ghc-options:
       - -O2
     source-dirs:

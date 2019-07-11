@@ -50,7 +50,7 @@ instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
   char          = const (char (witness :: k))
   {-# INLINE char #-}
-  deg y         = deg (witness :: k) * length xs - 1
+  deg y         = deg (witness :: k) * (length xs - 1)
     where
       X xs = split y
   {-# INLINE deg #-}
