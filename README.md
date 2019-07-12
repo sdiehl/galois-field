@@ -1,7 +1,7 @@
 <p align="center">
-<a href="https://www.adjoint.io">
-  <img width="250" src="./.assets/adjoint.png" alt="Adjoint Logo" />
-</a>
+  <a href="https://www.adjoint.io">
+    <img width="250" src="./.assets/adjoint.png" alt="Adjoint Logo" />
+  </a>
 </p>
 
 
@@ -14,11 +14,11 @@ An efficient implementation of Galois fields used in cryptography research.
 
 ## Technical background
 
-A **Galois field** GF(p<sup>q</sup>), for prime p and positive q, is a *field* (GF(p<sup>q</sup>), +, \*, 0, 1) of finite *order*. Explicitly,
-- (GF(p<sup>q</sup>), +, 0) is an abelian group,
-- (GF(p<sup>q</sup>) \\ \{0\}, \*, 1) is an abelian group,
+A **Galois field** GF(p^q), for prime p and positive q, is a *field* (GF(p^q), +, \*, 0, 1) of finite *order*. Explicitly,
+- (GF(p^q), +, 0) is an abelian group,
+- (GF(p^q) \\ \{0\}, \*, 1) is an abelian group,
 - \* is distributive over +, and
-- \#GF(p<sup>q</sup>) is finite.
+- \#GF(p^q) is finite.
 
 ### Prime fields
 
@@ -28,9 +28,9 @@ For example, GF(4) is a Galois field of characteristic 2 that is a two-dimension
 
 ### Extension fields
 
-Any Galois field has order a prime power p<sup>q</sup> for prime p and positive q, and there is a Galois field GF(p<sup>q</sup>) of any prime power order p<sup>q</sup> that is *unique up to non-unique isomorphism*. Any Galois field GF(p<sup>q</sup>) can be constructed as an **extension field** over a smaller Galois subfield GF(p<sup>r</sup>), through the identification GF(p<sup>q</sup>) = GF(p<sup>r</sup>)[X] / \<f(X)\> for an *irreducible monic splitting polynomial* f(X) of degree q - r + 1 in the *polynomial ring* GF(p<sup>r</sup>)[X].
+Any Galois field has order a prime power p^q for prime p and positive q, and there is a Galois field GF(p^q) of any prime power order p^q that is *unique up to non-unique isomorphism*. Any Galois field GF(p^q) can be constructed as an **extension field** over a smaller Galois subfield GF(p^r), through the identification GF(p^q) = GF(p^r)[X] / \<f(X)\> for an *irreducible monic splitting polynomial* f(X) of degree q - r + 1 in the *polynomial ring* GF(p^r)[X].
 
-For example, GF(4) has order 2<sup>2</sup> and can be constructed as an extension field GF(2)[X] / \<f(X)\> where f(X) = X<sup>2</sup> + X + 1 is an irreducible monic splitting quadratic polynomial in GF(2)[X].
+For example, GF(4) has order 2^2 and can be constructed as an extension field GF(2)[X] / \<f(X)\> where f(X) = X^2 + X + 1 is an irreducible monic splitting quadratic polynomial in GF(2)[X].
 
 ## Example usage
 

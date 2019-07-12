@@ -8,22 +8,31 @@ import Control.Monad.Random (MonadRandom, Random)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
--- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative
+-- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
 class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
   => GaloisField k where
-  {-# MINIMAL char, deg, pow, rnd #-}
+  {-# MINIMAL char, deg, frob, pow, rnd #-}
 
   -- Characteristics
-  char :: k -> Integer  -- ^ Characteristic @q@ of field
 
-  deg :: k -> Int       -- ^ Degree @q@ of field
+  -- | Characteristic @p@ of field and order of prime subfield.
+  char :: k -> Integer
 
-  order :: k -> Integer -- ^ Order @p^q@ of field
+  -- | Degree @q@ of field as extension field over prime subfield.
+  deg :: k -> Int
+
+  -- | Frobenius endomorphism @x->x^p@ of prime subfield.
+  frob :: k -> k
+
+  -- | Order @p^q@ of field.
+  order :: k -> Integer
   order = (^) <$> char <*> deg
   {-# INLINE order #-}
 
   -- Functions
-  pow :: k -> Integer -> k -- @x@ to the power of @y@
 
-  -- Randomisation
-  rnd :: MonadRandom m => m k -- ^ Random element of field
+  -- | Exponentiation @x@ to the power of @y@.
+  pow :: k -> Integer -> k
+
+  -- | Randomised element @x@ of field.
+  rnd :: MonadRandom m => m k

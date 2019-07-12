@@ -1,7 +1,7 @@
 name:        galois-field
-version:     0.2.0
+version:     0.2.1
 synopsis:    Galois field library
-description: Galois field library for cryptography research
+description: An efficient implementation of Galois fields used in cryptography research
 maintainer:  Adjoint Inc (info@adjoint.io)
 license:     MIT
 github:      adjoint-io/galois-field
@@ -34,14 +34,16 @@ extra-source-files:
   - README.md
   - ChangeLog.md
 
+ghc-options:
+  - -O2
+  - -Wall
+
 library:
   exposed-modules:
+    - BinaryField
+    - ExtensionField
     - GaloisField
     - PrimeField
-    - ExtensionField
-  ghc-options:
-    - -O2
-    - -Wall
   other-modules:
     - PolynomialRing
   source-dirs:
@@ -52,9 +54,6 @@ tests:
     main: Main
     dependencies:
       - tasty
-      - tasty-discover
-    ghc-options:
-      - -O2
     source-dirs:
       - tests
       - src
@@ -64,8 +63,6 @@ benchmarks:
     main: Main
     dependencies:
       - criterion
-    ghc-options:
-      - -O2
     source-dirs:
       - benchmarks
       - src
