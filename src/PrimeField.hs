@@ -12,33 +12,35 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
--- | Prime fields @GF(p)@ for @p@ prime
+-- | Prime fields @GF(p)@ for @p@ prime.
 newtype PrimeField (p :: Nat) = PF Integer
   deriving (Bits, Eq, Generic, NFData, Show)
 
--- | Prime fields are arbitrary
+-- Prime fields are arbitrary.
 instance KnownNat p => Arbitrary (PrimeField p) where
   arbitrary = fromInteger <$> arbitrary
 
--- | Prime fields are fields
+-- Prime fields are fields.
 instance KnownNat p => Fractional (PrimeField p) where
   recip y@(PF x)      = PF (recipModInteger x (natVal y))
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
--- | Prime fields are Galois fields
+-- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
   char           = natVal
   {-# INLINE char #-}
   deg            = const 1
   {-# INLINE deg #-}
+  frob           = identity
+  {-# INLINE frob #-}
   pow y@(PF x) n = PF (powModInteger x n (natVal y))
   {-# INLINE pow #-}
   rnd            = getRandom
   {-# INLINE rnd #-}
 
--- | Prime fields are rings
+-- Prime fields are rings.
 instance KnownNat p => Num (PrimeField p) where
   z@(PF x) + PF y = PF (if xyp >= 0 then xyp else xy)
     where
@@ -61,16 +63,16 @@ instance KnownNat p => Num (PrimeField p) where
   abs             = panic "not implemented."
   signum          = panic "not implemented."
 
--- | Prime fields are pretty
+-- Prime fields are pretty.
 instance KnownNat p => Pretty (PrimeField p) where
   pretty (PF x) = pretty [x]
 
--- | Prime fields are random
+-- Prime fields are random.
 instance KnownNat p => Random (PrimeField p) where
   random  = first PF . randomR (0, natVal (witness :: PrimeField p) - 1)
   randomR = panic "not implemented."
 
--- | Embed to integers
+-- | Embed field element to integers.
 toInt :: PrimeField p -> Integer
 toInt (PF x) = x
 {-# INLINABLE toInt #-}

@@ -10,16 +10,16 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
--- | Binary fields @GF(2^q)[X]/<f(X)>@ for @q@ positive and
--- @f(X)@ irreducible monic in @GF(2^q)[X]@
+-- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
+-- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
 newtype BinaryField (ib :: Nat) = BF Integer
   deriving (Eq, Generic, NFData, Show)
 
--- | Binary fields are arbitrary
+-- Binary fields are arbitrary.
 instance KnownNat ib => Arbitrary (BinaryField ib) where
-  arbitrary = BF <$> choose (0, 2 ^ (natVal (witness :: BinaryField ib)) - 1)
+  arbitrary = BF <$> choose (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
 
--- | Binary fields are fields
+-- Binary fields are fields.
 instance KnownNat ib => Fractional (BinaryField ib) where
   recip y@(BF x)      = case inv (natVal y) x of
     Just z -> BF z
@@ -28,18 +28,20 @@ instance KnownNat ib => Fractional (BinaryField ib) where
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
--- | Binary fields are Galois fields
+-- Binary fields are Galois fields.
 instance KnownNat ib => GaloisField (BinaryField ib) where
   char = const 2
   {-# INLINE char #-}
   deg  = bin . natVal
   {-# INLINE deg #-}
+  frob = flip pow 2
+  {-# INLINE frob #-}
   pow  = (^)
   {-# INLINE pow #-}
   rnd  = getRandom
   {-# INLINE rnd #-}
 
--- | Binary fields are fields
+-- Binary fields are fields.
 instance KnownNat ib => Num (BinaryField ib) where
   BF x + BF y = BF (xor x y)
   {-# INLINE (+) #-}
@@ -54,16 +56,16 @@ instance KnownNat ib => Num (BinaryField ib) where
   abs         = panic "not implemented."
   signum      = panic "not implemented."
 
--- | Binary fields are pretty
+-- Binary fields are pretty.
 instance KnownNat ib => Pretty (BinaryField ib) where
   pretty (BF x) = pretty x
 
--- | Binary fields are random
+-- Binary fields are random.
 instance KnownNat ib => Random (BinaryField ib) where
   random  = first BF . randomR (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
   randomR = panic "not implemented."
 
--- | Binary logarithm
+-- Binary logarithm.
 bin :: Integer -> Int
 bin = logP 2
   where
@@ -75,7 +77,7 @@ bin = logP 2
         log' q y = if y < p then q else log' (q + 1) (quot y p)
 {-# INLINE bin #-}
 
--- | Binary multiplication
+-- Binary multiplication.
 mul :: Integer -> Integer -> Integer
 mul x y = mul' (bin y) (if testBit y 0 then x else 0)
   where
@@ -84,7 +86,7 @@ mul x y = mul' (bin y) (if testBit y 0 then x else 0)
     mul' l n = mul' (l - 1) (if testBit y l then xor n (shift x l) else n)
 {-# INLINE mul #-}
 
--- | Binary reduction
+-- Binary reduction.
 red :: Integer -> Integer -> Integer
 red f = red'
   where
@@ -93,7 +95,7 @@ red f = red'
              in if n < 0 then x else red' (xor x (shift f n))
 {-# INLINE red #-}
 
--- | Binary inversion
+-- Binary inversion.
 inv :: Integer -> Integer -> Maybe Integer
 inv f x = case inv' 1 x 0 f of
   (y, 1) -> Just y
