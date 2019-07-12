@@ -34,15 +34,16 @@ extra-source-files:
   - README.md
   - ChangeLog.md
 
+ghc-options:
+  - -O2
+  - -Wall
+
 library:
   exposed-modules:
     - BinaryField
     - ExtensionField
     - GaloisField
     - PrimeField
-  ghc-options:
-    - -O2
-    - -Wall
   other-modules:
     - PolynomialRing
   source-dirs:
@@ -53,9 +54,6 @@ tests:
     main: Main
     dependencies:
       - tasty
-      - tasty-discover
-    ghc-options:
-      - -O2
     source-dirs:
       - tests
       - src
@@ -65,8 +63,6 @@ benchmarks:
     main: Main
     dependencies:
       - criterion
-    ghc-options:
-      - -O2
     source-dirs:
       - benchmarks
       - src

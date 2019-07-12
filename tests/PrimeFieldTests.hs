@@ -24,39 +24,18 @@ type FZL = PrimeField 7416400626275308015247871419019374740599407810975190239058
 
 type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689037894645226208583
 
-
-test_S2 :: TestTree
-test_S2 = fieldAxioms (witness :: FS2) "FS2"
-
-test_S3 :: TestTree
-test_S3 = fieldAxioms (witness :: FS3) "FS3"
-
-test_S5 :: TestTree
-test_S5 = fieldAxioms (witness :: FS5) "FS5"
-
-test_S7 :: TestTree
-test_S7 = fieldAxioms (witness :: FS7) "FS7"
-
-test_M0 :: TestTree
-test_M0 = fieldAxioms (witness :: FM0) "FM0"
-
-test_M1 :: TestTree
-test_M1 = fieldAxioms (witness :: FM1) "FM1"
-
-test_M2 :: TestTree
-test_M2 = fieldAxioms (witness :: FM2) "FM2"
-
-test_M3 :: TestTree
-test_M3 = fieldAxioms (witness :: FM3) "FM3"
-
-test_M4 :: TestTree
-test_M4 = fieldAxioms (witness :: FM4) "FM4"
-
-test_VL :: TestTree
-test_VL = fieldAxioms (witness :: FVL) "FVL"
-
-test_XL :: TestTree
-test_XL = fieldAxioms (witness :: FXL) "FXL"
-
-test_ZL :: TestTree
-test_ZL = fieldAxioms (witness :: FZL) "FZL"
+testPrimeField :: TestTree
+testPrimeField = testGroup "Prime fields"
+  [ fieldAxioms "FS2" (witness :: FS2)
+  , fieldAxioms "FS3" (witness :: FS3)
+  , fieldAxioms "FS5" (witness :: FS5)
+  , fieldAxioms "FS7" (witness :: FS7)
+  , fieldAxioms "FM0" (witness :: FM0)
+  , fieldAxioms "FM1" (witness :: FM1)
+  , fieldAxioms "FM2" (witness :: FM2)
+  , fieldAxioms "FM3" (witness :: FM3)
+  , fieldAxioms "FM4" (witness :: FM4)
+  , fieldAxioms "FVL" (witness :: FVL)
+  , fieldAxioms "FXL" (witness :: FXL)
+  , fieldAxioms "FZL" (witness :: FZL)
+  ]
