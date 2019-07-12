@@ -1,8 +1,12 @@
 <p align="center">
-  <a href="http://www.adjoint.io"><img src="https://www.adjoint.io/assets/img/adjoint-logo@2x.png" width="250"/></a>
+  <a href="https://www.adjoint.io">
+    <img width="250" src="./.assets/adjoint.png" alt="Adjoint Logo" />
+  </a>
 </p>
 
+
 [![CircleCI](https://circleci.com/gh/adjoint-io/galois-field.svg?style=svg)](https://circleci.com/gh/adjoint-io/galois-field)
+[![Hackage](https://img.shields.io/hackage/v/galois-field.svg)](https://hackage.haskell.org/package/galois-field)
 
 # Galois Field
 
