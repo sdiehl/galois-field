@@ -8,11 +8,15 @@ import Control.Monad.Random (MonadRandom, Random)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
+-------------------------------------------------------------------------------
+-- Galois field class
+-------------------------------------------------------------------------------
+
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
 class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
   => GaloisField k where
   {-# MINIMAL (.+.), (.*.), ((.-.) | neg), ((./.) | inv),
-    char, deg, frob, pow, rnd #-}
+    char, deg, frob, fromZ, pow, rnd, toZ #-}
 
   -- Characteristics
 
@@ -32,38 +36,44 @@ class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
 
   -- Functions
 
-  -- | Addition of @x@ with @y@.
+  -- | Convert an integer to a field element.
+  fromZ :: Integer -> k
+
+  -- | Convert a field element to an integer.
+  toZ :: k -> Integer
+
+  -- | Addition of field elements.
   infixl 6 .+.
   (.+.) :: k -> k -> k
 
-  -- | Multiplication of @x@ with @y@.
+  -- | Multiplication of field elements.
   infixl 7 .*.
   (.*.) :: k -> k -> k
 
-  -- | Negation of @x@.
+  -- | Negation of a field element.
   neg :: k -> k
   neg = (.-.) 0
   {-# INLINE neg #-}
 
-  -- | Subtraction of @x@ by @y@.
+  -- | Subtraction of field elements.
   infixl 6 .-.
   (.-.) :: k -> k -> k
   (.-.) = (. neg) . (.+.)
   {-# INLINE (.-.) #-}
 
-  -- | Inversion of @x@.
+  -- | Inversion of a field element.
   inv :: k -> k
   inv = (./.) 1
   {-# INLINE inv #-}
 
-  -- | Division of @x@ by @y@.
+  -- | Division of field elements.
   infixl 7 ./.
   (./.) :: k -> k -> k
   (./.) = (. inv) . (.*.)
   {-# INLINE (./.) #-}
 
-  -- | Exponentiation @x@ to the power of @y@.
+  -- | Exponentiation of a field element to an integer.
   pow :: k -> Integer -> k
 
-  -- | Randomised element @x@ of field.
+  -- | Randomised field element.
   rnd :: MonadRandom m => m k
