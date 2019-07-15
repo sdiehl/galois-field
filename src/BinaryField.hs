@@ -21,7 +21,7 @@ instance KnownNat ib => Arbitrary (BinaryField ib) where
 
 -- Binary fields are fields.
 instance KnownNat ib => Fractional (BinaryField ib) where
-  recip y@(BF x)      = case inv (natVal y) x of
+  recip y@(BF x)      = case binInv (natVal y) x of
     Just z -> BF z
     _      -> panic "no multiplicative inverse."
   {-# INLINE recip #-}
@@ -45,13 +45,13 @@ instance KnownNat ib => GaloisField (BinaryField ib) where
 instance KnownNat ib => Num (BinaryField ib) where
   BF x + BF y = BF (xor x y)
   {-# INLINE (+) #-}
-  BF x * BF y = fromInteger (mul x y)
+  BF x * BF y = fromInteger (binMul x y)
   {-# INLINE (*) #-}
   BF x - BF y = BF (xor x y)
   {-# INLINE (-) #-}
   negate      = identity
   {-# INLINE negate #-}
-  fromInteger = BF . red (natVal (witness :: BinaryField ib))
+  fromInteger = BF . binRed (natVal (witness :: BinaryField ib))
   {-# INLINABLE fromInteger #-}
   abs         = panic "not implemented."
   signum      = panic "not implemented."
@@ -78,26 +78,26 @@ bin = logP 2
 {-# INLINE bin #-}
 
 -- Binary multiplication.
-mul :: Integer -> Integer -> Integer
-mul x y = mul' (bin y) (if testBit y 0 then x else 0)
+binMul :: Integer -> Integer -> Integer
+binMul x y = mul' (bin y) (if testBit y 0 then x else 0)
   where
     mul' :: Int -> Integer -> Integer
     mul' 0 n = n
     mul' l n = mul' (l - 1) (if testBit y l then xor n (shift x l) else n)
-{-# INLINE mul #-}
+{-# INLINE binMul #-}
 
 -- Binary reduction.
-red :: Integer -> Integer -> Integer
-red f = red'
+binRed :: Integer -> Integer -> Integer
+binRed f = red'
   where
     red' :: Integer -> Integer
     red' x = let n = bin x - bin f
              in if n < 0 then x else red' (xor x (shift f n))
-{-# INLINE red #-}
+{-# INLINE binRed #-}
 
 -- Binary inversion.
-inv :: Integer -> Integer -> Maybe Integer
-inv f x = case inv' 1 x 0 f of
+binInv :: Integer -> Integer -> Maybe Integer
+binInv f x = case inv' 1 x 0 f of
   (y, 1) -> Just y
   _      -> Nothing
   where
@@ -105,4 +105,4 @@ inv f x = case inv' 1 x 0 f of
     inv' t r _  0  = (t, r)
     inv' t r t' r' = let q = max 0 (bin r - bin r')
                      in inv' t' r' (xor t (shift t' q)) (xor r (shift r' q))
-{-# INLINE inv #-}
+{-# INLINE binInv #-}
