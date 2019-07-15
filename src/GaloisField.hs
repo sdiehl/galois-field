@@ -46,6 +46,12 @@ class (Arbitrary k, Bounded k, Fractional k, Integral k,
   infixl 6 .+.
   (.+.) :: k -> k -> k
 
+  -- | Subtraction of field elements.
+  infixl 6 .-.
+  (.-.) :: k -> k -> k
+  (.-.) = (. neg) . (.+.)
+  {-# INLINE (.-.) #-}
+
   -- | Multiplication of field elements.
   infixl 7 .*.
   (.*.) :: k -> k -> k
@@ -54,12 +60,6 @@ class (Arbitrary k, Bounded k, Fractional k, Integral k,
   neg :: k -> k
   neg = (.-.) 0
   {-# INLINE neg #-}
-
-  -- | Subtraction of field elements.
-  infixl 6 .-.
-  (.-.) :: k -> k -> k
-  (.-.) = (. neg) . (.+.)
-  {-# INLINE (.-.) #-}
 
   -- | Inversion of a field element.
   inv :: k -> k
