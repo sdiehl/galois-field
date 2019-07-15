@@ -25,31 +25,31 @@ instance (GaloisField k, KnownNat im) => GaloisField (AdicField k im) where
   char       = const (char (witness :: k))
   {-# INLINE char #-}
 
-  deg        = adicDeg
+  deg        = notImplemented
   {-# INLINE deg #-}
 
   frob       = pow <*> char
   {-# INLINE frob #-}
 
-  fromZ      = adicMod
+  fromZ      = notImplemented
   {-# INLINE fromZ #-}
 
   toZ (EF x) = x
   {-# INLINE toZ #-}
 
-  (.+.)      = adicAdd
+  (.+.)      = adicZip (.+.)
   {-# INLINE (.+.) #-}
 
-  (.-.)      = adicSub
+  (.-.)      = adicZip (.-.)
   {-# INLINE (.-.) #-}
 
-  (.*.)      = adicMul
+  (.*.)      = notImplemented
   {-# INLINE (.*.) #-}
 
-  neg        = adicNeg
+  neg        = adicMap neg
   {-# INLINE neg #-}
 
-  inv        = adicInv
+  inv        = notImplemented
   {-# INLINE inv #-}
 
   pow        = (^)
@@ -113,44 +113,54 @@ instance (GaloisField k, KnownNat im) => Random (AdicField k im) where
 -- Adic field arithmetic
 -------------------------------------------------------------------------------
 
--- | Adic field degree.
-adicDeg :: (GaloisField k, KnownNat im)
-  => AdicField k im -> Int
-adicDeg = notImplemented
-{-# INLINE adicDeg #-}
+-- | Adic cons function.
+adicCons :: (GaloisField k, KnownNat im)
+  => k -> AdicField k im -> AdicField k im
+adicCons x (EF xs) = EF (toZ x + order x * xs)
+{-# INLINE adicCons #-}
 
--- | Adic field addition.
-adicAdd :: (GaloisField k, KnownNat im)
-  => AdicField k im -> AdicField k im -> AdicField k im
-adicAdd = notImplemented
-{-# INLINE adicAdd #-}
+-- | Adic uncons function.
+adicUncons :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im -> (k, AdicField k im)
+adicUncons (EF xs) = case quotRem xs (order (witness :: k)) of
+  (q, r) -> (fromZ r, EF q)
+{-# INLINE adicUncons #-}
 
--- | Adic field subtraction.
-adicSub :: (GaloisField k, KnownNat im)
-  => AdicField k im -> AdicField k im -> AdicField k im
-adicSub = notImplemented
-{-# INLINE adicSub #-}
+-- | Adic map function.
+adicMap :: forall k im . (GaloisField k, KnownNat im)
+  => (k -> k) -> AdicField k im -> AdicField k im
+adicMap f = adicMap'
+  where
+    adicMap' :: AdicField k im -> AdicField k im
+    adicMap' x = case adicUncons x of
+      (x',  0) -> EF (toZ (f x'))
+      (x', xs) -> adicCons (f x') (adicMap' xs)
+{-# INLINE adicMap #-}
 
--- | Adic field multiplication.
-adicMul :: (GaloisField k, KnownNat im)
-  => AdicField k im -> AdicField k im -> AdicField k im
-adicMul = notImplemented
-{-# INLINE adicMul #-}
+-- | Adic zip function.
+adicZip :: forall k im . (GaloisField k, KnownNat im)
+  => (k -> k -> k) -> AdicField k im -> AdicField k im -> AdicField k im
+adicZip f = adicZip'
+  where
+    adicZip' :: AdicField k im -> AdicField k im -> AdicField k im
+    adicZip' x y = case (adicUncons x, adicUncons y) of
+      ((x',  0), (y',  0)) -> EF (toZ (f x' y'))
+      ((x', xs), (y', ys)) -> adicCons (f x' y') (adicZip' xs ys)
+{-# INLINE adicZip #-}
 
--- | Adic field negation.
-adicNeg :: (GaloisField k, KnownNat im)
-  => AdicField k im -> AdicField k im
-adicNeg = notImplemented
-{-# INLINE adicNeg #-}
-
--- | Adic field modulus.
-adicMod :: (GaloisField k, KnownNat im)
-  => Integer -> AdicField k im
-adicMod = notImplemented
-{-# INLINE adicMod #-}
-
--- | Adic field inversion.
-adicInv :: (GaloisField k, KnownNat im)
-  => AdicField k im -> AdicField k im
-adicInv = notImplemented
-{-# INLINE adicInv #-}
+-- | Adic last and length function.
+adicLead :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im -> (k, Int)
+adicLead = first fromZ . adicLead' (order (witness :: k)) . toZ
+  where
+    adicLead' :: Integer -> Integer -> (Integer, Int)
+    adicLead' p x
+      | x < p     = (x, 0)
+      | otherwise = case adicLead' (p * p) x of
+        (_, l) -> let l' = 2 * l in adicLead'' (quot x (p ^ l'), l')
+      where
+        adicLead'' :: (Integer, Int) -> (Integer, Int)
+        adicLead'' yn@(y, n)
+          | y < p     = yn
+          | otherwise = adicLead'' (quot y p, n + 1)
+{-# INLINE adicLead #-}

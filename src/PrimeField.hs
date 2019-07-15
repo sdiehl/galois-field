@@ -40,25 +40,17 @@ instance KnownNat p => GaloisField (PrimeField p) where
   toZ (PF x)        = x
   {-# INLINE toZ #-}
 
-  PF x .+.    PF 0  = PF x
-  PF 0 .+.    PF y  = PF y
   PF x .+. w@(PF y) = PF (if xyp >= 0 then xyp else xy)
     where
       xy  = x + y
       xyp = xy - natVal w
   {-# INLINE (.+.) #-}
 
-  PF x .-.    PF 0  = PF x
-  PF 0 .-. w@(PF y) = PF (natVal w - y)
   PF x .-. w@(PF y) = PF (if xy >= 0 then xy else xy + natVal w)
     where
       xy = x - y
   {-# INLINE (.-.) #-}
 
-  PF _ .*.    PF 0  = PF 0
-  PF 0 .*.    PF _  = PF 0
-  PF x .*.    PF 1  = PF x
-  PF 1 .*.    PF y  = PF y
   PF x .*. w@(PF y) = PF (rem (x * y) (natVal w))
   {-# INLINE (.*.) #-}
 
