@@ -10,23 +10,14 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
+-------------------------------------------------------------------------------
+-- Binary field type
+-------------------------------------------------------------------------------
+
 -- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
 -- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
 newtype BinaryField (ib :: Nat) = BF Integer
-  deriving (Eq, Generic, NFData, Show)
-
--- Binary fields are arbitrary.
-instance KnownNat ib => Arbitrary (BinaryField ib) where
-  arbitrary = BF <$> choose (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
-
--- Binary fields are fields.
-instance KnownNat ib => Fractional (BinaryField ib) where
-  recip y@(BF x)      = case binInv (natVal y) x of
-    Just z -> BF z
-    _      -> panic "no multiplicative inverse."
-  {-# INLINE recip #-}
-  fromRational (x:%y) = fromInteger x / fromInteger y
-  {-# INLINABLE fromRational #-}
+  deriving (Enum, Eq, Generic, Integral, NFData, Ord, Read, Real, Show)
 
 -- Binary fields are Galois fields.
 instance KnownNat ib => GaloisField (BinaryField ib) where
@@ -41,7 +32,27 @@ instance KnownNat ib => GaloisField (BinaryField ib) where
   rnd  = getRandom
   {-# INLINE rnd #-}
 
+-------------------------------------------------------------------------------
+-- Binary field instances
+-------------------------------------------------------------------------------
+
+-- Binary fields are arbitrary.
+instance KnownNat ib => Arbitrary (BinaryField ib) where
+  arbitrary = BF <$> choose (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
+
+-- Binary fields are bounded.
+instance KnownNat ib => Bounded (BinaryField ib)
+
 -- Binary fields are fields.
+instance KnownNat ib => Fractional (BinaryField ib) where
+  recip y@(BF x)      = case binInv (natVal y) x of
+    Just z -> BF z
+    _      -> panic "no multiplicative inverse."
+  {-# INLINE recip #-}
+  fromRational (x:%y) = fromInteger x / fromInteger y
+  {-# INLINABLE fromRational #-}
+
+-- Binary fields are rings.
 instance KnownNat ib => Num (BinaryField ib) where
   BF x + BF y = BF (xor x y)
   {-# INLINE (+) #-}

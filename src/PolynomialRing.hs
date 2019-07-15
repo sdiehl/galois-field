@@ -15,10 +15,16 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 import GaloisField (GaloisField(..))
 
 newtype Polynomial k = X [k]
-  deriving (Eq, Generic, NFData, Show)
+  deriving (Eq, Generic, NFData, Ord, Read, Show)
 
 instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
   arbitrary = toPoly <$> arbitrary
+
+instance GaloisField k => Bounded (Polynomial k)
+
+instance GaloisField k => Enum (Polynomial k)
+
+instance GaloisField k => Integral (Polynomial k)
 
 instance GaloisField k => Num (Polynomial k) where
   X xs + X ys   = X (polyAdd xs ys)
@@ -36,6 +42,8 @@ instance GaloisField k => Num (Polynomial k) where
 
 instance GaloisField k => Pretty (Polynomial k) where
   pretty (X xs) = pretty xs
+
+instance GaloisField k => Real (Polynomial k)
 
 polyAdd :: GaloisField k => [k] -> [k] -> [k]
 polyAdd xs     []     = xs

@@ -17,11 +17,7 @@ import GaloisField (GaloisField(..))
 
 -- | Prime fields @GF(p)@ for @p@ prime.
 newtype PrimeField (p :: Nat) = PF Integer
-  deriving (Bits, Eq, Generic, NFData, Show)
-
--------------------------------------------------------------------------------
--- Galois field instance
--------------------------------------------------------------------------------
+  deriving (Bits, Eq, Generic, Integral, NFData, Ord, Read, Real, Show)
 
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
@@ -81,12 +77,24 @@ instance KnownNat p => GaloisField (PrimeField p) where
   {-# INLINE rnd #-}
 
 -------------------------------------------------------------------------------
--- Other instances
+-- Prime field instances
 -------------------------------------------------------------------------------
 
 -- Prime fields are arbitrary.
 instance KnownNat p => Arbitrary (PrimeField p) where
   arbitrary = fromInteger <$> arbitrary
+
+-- Prime fields are bounded.
+instance KnownNat p => Bounded (PrimeField p) where
+  minBound = 0
+  maxBound = -1
+
+-- Prime fields are enumerable.
+instance KnownNat p => Enum (PrimeField p) where
+  fromEnum = fromIntegral . toZ
+  {-# INLINABLE fromEnum #-}
+  toEnum   = fromZ . fromIntegral
+  {-# INLINABLE toEnum #-}
 
 -- Prime fields are fields.
 instance KnownNat p => Fractional (PrimeField p) where

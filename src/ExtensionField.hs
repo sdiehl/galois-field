@@ -16,35 +16,20 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 import GaloisField (GaloisField(..))
 import PolynomialRing (Polynomial(..), cut, polyInv, polyMul, polyQR)
 
+-------------------------------------------------------------------------------
+-- Extension field type
+-------------------------------------------------------------------------------
+
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
 newtype ExtensionField k im = EF (Polynomial k)
-  deriving (Eq, Generic, NFData, Show)
+  deriving (Bounded, Enum, Eq, Generic, Integral, NFData, Ord, Read, Real, Show)
 
 -- | Irreducible monic splitting polynomial @f(X)@ of extension field.
 class IrreducibleMonic k im where
   {-# MINIMAL split #-}
   -- | Splitting polynomial @f(X)@.
   split :: ExtensionField k im -> Polynomial k
-
--- Extension fields are arbitrary.
-instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
-  => Arbitrary (ExtensionField k im) where
-  arbitrary = fromList <$> vector (length xs - 1)
-    where
-      X xs = split (witness :: ExtensionField k im)
-
--- Extension fields are fields.
-instance (GaloisField k, IrreducibleMonic k im)
-  => Fractional (ExtensionField k im) where
-  recip y@(EF (X ys)) = case polyInv ys xs of
-    Just zs -> EF (X zs)
-    _       -> panic "no multiplicative inverse."
-    where
-      X xs = split y
-  {-# INLINE recip #-}
-  fromRational (y:%z) = fromInteger y / fromInteger z
-  {-# INLINABLE fromRational #-}
 
 -- Extension fields are Galois fields.
 instance (GaloisField k, IrreducibleMonic k im)
@@ -71,6 +56,29 @@ instance (GaloisField k, IrreducibleMonic k im)
   {-# INLINE pow #-}
   rnd           = getRandom
   {-# INLINE rnd #-}
+
+-------------------------------------------------------------------------------
+-- Extension field instances
+-------------------------------------------------------------------------------
+
+-- Extension fields are arbitrary.
+instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
+  => Arbitrary (ExtensionField k im) where
+  arbitrary = fromList <$> vector (length xs - 1)
+    where
+      X xs = split (witness :: ExtensionField k im)
+
+-- Extension fields are fields.
+instance (GaloisField k, IrreducibleMonic k im)
+  => Fractional (ExtensionField k im) where
+  recip y@(EF (X ys)) = case polyInv ys xs of
+    Just zs -> EF (X zs)
+    _       -> panic "no multiplicative inverse."
+    where
+      X xs = split y
+  {-# INLINE recip #-}
+  fromRational (y:%z) = fromInteger y / fromInteger z
+  {-# INLINABLE fromRational #-}
 
 -- Extension fields are rings.
 instance (GaloisField k, IrreducibleMonic k im)
