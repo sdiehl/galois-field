@@ -22,50 +22,50 @@ newtype PrimeField (p :: Nat) = PF Integer
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
 
-  char              = natVal
+  char           = natVal
   {-# INLINE char #-}
 
-  deg               = const 1
+  deg            = const 1
   {-# INLINE deg #-}
 
-  frob              = identity
+  frob           = identity
   {-# INLINE frob #-}
 
-  fromZ x           = PF (if y >= 0 then y else y + p)
+  fromZ x        = PF (if y >= 0 then y else y + p)
     where
       y = rem x p
       p = natVal (witness :: PrimeField p)
   {-# INLINE fromZ #-}
 
-  toZ (PF x)        = x
+  toZ (PF x)     = x
   {-# INLINE toZ #-}
 
-  PF x .+. w@(PF y) = PF (if xyp >= 0 then xyp else xy)
+  add w x y      = if xyp >= 0 then xyp else xy
     where
       xy  = x + y
       xyp = xy - natVal w
-  {-# INLINE (.+.) #-}
+  {-# INLINE add #-}
 
-  PF x .-. w@(PF y) = PF (if xy >= 0 then xy else xy + natVal w)
+  sub w x y      = if xy >= 0 then xy else xy + natVal w
     where
       xy = x - y
-  {-# INLINE (.-.) #-}
+  {-# INLINE sub #-}
 
-  PF x .*. w@(PF y) = PF (rem (x * y) (natVal w))
-  {-# INLINE (.*.) #-}
+  mul w x y      = rem (x * y) (natVal w)
+  {-# INLINE mul #-}
 
-  neg   (PF 0)      = PF 0
-  neg w@(PF x)      = PF (natVal w - x)
+  neg _ 0        = 0
+  neg w x        = natVal w - x
   {-# INLINE neg #-}
 
-  inv   (PF 0)      = panic "no multiplicative inverse."
-  inv w@(PF x)      = PF (recipModInteger x (natVal w))
+  inv _ 0        = panic "no multiplicative inverse."
+  inv w x        = recipModInteger x (natVal w)
   {-# INLINE inv #-}
 
-  pow w@(PF x) n    = PF (powModInteger x n (natVal w))
+  pow w@(PF x) n = PF (powModInteger x n (natVal w))
   {-# INLINE pow #-} 
 
-  rnd               = getRandom
+  rnd            = getRandom
   {-# INLINE rnd #-}
 
 -------------------------------------------------------------------------------
@@ -90,25 +90,25 @@ instance KnownNat p => Enum (PrimeField p) where
 
 -- Prime fields are fields.
 instance KnownNat p => Fractional (PrimeField p) where
-  recip               = inv
+  recip w@(PF x)      = PF (inv w x)
   {-# INLINE recip #-}
   fromRational (x:%y) = fromZ x / fromZ y
   {-# INLINABLE fromRational #-}
 
 -- Prime fields are rings.
 instance KnownNat p => Num (PrimeField p) where
-  (+)         = (.+.)
+  w@(PF x) + PF y = PF (add w x y)
   {-# INLINE (+) #-}
-  (*)         = (.*.)
+  w@(PF x) * PF y = PF (mul w x y)
   {-# INLINE (*) #-}
-  (-)         = (.-.)
+  w@(PF x) - PF y = PF (sub w x y)
   {-# INLINE (-) #-}
-  negate      = neg
+  negate w@(PF x) = PF (neg w x)
   {-# INLINE negate #-}
-  fromInteger = fromZ
+  fromInteger     = fromZ
   {-# INLINABLE fromInteger #-}
-  abs         = panic "not implemented."
-  signum      = panic "not implemented."
+  abs             = panic "not implemented."
+  signum          = panic "not implemented."
 
 -- Prime fields are pretty.
 instance KnownNat p => Pretty (PrimeField p) where

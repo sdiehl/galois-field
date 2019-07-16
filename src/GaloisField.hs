@@ -15,8 +15,8 @@ import Text.PrettyPrint.Leijen.Text (Pretty)
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
 class (Arbitrary k, Bounded k, Fractional k, Integral k,
        Pretty k, Random k, Read k, Show k) => GaloisField k where
-  {-# MINIMAL (.+.), (.*.), ((.-.) | neg), ((./.) | inv),
-    char, deg, frob, fromZ, pow, rnd, toZ #-}
+  {-# MINIMAL add, char, deg, (dvd | inv), frob,
+    fromZ, mul, (neg | sub), pow, rnd, toZ #-}
 
   -- Characteristics
 
@@ -42,35 +42,31 @@ class (Arbitrary k, Bounded k, Fractional k, Integral k,
   -- | Convert a field element to an integer.
   toZ :: k -> Integer
 
-  -- | Addition of field elements.
-  infixl 6 .+.
-  (.+.) :: k -> k -> k
+  -- | Addition of field elements as integers.
+  add :: k -> Integer -> Integer -> Integer
 
-  -- | Subtraction of field elements.
-  infixl 6 .-.
-  (.-.) :: k -> k -> k
-  (.-.) = (. neg) . (.+.)
-  {-# INLINE (.-.) #-}
+  -- | Subtraction of field elements as integers.
+  sub :: k -> Integer -> Integer -> Integer
+  sub w x y = add w x (neg w y)
+  {-# INLINE sub #-}
 
-  -- | Multiplication of field elements.
-  infixl 7 .*.
-  (.*.) :: k -> k -> k
+  -- | Multiplication of field elements as integers.
+  mul :: k -> Integer -> Integer -> Integer
 
-  -- | Negation of a field element.
-  neg :: k -> k
-  neg = (.-.) 0
+  -- | Division of field elements as integers.
+  dvd :: k -> Integer -> Integer -> Integer
+  dvd w x y = mul w x (inv w y)
+  {-# INLINE dvd #-}
+
+  -- | Negation of a field element as an integer.
+  neg :: k -> Integer -> Integer
+  neg = flip sub 0
   {-# INLINE neg #-}
 
-  -- | Inversion of a field element.
-  inv :: k -> k
-  inv = (./.) 1
+  -- | Inversion of a field element as an integer.
+  inv :: k -> Integer -> Integer
+  inv = flip dvd 1
   {-# INLINE inv #-}
-
-  -- | Division of field elements.
-  infixl 7 ./.
-  (./.) :: k -> k -> k
-  (./.) = (. inv) . (.*.)
-  {-# INLINE (./.) #-}
 
   -- | Exponentiation of a field element to an integer.
   pow :: k -> Integer -> k

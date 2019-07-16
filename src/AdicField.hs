@@ -25,28 +25,37 @@ instance (GaloisField k, KnownNat im) => GaloisField (AdicField k im) where
   char       = const (char (witness :: k))
   {-# INLINE char #-}
 
-  deg        = notImplemented
+  deg        = snd . (adicLead <*> natVal)
   {-# INLINE deg #-}
 
   frob       = pow <*> char
   {-# INLINE frob #-}
 
-  fromZ      = notImplemented
+  fromZ      = EF . snd . flip (adicQR w) (natVal w)
+    where
+      w = witness :: AdicField k im
   {-# INLINE fromZ #-}
 
   toZ (EF x) = x
   {-# INLINE toZ #-}
 
-  (.+.)      = adicZip (.+.)
-  {-# INLINE (.+.) #-}
+  add        = flip adicZip (add (witness :: k))
+  {-# INLINE add #-}
 
-  (.-.)      = adicZip (.-.)
-  {-# INLINE (.-.) #-}
+  sub        = flip adicZip (sub (witness :: k))
+  {-# INLINE sub #-}
 
-  (.*.)      = notImplemented
-  {-# INLINE (.*.) #-}
+  mul w      = (.) (snd . flip (adicQR w) (natVal w)) . mul'
+    where
+      w' = witness :: k
+      p = order w' :: Integer
+      mul' :: Integer -> Integer -> Integer
+      mul' x y = case quotRem x p of
+        (0, r) -> adicMap w (mul w' r) y
+        (q, r) -> add w (adicMap w (mul w' r) y) (p * mul' q y)
+  {-# INLINE mul #-}
 
-  neg        = adicMap neg
+  neg        = flip adicMap (neg (witness :: k))
   {-# INLINE neg #-}
 
   inv        = notImplemented
@@ -80,24 +89,25 @@ instance (GaloisField k, KnownNat im) => Enum (AdicField k im) where
 
 -- Adic fields are fields.
 instance (GaloisField k, KnownNat im) => Fractional (AdicField k im) where
-  recip               = inv
+  recip w@(EF x)      = EF (inv w x)
   {-# INLINE recip #-}
   fromRational (x:%y) = fromZ x / fromZ y
   {-# INLINABLE fromRational #-}
 
 -- Adic fields are rings.
 instance (GaloisField k, KnownNat im) => Num (AdicField k im) where
-  (+)         = (.+.)
+  w@(EF x) + EF y = EF (add w x y)
   {-# INLINE (+) #-}
-  (*)         = (.*.)
+  w@(EF x) * EF y = EF (mul w x y)
   {-# INLINE (*) #-}
-  (-)         = (.-.)
+  w@(EF x) - EF y = EF (sub w x y)
   {-# INLINE (-) #-}
-  negate      = neg
+  negate w@(EF x) = EF (neg w x)
   {-# INLINE negate #-}
-  fromInteger = fromZ
-  abs         = panic "not implemented."
-  signum      = panic "not implemented."
+  fromInteger     = fromZ
+  {-# INLINABLE fromInteger #-}
+  abs             = panic "not implemented."
+  signum          = panic "not implemented."
 
 -- Adic fields are pretty.
 instance (GaloisField k, KnownNat im) => Pretty (AdicField k im) where
@@ -110,48 +120,16 @@ instance (GaloisField k, KnownNat im) => Random (AdicField k im) where
   randomR = panic "not implemented."
 
 -------------------------------------------------------------------------------
--- Adic field arithmetic
+-- Adic field functions
 -------------------------------------------------------------------------------
 
--- | Adic cons function.
-adicCons :: (GaloisField k, KnownNat im)
-  => k -> AdicField k im -> AdicField k im
-adicCons x (EF xs) = EF (toZ x + order x * xs)
-{-# INLINE adicCons #-}
-
--- | Adic uncons function.
-adicUncons :: forall k im . (GaloisField k, KnownNat im)
-  => AdicField k im -> (k, AdicField k im)
-adicUncons (EF xs) = case quotRem xs (order (witness :: k)) of
-  (q, r) -> (fromZ r, EF q)
-{-# INLINE adicUncons #-}
-
--- | Adic map function.
-adicMap :: forall k im . (GaloisField k, KnownNat im)
-  => (k -> k) -> AdicField k im -> AdicField k im
-adicMap f = adicMap'
-  where
-    adicMap' :: AdicField k im -> AdicField k im
-    adicMap' x = case adicUncons x of
-      (x',  0) -> EF (toZ (f x'))
-      (x', xs) -> adicCons (f x') (adicMap' xs)
-{-# INLINE adicMap #-}
-
--- | Adic zip function.
-adicZip :: forall k im . (GaloisField k, KnownNat im)
-  => (k -> k -> k) -> AdicField k im -> AdicField k im -> AdicField k im
-adicZip f = adicZip'
-  where
-    adicZip' :: AdicField k im -> AdicField k im -> AdicField k im
-    adicZip' x y = case (adicUncons x, adicUncons y) of
-      ((x',  0), (y',  0)) -> EF (toZ (f x' y'))
-      ((x', xs), (y', ys)) -> adicCons (f x' y') (adicZip' xs ys)
-{-# INLINE adicZip #-}
-
--- | Adic last and length function.
-adicLead :: forall k im . (GaloisField k, KnownNat im)
-  => AdicField k im -> (k, Int)
-adicLead = first fromZ . adicLead' (order (witness :: k)) . toZ
+-- | @p^q@-adic last and length.
+adicLead
+  :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im -- ^ Witness of @p^q@.
+  -> Integer        -- ^ Integer @x@.
+  -> (Integer, Int) -- ^ Last and length of @x@.
+adicLead _ = adicLead' (order (witness :: k))
   where
     adicLead' :: Integer -> Integer -> (Integer, Int)
     adicLead' p x
@@ -164,3 +142,57 @@ adicLead = first fromZ . adicLead' (order (witness :: k)) . toZ
           | y < p     = yn
           | otherwise = adicLead'' (quot y p, n + 1)
 {-# INLINE adicLead #-}
+
+-- | @p^q@-adic map.
+adicMap
+  :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im       -- ^ Witness of @p^q@.
+  -> (Integer -> Integer) -- ^ Mapper in @p@.
+  -> (Integer -> Integer) -- ^ Mapper in @p^q@.
+adicMap _ f = adicMap'
+  where
+    p = order (witness :: k) :: Integer
+    adicMap' :: Integer -> Integer
+    adicMap' x = case quotRem x p of
+      (0, r) -> f r
+      (q, r) -> f r + p * adicMap' q
+{-# INLINE adicMap #-}
+
+-- | @p^q@-adic zip.
+adicZip
+  :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im                  -- ^ Witness of @p^q@.
+  -> (Integer -> Integer -> Integer) -- ^ Zipper in @p@.
+  -> (Integer -> Integer -> Integer) -- ^ Zipper in @p^q@.
+adicZip _ f = adicZip'
+  where
+    p = order (witness :: k) :: Integer
+    adicZip' :: Integer -> Integer -> Integer
+    adicZip' x y = case (quotRem x p, quotRem y p) of
+      ((0, r), ( 0, r')) -> f r r'
+      ((q, r), (q', r')) -> f r r' + p * adicZip' q q'
+{-# INLINE adicZip #-}
+
+-- | @p^q@-adic quotient and remainder.
+adicQR
+  :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im     -- ^ Witness of @p^q@.
+  -> Integer            -- ^ Dividend @x@.
+  -> Integer            -- ^ Divisor @y@.
+  -> (Integer, Integer) -- ^ Quotient and remainder of @x@ and @y@.
+adicQR w x y
+  | y == 0    = panic "divisor is non-zero."
+  | otherwise = adicQR' (0, x)
+  where
+    p = order (witness :: k) :: Integer
+    (yCoeff, yDeg) = adicLead w y :: (Integer, Int)
+    adicQR' :: (Integer, Integer) -> (Integer, Integer)
+    adicQR' qr@(q, r)
+      | lDeg < 0  = qr
+      | otherwise = adicQR' (add w q lTerm, sub w r (y * lTerm))
+      where
+        (rCoeff, rDeg) = adicLead w r :: (Integer, Int)
+        lCoeff = dvd (witness :: k) rCoeff yCoeff :: Integer
+        lDeg = rDeg - yDeg :: Int
+        lTerm = lCoeff * p ^ lDeg :: Integer
+{-# INLINE adicQR #-}
