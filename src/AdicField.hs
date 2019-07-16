@@ -22,49 +22,68 @@ newtype AdicField k (im :: Nat) = EF Integer
 -- Adic fields are Galois fields.
 instance (GaloisField k, KnownNat im) => GaloisField (AdicField k im) where
 
-  char       = const (char (witness :: k))
+  char          = const (char (witness :: k))
   {-# INLINE char #-}
 
-  deg        = snd . (adicLead <*> natVal)
+  deg           = snd . (adicLead <*> natVal)
   {-# INLINE deg #-}
 
-  frob       = pow <*> char
+  frob          = pow <*> char
   {-# INLINE frob #-}
 
-  fromZ      = EF . snd . flip (adicQR w) (natVal w)
+  fromZ         = EF . snd . flip (adicQR w) (natVal w)
     where
       w = witness :: AdicField k im
   {-# INLINE fromZ #-}
 
-  toZ (EF x) = x
+  toZ (EF x)    = x
   {-# INLINE toZ #-}
 
-  add        = flip adicZip (add (witness :: k))
+  add           = flip adicZip (add (witness :: k))
   {-# INLINE add #-}
 
-  sub        = flip adicZip (sub (witness :: k))
+  sub           = flip adicZip (sub (witness :: k))
   {-# INLINE sub #-}
 
-  mul w      = (.) (snd . flip (adicQR w) (natVal w)) . mul'
+  mul w x y
+    | x < p     = adicMap w (mul w' x) y
+    | y < p     = adicMap w (mul w' y) x
+    | otherwise = mul' x y
     where
       w' = witness :: k
       p = order w' :: Integer
       mul' :: Integer -> Integer -> Integer
-      mul' x y = case quotRem x p of
-        (0, r) -> adicMap w (mul w' r) y
-        (q, r) -> add w (adicMap w (mul w' r) y) (p * mul' q y)
+      mul' x' y' = case quotRem x' p of
+        (0, r) -> adicMap w (mul w' r) y'
+        (q, r) -> add w (adicMap w (mul w' r) y') (p * mul' q y')
   {-# INLINE mul #-}
 
-  neg        = flip adicMap (neg (witness :: k))
+  neg           = flip adicMap (neg (witness :: k))
   {-# INLINE neg #-}
 
-  inv        = notImplemented
+  inv w         = inv'
+    where
+      w' = witness :: k
+      p = order w' :: Integer
+      q = natVal w :: Integer
+      inv' :: Integer -> Integer
+      inv' x = case adicGCD w x q of
+        (r, s)
+          | r == 0 || r > p -> panic "no multiplicative inverse."
+          | otherwise       -> adicMap w (flip (dvd w') r) s
   {-# INLINE inv #-}
 
-  pow        = (^)
+  dvd w x y
+    | y < p     = adicMap w (dvd w' p) x
+    | otherwise = mul w x (inv w y)
+    where
+      w' = witness :: k
+      p = order w' :: Integer
+
+  pow           = (^)
   {-# INLINE pow #-}
 
-  rnd        = getRandom
+  rnd           = getRandom
   {-# INLINE rnd #-}
 
 -------------------------------------------------------------------------------
@@ -89,7 +108,9 @@ instance (GaloisField k, KnownNat im) => Enum (AdicField k im) where
 
 -- Adic fields are fields.
 instance (GaloisField k, KnownNat im) => Fractional (AdicField k im) where
-  recip w@(EF x)      = EF (inv w x)
+  w@(EF x) / EF y     = fromZ (dvd w x y)
+  {-# INLINE (/) #-}
+  recip w@(EF x)      = fromZ (inv w x)
   {-# INLINE recip #-}
   fromRational (x:%y) = fromZ x / fromZ y
   {-# INLINABLE fromRational #-}
@@ -98,7 +119,7 @@ instance (GaloisField k, KnownNat im) => Fractional (AdicField k im) where
 instance (GaloisField k, KnownNat im) => Num (AdicField k im) where
   w@(EF x) + EF y = EF (add w x y)
   {-# INLINE (+) #-}
-  w@(EF x) * EF y = EF (mul w x y)
+  w@(EF x) * EF y = fromZ (mul w x y)
   {-# INLINE (*) #-}
   w@(EF x) - EF y = EF (sub w x y)
   {-# INLINE (-) #-}
@@ -124,8 +145,7 @@ instance (GaloisField k, KnownNat im) => Random (AdicField k im) where
 -------------------------------------------------------------------------------
 
 -- | @p^q@-adic last and length.
-adicLead
-  :: forall k im . (GaloisField k, KnownNat im)
+adicLead :: forall k im . (GaloisField k, KnownNat im)
   => AdicField k im -- ^ Witness of @p^q@.
   -> Integer        -- ^ Integer @x@.
   -> (Integer, Int) -- ^ Last and length of @x@.
@@ -144,8 +164,7 @@ adicLead _ = adicLead' (order (witness :: k))
 {-# INLINE adicLead #-}
 
 -- | @p^q@-adic map.
-adicMap
-  :: forall k im . (GaloisField k, KnownNat im)
+adicMap :: forall k im . (GaloisField k, KnownNat im)
   => AdicField k im       -- ^ Witness of @p^q@.
   -> (Integer -> Integer) -- ^ Mapper in @p@.
   -> (Integer -> Integer) -- ^ Mapper in @p^q@.
@@ -159,8 +178,7 @@ adicMap _ f = adicMap'
 {-# INLINE adicMap #-}
 
 -- | @p^q@-adic zip.
-adicZip
-  :: forall k im . (GaloisField k, KnownNat im)
+adicZip :: forall k im . (GaloisField k, KnownNat im)
   => AdicField k im                  -- ^ Witness of @p^q@.
   -> (Integer -> Integer -> Integer) -- ^ Zipper in @p@.
   -> (Integer -> Integer -> Integer) -- ^ Zipper in @p^q@.
@@ -174,25 +192,42 @@ adicZip _ f = adicZip'
 {-# INLINE adicZip #-}
 
 -- | @p^q@-adic quotient and remainder.
-adicQR
-  :: forall k im . (GaloisField k, KnownNat im)
+adicQR :: forall k im . (GaloisField k, KnownNat im)
   => AdicField k im     -- ^ Witness of @p^q@.
   -> Integer            -- ^ Dividend @x@.
   -> Integer            -- ^ Divisor @y@.
-  -> (Integer, Integer) -- ^ Quotient and remainder of @x@ and @y@.
+  -> (Integer, Integer) -- ^ Quotient and remainder of division of @x@ by @y@.
 adicQR w x y
-  | y == 0    = panic "divisor is non-zero."
+  | y == 0    = panic "divisor is zero."
+  | y < p     = (adicMap w (flip (dvd w') y) x, 0)
   | otherwise = adicQR' (0, x)
   where
-    p = order (witness :: k) :: Integer
+    w' = witness :: k
+    p = order w' :: Integer
     (yCoeff, yDeg) = adicLead w y :: (Integer, Int)
     adicQR' :: (Integer, Integer) -> (Integer, Integer)
     adicQR' qr@(q, r)
       | lDeg < 0  = qr
-      | otherwise = adicQR' (add w q lTerm, sub w r (y * lTerm))
+      | otherwise = adicQR' (add w q lTerm, sub w r (mul w y lTerm))
       where
         (rCoeff, rDeg) = adicLead w r :: (Integer, Int)
-        lCoeff = dvd (witness :: k) rCoeff yCoeff :: Integer
+        lCoeff = dvd w' rCoeff yCoeff :: Integer
         lDeg = rDeg - yDeg :: Int
         lTerm = lCoeff * p ^ lDeg :: Integer
 {-# INLINE adicQR #-}
+
+-- | @p^q@-adic extended euclidean algorithm.
+adicGCD :: forall k im . (GaloisField k, KnownNat im)
+  => AdicField k im     -- ^ Witness of @p^q@.
+  -> Integer            -- ^ Integer @x@.
+  -> Integer            -- ^ Modulus @y@.
+  -> (Integer, Integer) -- ^ Integers @r@ and @s@ such that @sx = r mod y@.
+adicGCD w x y = adicGCD' 0 1 y x
+  where
+    adicGCD' :: Integer -> Integer -> Integer -> Integer -> (Integer, Integer)
+    adicGCD' s s' r r'
+      | r' == 0   = (r, s)
+      | otherwise = adicGCD' s' (sub w s (mul w q s')) r' (sub w r (mul w q r'))
+      where
+        q = fst (adicQR w r r')
+{-# INLINE adicGCD #-}
