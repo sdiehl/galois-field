@@ -15,7 +15,7 @@ import Text.PrettyPrint.Leijen.Text (Pretty)
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
 class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Read k, Show k)
   => GaloisField k where
-  {-# MINIMAL char, deg, frob, pow, rnd #-}
+  {-# MINIMAL char, deg, frob, pow, rnd, sr #-}
 
   -- Characteristics
 
@@ -40,3 +40,6 @@ class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Read k, Show k)
 
   -- | Randomised field element.
   rnd :: MonadRandom m => m k
+
+  -- | Square root of a field element.
+  sr :: k -> Maybe k

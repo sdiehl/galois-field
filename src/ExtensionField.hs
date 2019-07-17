@@ -52,6 +52,12 @@ instance (GaloisField k, IrreducibleMonic k im)
   {-# INLINE pow #-}
   rnd           = getRandom
   {-# INLINE rnd #-}
+  sr            = panic "not implemented."
+  {-# INLINE sr #-}
+
+-------------------------------------------------------------------------------
+-- Extension field conversions
+-------------------------------------------------------------------------------
 
 -- | Convert from field element to list representation.
 fromField :: ExtensionField k im -> [k]

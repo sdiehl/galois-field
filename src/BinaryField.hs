@@ -21,11 +21,11 @@ newtype BinaryField (im :: Nat) = BF Integer
 
 -- Binary fields are Galois fields.
 instance KnownNat im => GaloisField (BinaryField im) where
-  char = const 2
+  char          = const 2
   {-# INLINE char #-}
-  deg  = binLog . natVal
+  deg           = binLog . natVal
   {-# INLINE deg #-}
-  frob = flip pow 2
+  frob          = flip pow 2
   {-# INLINE frob #-}
   pow w@(BF y) n
     | n < 0     = pow (recip w) (-n)
@@ -38,8 +38,10 @@ instance KnownNat im => GaloisField (BinaryField im) where
         | even m    = pow' ws (mul zs zs) (div m 2)
         | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
   {-# INLINE pow #-}
-  rnd  = getRandom
+  rnd           = getRandom
   {-# INLINE rnd #-}
+  sr            = panic "not implemented."
+  {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
 -- Binary field instances
