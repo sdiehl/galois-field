@@ -27,7 +27,16 @@ instance KnownNat im => GaloisField (BinaryField im) where
   {-# INLINE deg #-}
   frob = flip pow 2
   {-# INLINE frob #-}
-  pow  = (^)
+  pow w@(BF y) n
+    | n < 0     = pow (recip w) (-n)
+    | otherwise = BF (pow' 1 y n)
+    where
+      mul = (.) (binMod (natVal w)) . binMul
+      pow' ws zs m
+        | m == 0    = ws
+        | m == 1    = mul ws zs
+        | even m    = pow' ws (mul zs zs) (div m 2)
+        | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
   {-# INLINE pow #-}
   rnd  = getRandom
   {-# INLINE rnd #-}
