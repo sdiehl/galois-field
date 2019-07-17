@@ -4,6 +4,8 @@ import Protolude
 
 import Criterion.Main
 import ExtensionField
+import GaloisField
+import GHC.Base
 import PrimeField
 
 type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689037894645226208583
@@ -163,3 +165,4 @@ main = defaultMain
     , benchmark "Fq6" fq6 fq6'
     , benchmark "Fq12" fq12 fq12'
     ]
+  ]
