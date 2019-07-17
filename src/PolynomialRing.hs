@@ -15,7 +15,7 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 import GaloisField (GaloisField(..))
 
 newtype Polynomial k = X [k]
-  deriving (Eq, Generic, NFData, Show)
+  deriving (Eq, Generic, NFData, Read, Show)
 
 instance (Arbitrary k, GaloisField k) => Arbitrary (Polynomial k) where
   arbitrary = toPoly <$> arbitrary

@@ -10,10 +10,14 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
+-------------------------------------------------------------------------------
+-- Binary field type
+-------------------------------------------------------------------------------
+
 -- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
 -- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
 newtype BinaryField (ib :: Nat) = BF Integer
-  deriving (Eq, Generic, NFData, Show)
+  deriving (Eq, Generic, NFData, Read, Show)
 
 -- Binary fields are arbitrary.
 instance KnownNat ib => Arbitrary (BinaryField ib) where
@@ -63,6 +67,7 @@ instance KnownNat ib => Pretty (BinaryField ib) where
 -- Binary fields are random.
 instance KnownNat ib => Random (BinaryField ib) where
   random  = first BF . randomR (0, 2 ^ natVal (witness :: BinaryField ib) - 1)
+  {-# INLINE random #-}
   randomR = panic "not implemented."
 
 -- Binary logarithm.

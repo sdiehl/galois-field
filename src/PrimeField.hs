@@ -12,20 +12,13 @@ import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import GaloisField (GaloisField(..))
 
+-------------------------------------------------------------------------------
+-- Prime field type
+-------------------------------------------------------------------------------
+
 -- | Prime fields @GF(p)@ for @p@ prime.
 newtype PrimeField (p :: Nat) = PF Integer
-  deriving (Bits, Eq, Generic, NFData, Show)
-
--- Prime fields are arbitrary.
-instance KnownNat p => Arbitrary (PrimeField p) where
-  arbitrary = fromInteger <$> arbitrary
-
--- Prime fields are fields.
-instance KnownNat p => Fractional (PrimeField p) where
-  recip y@(PF x)      = PF (recipModInteger x (natVal y))
-  {-# INLINE recip #-}
-  fromRational (x:%y) = fromInteger x / fromInteger y
-  {-# INLINABLE fromRational #-}
+  deriving (Bits, Eq, Generic, NFData, Read, Show)
 
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
@@ -39,6 +32,22 @@ instance KnownNat p => GaloisField (PrimeField p) where
   {-# INLINE pow #-}
   rnd            = getRandom
   {-# INLINE rnd #-}
+
+-------------------------------------------------------------------------------
+-- Prime field instances
+-------------------------------------------------------------------------------
+
+-- Prime fields are arbitrary.
+instance KnownNat p => Arbitrary (PrimeField p) where
+  arbitrary = fromInteger <$> arbitrary
+
+-- Prime fields are fields.
+instance KnownNat p => Fractional (PrimeField p) where
+  recip y@(PF x)      = PF (if x == 0 then panic "no multiplicative inverse."
+                            else recipModInteger x (natVal y))
+  {-# INLINE recip #-}
+  fromRational (x:%y) = fromInteger x / fromInteger y
+  {-# INLINABLE fromRational #-}
 
 -- Prime fields are rings.
 instance KnownNat p => Num (PrimeField p) where
@@ -65,11 +74,12 @@ instance KnownNat p => Num (PrimeField p) where
 
 -- Prime fields are pretty.
 instance KnownNat p => Pretty (PrimeField p) where
-  pretty (PF x) = pretty [x]
+  pretty (PF x) = pretty x
 
 -- Prime fields are random.
 instance KnownNat p => Random (PrimeField p) where
   random  = first PF . randomR (0, natVal (witness :: PrimeField p) - 1)
+  {-# INLINE random #-}
   randomR = panic "not implemented."
 
 -- | Embed field element to integers.
