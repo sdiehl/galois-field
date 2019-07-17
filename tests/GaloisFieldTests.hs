@@ -2,6 +2,7 @@ module GaloisFieldTests where
 
 import Protolude
 
+import GaloisField
 import Test.Tasty
 import Test.Tasty.QuickCheck
 
@@ -21,8 +22,7 @@ identities op e x = op x e == x && op e x == x
 inverses :: Eq a => (a -> a -> a) -> (a -> a) -> a -> a -> Bool
 inverses op inv e x = op x (inv x) == e && op (inv x) x == e
 
-fieldAxioms :: forall k . (Arbitrary k, Eq k, Fractional k, Show k)
-  => TestName -> k -> TestTree
+fieldAxioms :: forall k . GaloisField k => TestName -> k -> TestTree
 fieldAxioms s _ = testGroup ("Field axioms of " <> s)
   [ testProperty "commutativity of addition"
     $ commutativity ((+) :: k -> k -> k)
@@ -43,3 +43,16 @@ fieldAxioms s _ = testGroup ("Field axioms of " <> s)
   , testProperty "multiplicative inverses"
     $ \n -> n /= 0 ==> inverses ((*) :: k -> k -> k) recip 1 n
   ]
+
+squareRoots :: forall k . GaloisField k => k -> TestTree
+squareRoots _ = testGroup "Square roots"
+  [ testProperty "squares of square roots"
+    $ \(n :: k) -> sr n /= Nothing ==> both n (sr (n ^ (2 :: Int)))
+  , testProperty "square roots of squares"
+    $ \(n :: k) -> sr n /= Nothing ==> both n ((^ (2 :: Int)) <$> sr n)
+  ]
+  where
+    both n = flip elem [Just n, Just (-n)]
+
+test :: forall k . GaloisField k => TestName -> k -> TestTree
+test s x = testGroup s [fieldAxioms s x, squareRoots x]

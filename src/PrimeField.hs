@@ -32,9 +32,8 @@ instance KnownNat p => GaloisField (PrimeField p) where
   {-# INLINE pow #-}
   rnd            = getRandom
   {-# INLINE rnd #-}
-  sr w@(PF x)    = let p = natVal w in
-    if p == 2 || x == 0 then Just w else
-    if isQR p x then PF <$> sqrtP p x else Nothing
+  sr w@(PF x)    = let p = natVal w
+                   in if p == 2 || x == 0 then Just w else PF <$> sqrtP p x
   {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
@@ -99,10 +98,10 @@ instance KnownNat p => Random (PrimeField p) where
 -- Prime field arithmetic
 -------------------------------------------------------------------------------
 
--- Check quadratic residue.
-isQR :: Integer -> Integer -> Bool
-isQR p n = powModInteger n (shiftR (p - 1) 1) p == 1
-{-# INLINE isQR #-}
+-- Check quadratic nonresidue.
+isQNR :: Integer -> Integer -> Bool
+isQNR p n = powModInteger n (shiftR (p - 1) 1) p /= 1
+{-# INLINE isQNR #-}
 
 -- Factor binary powers.
 factor2 :: Integer -> (Integer, Int)
@@ -118,7 +117,7 @@ factor2 p = factor 0 (p - 1)
 getQNR :: Integer -> Integer
 getQNR p
   | p7 == 3 || p7 == 5 = 2
-  | otherwise          = case find (not . isQR p) ps of
+  | otherwise          = case find (isQNR p) ps of
     Just q -> q
     _      -> panic "no quadratic nonresidue."
   where
@@ -126,23 +125,30 @@ getQNR p
     ps = 3 : 5 : 7 : 11 : 13 : concatMap (\x -> [x - 1, x + 1]) [18, 24 ..]
 {-# INLINE getQNR #-}
 
+-- Return minimal element.
+returnMin :: Integer -> Integer -> Integer
+returnMin p x = min x (p - x)
+
 -- Prime square root.
 sqrtP :: Integer -> Integer -> Maybe Integer
-sqrtP p n = case (factor2 p, getQNR p) of
-  ((q, s), z) -> let zq  = powModInteger z q p
-                     nq  = powModInteger n (quot q 2) p
-                     nnq = rem (n * nq) p
-                 in loop s zq (rem (nq * nnq) p) nnq
-    where
-      loop :: Int -> Integer -> Integer -> Integer -> Maybe Integer
-      loop m c t r
-        | t == 0    = Just 0
-        | t == 1    = Just r
-        | otherwise = let i  = findPeriod 0 t
-                          b  = powModInteger c (bit (m - i - 1)) p
-                          b2 = rem (b * b) p
-                      in loop i b2 (rem (t * b2) p) (rem (r * b) p)
-        where
-          findPeriod per 1 = per
-          findPeriod per x = findPeriod (per + 1) (rem (x * x) p)
+sqrtP p n
+  | isQNR p n = Nothing
+  | otherwise = returnMin p <$> case (factor2 p, getQNR p) of
+    ((q, s), z) -> let zq  = powModInteger z q p
+                       nq  = powModInteger n (quot q 2) p
+                       nnq = rem (n * nq) p
+                   in loop s zq (rem (nq * nnq) p) nnq
+      where
+        loop :: Int -> Integer -> Integer -> Integer -> Maybe Integer
+        loop m c t r
+          | t == 0    = Just 0
+          | t == 1    = Just r
+          | otherwise = let i  = least t 0
+                            b  = powModInteger c (bit (m - i - 1)) p
+                            b2 = rem (b * b) p
+                        in loop i b2 (rem (t * b2) p) (rem (r * b) p)
+          where
+            least :: Integer -> Int -> Int
+            least 1  j = j
+            least ti j = least (rem (ti * ti) p) (j + 1)
 {-# INLINE sqrtP #-}
