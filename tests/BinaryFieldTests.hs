@@ -19,13 +19,13 @@ type F2I = BinaryField 0x8000000000000000000000000000000000000000000000000000000
 
 testBinaryField :: TestTree
 testBinaryField = testGroup "Binary fields"
-  [ fieldAxioms "F2A" (witness :: F2A)
-  , fieldAxioms "F2B" (witness :: F2B)
-  , fieldAxioms "F2C" (witness :: F2C)
-  , fieldAxioms "F2D" (witness :: F2D)
-  , fieldAxioms "F2E" (witness :: F2E)
-  , fieldAxioms "F2F" (witness :: F2F)
-  , fieldAxioms "F2G" (witness :: F2G)
-  , fieldAxioms "F2H" (witness :: F2H)
-  , fieldAxioms "F2I" (witness :: F2I)
+  [ testBF "F2A" (witness :: F2A)
+  , testBF "F2B" (witness :: F2B)
+  , testBF "F2C" (witness :: F2C)
+  , testBF "F2D" (witness :: F2D)
+  , testBF "F2E" (witness :: F2E)
+  , testBF "F2F" (witness :: F2F)
+  , testBF "F2G" (witness :: F2G)
+  , testBF "F2H" (witness :: F2H)
+  , testBF "F2I" (witness :: F2I)
   ]

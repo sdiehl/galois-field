@@ -50,6 +50,8 @@ instance (GaloisField k, IrreducibleMonic k im)
         | even m    = pow' ws (mul zs zs) (div m 2)
         | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
   {-# INLINE pow #-}
+  quad          = panic "not implemented."
+  {-# INLINE quad #-}
   rnd           = getRandom
   {-# INLINE rnd #-}
   sr            = panic "not implemented."

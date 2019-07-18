@@ -30,10 +30,12 @@ instance KnownNat p => GaloisField (PrimeField p) where
   {-# INLINE frob #-}
   pow w@(PF x) n = PF (powModInteger x n (natVal w))
   {-# INLINE pow #-}
+  quad           = primeQuad
+  {-# INLINE quad #-}
   rnd            = getRandom
   {-# INLINE rnd #-}
   sr w@(PF x)    = let p = natVal w
-                   in if p == 2 || x == 0 then Just w else PF <$> sqrtP p x
+                   in if p == 2 || x == 0 then Just w else PF <$> primeSqrt p x
   {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
@@ -95,7 +97,7 @@ instance KnownNat p => Random (PrimeField p) where
   randomR = panic "not implemented."
 
 -------------------------------------------------------------------------------
--- Prime field arithmetic
+-- Prime field quadratics
 -------------------------------------------------------------------------------
 
 -- Check quadratic nonresidue.
@@ -125,15 +127,11 @@ getQNR p
     ps = 3 : 5 : 7 : 11 : 13 : concatMap (\x -> [x - 1, x + 1]) [18, 24 ..]
 {-# INLINE getQNR #-}
 
--- Return minimal element.
-returnMin :: Integer -> Integer -> Integer
-returnMin p x = min x (p - x)
-
 -- Prime square root.
-sqrtP :: Integer -> Integer -> Maybe Integer
-sqrtP p n
+primeSqrt :: Integer -> Integer -> Maybe Integer
+primeSqrt p n
   | isQNR p n = Nothing
-  | otherwise = returnMin p <$> case (factor2 p, getQNR p) of
+  | otherwise = min <*> (-) p <$> case (factor2 p, getQNR p) of
     ((q, s), z) -> let zq  = powModInteger z q p
                        nq  = powModInteger n (quot q 2) p
                        nnq = rem (n * nq) p
@@ -151,4 +149,15 @@ sqrtP p n
             least :: Integer -> Int -> Int
             least 1  j = j
             least ti j = least (rem (ti * ti) p) (j + 1)
-{-# INLINE sqrtP #-}
+{-# INLINE primeSqrt #-}
+
+-- Prime quadratic @ax^2+bx+c=0@.
+primeQuad :: KnownNat p
+  => PrimeField p -> PrimeField p -> PrimeField p -> Maybe (PrimeField p)
+primeQuad a b c
+  | a == 0    = Nothing
+  | p == 2    = if c == 0 then Just 0 else if b == 0 then Just 1 else Nothing
+  | otherwise = (/ (2 * a)) . subtract b <$> sr (b * b - 4 * a * c)
+  where
+    p = char a :: Integer
+{-# INLINE primeQuad #-}

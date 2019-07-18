@@ -22,8 +22,8 @@ identities op e x = op x e == x && op e x == x
 inverses :: Eq a => (a -> a -> a) -> (a -> a) -> a -> a -> Bool
 inverses op inv e x = op x (inv x) == e && op (inv x) x == e
 
-fieldAxioms :: forall k . GaloisField k => TestName -> k -> TestTree
-fieldAxioms s _ = testGroup ("Field axioms of " <> s)
+fieldAxioms :: forall k . GaloisField k => k -> TestTree
+fieldAxioms _ = testGroup ("Field axioms")
   [ testProperty "commutativity of addition"
     $ commutativity ((+) :: k -> k -> k)
   , testProperty "commutativity of multiplication"
@@ -41,18 +41,28 @@ fieldAxioms s _ = testGroup ("Field axioms of " <> s)
   , testProperty "additive inverses"
     $ inverses ((+) :: k -> k -> k) negate 0
   , testProperty "multiplicative inverses"
-    $ \n -> n /= 0 ==> inverses ((*) :: k -> k -> k) recip 1 n
+    $ \x -> x /= 0 ==> inverses ((*) :: k -> k -> k) recip 1 x
   ]
 
 squareRoots :: forall k . GaloisField k => k -> TestTree
 squareRoots _ = testGroup "Square roots"
   [ testProperty "squares of square roots"
-    $ \(n :: k) -> sr n /= Nothing ==> both n (sr (n ^ (2 :: Int)))
-  , testProperty "square roots of squares"
-    $ \(n :: k) -> sr n /= Nothing ==> both n ((^ (2 :: Int)) <$> sr n)
+    $ \(x :: k) -> isJust (sr x)
+      ==> (((^ (2 :: Int)) <$> sr x) == Just x)
   ]
-  where
-    both n = flip elem [Just n, Just (-n)]
+
+quadraticEquations :: forall k . GaloisField k => k -> TestTree
+quadraticEquations _ = testGroup "Quadratic equations"
+  [ testProperty "solutions of quadratic equations"
+    $ \(a :: k) (b :: k) (c :: k) -> a /= 0 && b /= 0 && isJust (quad a b c)
+      ==> (((\x -> a * x * x + b * x + c) <$> quad a b c) == Just 0)
+  ]
 
 test :: forall k . GaloisField k => TestName -> k -> TestTree
-test s x = testGroup s [fieldAxioms s x, squareRoots x]
+test s x = testGroup s [fieldAxioms x, squareRoots x, quadraticEquations x]
+
+testEF :: forall k . GaloisField k => TestName -> k -> TestTree
+testEF s x = testGroup s [fieldAxioms x]
+
+testBF :: forall k . GaloisField k => TestName -> k -> TestTree
+testBF s x = testGroup s [fieldAxioms x, quadraticEquations x]
