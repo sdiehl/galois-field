@@ -4,7 +4,6 @@
   </a>
 </p>
 
-
 [![CircleCI](https://circleci.com/gh/adjoint-io/galois-field.svg?style=svg)](https://circleci.com/gh/adjoint-io/galois-field)
 [![Hackage](https://img.shields.io/hackage/v/galois-field.svg)](https://hackage.haskell.org/package/galois-field)
 
@@ -31,6 +30,12 @@ For example, GF(4) is a Galois field of characteristic 2 that is a two-dimension
 Any Galois field has order a prime power p^q for prime p and positive q, and there is a Galois field GF(p^q) of any prime power order p^q that is *unique up to non-unique isomorphism*. Any Galois field GF(p^q) can be constructed as an **extension field** over a smaller Galois subfield GF(p^r), through the identification GF(p^q) = GF(p^r)[X] / \<f(X)\> for an *irreducible monic splitting polynomial* f(X) of degree q - r + 1 in the *polynomial ring* GF(p^r)[X].
 
 For example, GF(4) has order 2^2 and can be constructed as an extension field GF(2)[X] / \<f(X)\> where f(X) = X^2 + X + 1 is an irreducible monic splitting quadratic polynomial in GF(2)[X].
+
+### Binary fields
+
+A Galois field of the form GF(2^m) for big positive m is a sum of x^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string.
+
+For example, X^8 + X^4 + X^3 + X + 1 can be represented as the integer 283 that represents the bit string 100011011.
 
 ## Example usage
 
@@ -173,6 +178,26 @@ where `x, y, z` is a tower of indeterminate variables is constructed by
 ```haskell
 fromList [ fromList [fromList [a, b], fromList [c, d], fromList [e, f]]
          , fromList [fromList [g, h], fromList [i, j], fromList [k, l]] ] :: Fq12
+```
+
+### Binary fields
+
+The following type declaration creates a binary field modulo a given splitting irreducible binary polynomial.
+```haskell
+type F2m = BinaryField 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
+```
+Note that the splitting polynomial given *must* be irreducible in F2.
+
+Galois field arithmetic can then be performed in this binary field.
+```haskell
+f2m :: F2m
+f2m = 0x303001d34b856296c16c0d40d3cd7750a93d1d2955fa80aa5f40fc8db7b2abdbde53950f4c0d293cdd711a35b67fb1499ae60038614f1394abfa3b4c850d927e1e7769c8eec2d19
+
+f2m' :: F2m
+f2m' = 0x37bf27342da639b6dccfffeb73d69d78c6c27a6009cbbca1980f8533921e8a684423e43bab08a576291af8f461bb2a8b3531d2f0485c19b16e2f1516e23dd3c1a4827af1b8ac15b
+
+arithmeticF2m :: (F2m, F2m, F2m, F2m)
+arithmeticF2m = (f2m + f2m', f2m - f2m', f2m * f2m', f2m / f2m')
 ```
 
 ## License
