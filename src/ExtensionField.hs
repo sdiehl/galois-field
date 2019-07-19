@@ -1,6 +1,6 @@
 module ExtensionField
   ( ExtensionField
-  , IrreducibleMonic(..)
+  , IrreducibleMonic(split)
   , fromField
   , fromList
   , t
@@ -21,29 +21,32 @@ import GaloisField (GaloisField(..))
 
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
-newtype ExtensionField k im = EF [k]
+newtype ExtensionField k im = EF (Polynomial k)
   deriving (Eq, Generic, NFData, Read, Show)
 
 -- | Irreducible monic splitting polynomial @f(X)@ of extension field.
 class IrreducibleMonic k im where
   {-# MINIMAL split #-}
   -- | Splitting polynomial @f(X)@.
-  split :: ExtensionField k im -> [k]
+  split :: ExtensionField k im -> Polynomial k
+  -- | Splitting polynomial list.
+  plist :: ExtensionField k im -> [k]
+  plist = (\(X xs) -> xs) . split
 
 -- Extension fields are Galois fields.
 instance (GaloisField k, IrreducibleMonic k im)
   => GaloisField (ExtensionField k im) where
   char          = const (char (witness :: k))
   {-# INLINE char #-}
-  deg w         = deg (witness :: k) * (length (split w) - 1)
+  deg w         = deg (witness :: k) * (length (plist w) - 1)
   {-# INLINE deg #-}
   frob          = pow <*> char
   {-# INLINE frob #-}
-  pow w@(EF y) n
+  pow w@(EF (X y)) n
     | n < 0     = pow (recip w) (-n)
-    | otherwise = EF (pow' [1] y n)
+    | otherwise = EF (X (pow' [1] y n))
     where
-      mul = (.) (snd . flip polyQR (split w)) . polyMul
+      mul = (.) (snd . flip polyQR (plist w)) . polyMul
       pow' ws zs m
         | m == 0    = ws
         | m == 1    = mul ws zs
@@ -61,27 +64,46 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- Extension field conversions
 -------------------------------------------------------------------------------
 
+-- Polynomial rings.
+newtype Polynomial k = X [k]
+  deriving (Eq, Generic, NFData, Read, Show)
+
+-- Polynomial rings are rings.
+instance GaloisField k => Num (Polynomial k) where
+  X y + X z     = X (polyAdd y z)
+  {-# INLINE (+) #-}
+  X y * X z     = X (polyMul y z)
+  {-# INLINE (*) #-}
+  X y - X z     = X (polySub y z)
+  {-# INLINE (-) #-}
+  negate (X y)  = X (map negate y)
+  {-# INLINE negate #-}
+  fromInteger n = X (let m = fromInteger n in if m == 0 then [] else [m])
+  {-# INLINABLE fromInteger #-}
+  abs           = panic "not implemented."
+  signum        = panic "not implemented."
+
 -- | Convert from field element to list representation.
 fromField :: ExtensionField k im -> [k]
-fromField (EF y) = y
+fromField (EF (X y)) = y
 {-# INLINABLE fromField #-}
 
 -- | Convert from list representation to field element.
 fromList :: forall k im . (GaloisField k, IrreducibleMonic k im)
   => [k] -> ExtensionField k im
-fromList = EF . snd . flip polyQR (split w) . dropZero
+fromList = EF . X . snd . flip polyQR (plist w) . dropZero
   where
     w = witness :: ExtensionField k im
 {-# INLINABLE fromList #-}
 
 -- | Descend tower of indeterminate variables.
-t :: ExtensionField k im -> ExtensionField (ExtensionField k im) im'
-t = EF . return
+t :: Polynomial k -> Polynomial (ExtensionField k im)
+t = X . return . EF
 {-# INLINE t #-}
 
 -- | Current indeterminate variable.
-x :: GaloisField k => ExtensionField k im
-x = EF [0, 1]
+x :: GaloisField k => Polynomial k
+x = X [0, 1]
 {-# INLINE x #-}
 
 -------------------------------------------------------------------------------
@@ -92,12 +114,12 @@ x = EF [0, 1]
 instance (Arbitrary k, GaloisField k, IrreducibleMonic k im)
   => Arbitrary (ExtensionField k im) where
   arbitrary = fromList <$>
-    vector (length (split (witness :: ExtensionField k im)) - 1)
+    vector (length (plist (witness :: ExtensionField k im)) - 1)
 
 -- Extension fields are fields.
 instance (GaloisField k, IrreducibleMonic k im)
   => Fractional (ExtensionField k im) where
-  recip w@(EF y)      = EF (polyInv y (split w))
+  recip w@(EF (X y))  = EF (X (polyInv y (plist w)))
   {-# INLINE recip #-}
   fromRational (y:%z) = fromInteger y / fromInteger z
   {-# INLINABLE fromRational #-}
@@ -105,28 +127,28 @@ instance (GaloisField k, IrreducibleMonic k im)
 -- Extension fields are rings.
 instance (GaloisField k, IrreducibleMonic k im)
   => Num (ExtensionField k im) where
-  EF y + EF z     = EF (polyAdd y z)
+  EF y + EF z             = EF (y + z)
   {-# INLINE (+) #-}
-  w@(EF y) * EF z = EF (snd (polyQR (polyMul y z) (split w)))
+  w@(EF (X y)) * EF (X z) = EF (X (snd (polyQR (polyMul y z) (plist w))))
   {-# INLINE (*) #-}
-  EF y - EF z     = EF (polySub y z)
+  EF y - EF z             = EF (y - z)
   {-# INLINE (-) #-}
-  negate (EF y)   = EF (map negate y)
+  negate (EF y)           = EF (-y)
   {-# INLINE negate #-}
-  fromInteger n   = EF (let m = fromInteger n in if m == 0 then [] else [m])
+  fromInteger             = EF . fromInteger
   {-# INLINABLE fromInteger #-}
-  abs             = panic "not implemented."
-  signum          = panic "not implemented."
+  abs                     = panic "not implemented."
+  signum                  = panic "not implemented."
 
 -- Extension fields are pretty.
 instance (GaloisField k, IrreducibleMonic k im)
   => Pretty (ExtensionField k im) where
-  pretty (EF y) = pretty y
+  pretty (EF (X y)) = pretty y
 
 -- Extension fields are random.
 instance (GaloisField k, IrreducibleMonic k im)
   => Random (ExtensionField k im) where
-  random  = first (EF . dropZero) . unfold (length (split w) - 1) []
+  random  = first (EF . X . dropZero) . unfold (length (plist w) - 1) []
     where
       w = witness :: ExtensionField k im
       unfold n ys g

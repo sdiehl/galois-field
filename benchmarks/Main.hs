@@ -19,17 +19,17 @@ fq' = 10757805228921058098980668000791497318123219899766237205512608761387909753
 
 data Pu
 instance IrreducibleMonic Fq Pu where
-  split _ = [1, 0, 1]
+  split _ = x ^ (2 :: Int) + 1
 type Fq2 = ExtensionField Fq Pu
 
 data Pv
 instance IrreducibleMonic Fq2 Pv where
-  split _ = [-9 - x, 0, 0, 1]
+  split _ = x ^ (3 :: Int) - 9 - t x
 type Fq6 = ExtensionField Fq2 Pv
 
 data Pw
 instance IrreducibleMonic Fq6 Pw where
-  split _ = [-x, 0, 1]
+  split _ = x ^ (2 :: Int) - t x
 type Fq12 = ExtensionField Fq6 Pw
 
 fq12 :: Fq12
