@@ -38,10 +38,9 @@ instance KnownNat im => GaloisField (BinaryField im) where
         | even m    = pow' ws (mul zs zs) (div m 2)
         | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
   {-# INLINE pow #-}
-  quad          = panic "not implemented."
-  -- quad a b c
-  --   | b == 0    = sr c
-  --   | otherwise = (* (b / a)) <$> binQuad (a * c / (b * b))
+  quad a b c
+    | b == 0    = sr c
+    | otherwise = (* (b / a)) <$> binQuad (a * c / (b * b))
   {-# INLINE quad #-}
   rnd           = getRandom
   {-# INLINE rnd #-}
@@ -154,14 +153,14 @@ binInv f x = case binInv' 0 1 x f of
 -------------------------------------------------------------------------------
 
 -- Binary quadratic @y^2+y+x=0@.
--- binQuad :: forall im . KnownNat im
---   => BinaryField im -> Maybe (BinaryField im)
--- binQuad x
---   | sum xs /= 0 = Nothing
---   | odd m       = Just (sum h)
---   | otherwise   = panic "not implemented."
---   where
---     m  = deg x :: Int
---     xs = take m (iterate (^ (2 :: Int)) x) :: [BinaryField im]
---     h  = zipWith ($) (cycle [identity, const 0]) xs :: [BinaryField im]
--- {-# INLINE binQuad #-}
+binQuad :: forall im . KnownNat im
+  => BinaryField im -> Maybe (BinaryField im)
+binQuad x
+  | sum xs /= 0 = Nothing
+  | odd m       = Just (sum h)
+  | otherwise   = panic "not implemented."
+  where
+    m  = deg x :: Int
+    xs = take m (iterate (^ (2 :: Int)) x) :: [BinaryField im]
+    h  = zipWith ($) (cycle [identity, const 0]) xs :: [BinaryField im]
+{-# INLINE binQuad #-}
