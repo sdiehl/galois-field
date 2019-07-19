@@ -2,8 +2,11 @@ module Main where
 
 import Protolude
 
+import BinaryField
 import Criterion.Main
 import ExtensionField
+import GaloisField
+import GHC.Base
 import PrimeField
 
 type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689037894645226208583
@@ -19,54 +22,10 @@ instance IrreducibleMonic Fq Pu where
   split _ = x ^ (2 :: Int) + 1
 type Fq2 = ExtensionField Fq Pu
 
-fq2 :: Fq2
-fq2 = fromList
-  [ 19908898611787582971615951530393785823319364696376311494770162270472288380562
-  , 2444690988583914246674870181013910409542697083717824402984851238236041783759
-  ]
-
-fq2' :: Fq2
-fq2' = fromList
-  [ 176307305890807650390915550856467756101144733976249050387177647283239486934
-  , 9913547941088878400547309488585076816688958962210000330808066250849942240036
-  ]
-
 data Pv
 instance IrreducibleMonic Fq2 Pv where
-  split _ = x ^ (3 :: Int) - (9 + t x)
+  split _ = x ^ (3 :: Int) - 9 - t x
 type Fq6 = ExtensionField Fq2 Pv
-
-fq6 :: Fq6
-fq6 = fromList
-  [ fromList
-    [ 8727269669017421992537561450387212506711577304101544328736696625792447584819
-    , 14548604791762199086915107662335514800873255588931510951007415299299859294564
-    ]
-  , fromList
-    [ 12226353852518517213098257637254082040554292743096797524265221809863992104040
-    , 12690801089710533803594523982915673248220237967492611523932652691226365708512
-    ]
-  , fromList
-    [ 18336930404004840796680535059992401039831316705513753839479258873269709495858
-    , 21634580953983557175729336703450663797341055784728343534694506874757389871868
-    ]
-  ]
-
-fq6' :: Fq6
-fq6' = fromList
-  [ fromList
-    [ 21427158918811764040959407626476119248515601360702754918240300689672054041331
-    , 12750457256357562507331331307761996193149796736574153338180573114576232473092
-    ]
-  , fromList
-    [ 19307896751125425658868292427117755307914453765471505616446813557567103424424
-    , 11511704315039881938763578963465960361806962511008317843374696569679546862720
-    ]
-  , fromList
-    [ 16856354813335682789816416666746807604324955216244680818919639213184967817815
-    , 10563739714379631354612735346769824530666877338817980746884577737330686430079
-    ]
-  ]
 
 data Pw
 instance IrreducibleMonic Fq6 Pw where
@@ -137,66 +96,33 @@ fq12' = fromList
     ]
   ]
 
+type F2m = BinaryField 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
+
+f2m :: F2m
+f2m = 0x303001d34b856296c16c0d40d3cd7750a93d1d2955fa80aa5f40fc8db7b2abdbde53950f4c0d293cdd711a35b67fb1499ae60038614f1394abfa3b4c850d927e1e7769c8eec2d19
+
+f2m' :: F2m
+f2m' = 0x37bf27342da639b6dccfffeb73d69d78c6c27a6009cbbca1980f8533921e8a684423e43bab08a576291af8f461bb2a8b3531d2f0485c19b16e2f1516e23dd3c1a4827af1b8ac15b
+
+benchmark :: GaloisField k => String -> k -> k -> Benchmark
+benchmark s a b = bgroup s
+  [ bench "Addition" $
+    whnf (uncurry (+)) (a, b)
+  , bench "Multiplication" $
+    whnf (uncurry (*)) (a, b)
+  , bench "Negation" $
+    whnf negate a
+  , bench "Subtraction" $
+    whnf (uncurry (-)) (a, b)
+  , bench "Inversion" $
+    whnf recip a
+  , bench "Division" $
+    whnf (uncurry (/)) (a, b)
+  ]
+
 main :: IO ()
 main = defaultMain
-  [ bgroup "PrimeField"
-    [ bgroup "Fq"
-      [ bench "Addition"
-        $ whnf (uncurry (+)) (fq, fq')
-      , bench "Multiplication"
-        $ whnf (uncurry (*)) (fq, fq')
-      , bench "Negation"
-        $ whnf negate fq
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq, fq')
-      , bench "Inversion"
-        $ whnf recip fq
-      , bench "Division"
-        $ whnf (uncurry (/)) (fq, fq')
-      ]
-    ]
-  , bgroup "ExtensionField"
-    [ bgroup "Fq2"
-      [ bench "Addition"
-        $ whnf (uncurry (+)) (fq2, fq2')
-      , bench "Multiplication"
-        $ whnf (uncurry (*)) (fq2, fq2')
-      , bench "Negation"
-        $ whnf negate fq2
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq2, fq2')
-      , bench "Inversion"
-        $ whnf recip fq2
-      , bench "Division"
-        $ whnf (uncurry (/)) (fq2, fq2')
-      ]
-    , bgroup "Fq6"
-      [ bench "Addition"
-        $ whnf (uncurry (+)) (fq6, fq6')
-      , bench "Multiplication"
-        $ whnf (uncurry (*)) (fq6, fq6')
-      , bench "Negation"
-        $ whnf negate fq6
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq6, fq6')
-      , bench "Inversion"
-        $ whnf recip fq6
-      , bench "Division"
-        $ whnf (uncurry (/)) (fq6, fq6')
-      ]
-    , bgroup "Fq12"
-      [ bench "Addition"
-        $ whnf (uncurry (+)) (fq12, fq12')
-      , bench "Multiplication"
-        $ whnf (uncurry (*)) (fq12, fq12')
-      , bench "Negation"
-        $ whnf negate fq12
-      , bench "Subtraction"
-        $ whnf (uncurry (-)) (fq12, fq12')
-      , bench "Inversion"
-        $ whnf recip fq12
-      , bench "Division"
-        $ whnf (uncurry (/)) (fq12, fq12')
-      ]
-    ]
+  [ benchmark "PrimeField Fq" fq fq'
+  , benchmark "ExtensionField Fq12" fq12 fq12'
+  , benchmark "BinaryField F2m" f2m f2m'
   ]

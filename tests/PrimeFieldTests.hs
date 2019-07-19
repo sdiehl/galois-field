@@ -26,16 +26,16 @@ type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689
 
 testPrimeField :: TestTree
 testPrimeField = testGroup "Prime fields"
-  [ fieldAxioms "FS2" (witness :: FS2)
-  , fieldAxioms "FS3" (witness :: FS3)
-  , fieldAxioms "FS5" (witness :: FS5)
-  , fieldAxioms "FS7" (witness :: FS7)
-  , fieldAxioms "FM0" (witness :: FM0)
-  , fieldAxioms "FM1" (witness :: FM1)
-  , fieldAxioms "FM2" (witness :: FM2)
-  , fieldAxioms "FM3" (witness :: FM3)
-  , fieldAxioms "FM4" (witness :: FM4)
-  , fieldAxioms "FVL" (witness :: FVL)
-  , fieldAxioms "FXL" (witness :: FXL)
-  , fieldAxioms "FZL" (witness :: FZL)
+  [ test "FS2" (witness :: FS2)
+  , test "FS3" (witness :: FS3)
+  , test "FS5" (witness :: FS5)
+  , test "FS7" (witness :: FS7)
+  , test "FM0" (witness :: FM0)
+  , test "FM1" (witness :: FM1)
+  , test "FM2" (witness :: FM2)
+  , test "FM3" (witness :: FM3)
+  , test "FM4" (witness :: FM4)
+  , test "FVL" (witness :: FVL)
+  , test "FXL" (witness :: FXL)
+  , test "FZL" (witness :: FZL)
   ]

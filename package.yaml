@@ -44,8 +44,6 @@ library:
     - ExtensionField
     - GaloisField
     - PrimeField
-  other-modules:
-    - PolynomialRing
   source-dirs:
     - src
 

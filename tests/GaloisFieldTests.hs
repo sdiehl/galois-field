@@ -2,6 +2,7 @@ module GaloisFieldTests where
 
 import Protolude
 
+import GaloisField
 import Test.Tasty
 import Test.Tasty.QuickCheck
 
@@ -21,31 +22,47 @@ identities op e x = op x e == x && op e x == x
 inverses :: Eq a => (a -> a -> a) -> (a -> a) -> a -> a -> Bool
 inverses op inv e x = op x (inv x) == e && op (inv x) x == e
 
-ringAxioms :: forall r . (Arbitrary r, Eq r, Num r, Show r)
-  => TestName -> r -> TestTree
-ringAxioms s _ = testGroup ("Ring axioms of " <> s)
+fieldAxioms :: forall k . GaloisField k => k -> TestTree
+fieldAxioms _ = testGroup ("Field axioms")
   [ testProperty "commutativity of addition"
-    $ commutativity ((+) :: r -> r -> r)
+    $ commutativity ((+) :: k -> k -> k)
   , testProperty "commutativity of multiplication"
-    $ commutativity ((*) :: r -> r -> r)
+    $ commutativity ((*) :: k -> k -> k)
   , testProperty "associativity of addition"
-    $ associativity ((+) :: r -> r -> r)
+    $ associativity ((+) :: k -> k -> k)
   , testProperty "associativity of multiplication"
-    $ associativity ((*) :: r -> r -> r)
+    $ associativity ((*) :: k -> k -> k)
   , testProperty "distributivity of multiplication over addition"
-    $ distributivity ((*) :: r -> r -> r) (+)
+    $ distributivity ((*) :: k -> k -> k) (+)
   , testProperty "additive identity"
-    $ identities ((+) :: r -> r -> r) 0
+    $ identities ((+) :: k -> k -> k) 0
   , testProperty "multiplicative identity"
-    $ identities ((*) :: r -> r -> r) 1
+    $ identities ((*) :: k -> k -> k) 1
   , testProperty "additive inverses"
-    $ inverses ((+) :: r -> r -> r) negate 0
+    $ inverses ((+) :: k -> k -> k) negate 0
+  , testProperty "multiplicative inverses"
+    $ \x -> x /= 0 ==> inverses ((*) :: k -> k -> k) recip 1 x
   ]
 
-fieldAxioms :: forall k . (Arbitrary k, Eq k, Fractional k, Show k)
-  => TestName -> k -> TestTree
-fieldAxioms s k = testGroup ("Field axioms of " <> s)
-  [ ringAxioms s k
-  , testProperty "multiplicative inverses"
-    $ \n -> n /= 0 ==> inverses ((*) :: k -> k -> k) recip 1 n
+squareRoots :: forall k . GaloisField k => k -> TestTree
+squareRoots _ = testGroup "Square roots"
+  [ testProperty "squares of square roots"
+    $ \(x :: k) -> isJust (sr x)
+      ==> (((^ (2 :: Int)) <$> sr x) == Just x)
   ]
+
+quadraticEquations :: forall k . GaloisField k => k -> TestTree
+quadraticEquations _ = testGroup "Quadratic equations"
+  [ testProperty "solutions of quadratic equations"
+    $ \(a :: k) (b :: k) (c :: k) -> a /= 0 && b /= 0 && isJust (quad a b c)
+      ==> (((\x -> a * x * x + b * x + c) <$> quad a b c) == Just 0)
+  ]
+
+test :: forall k . GaloisField k => TestName -> k -> TestTree
+test s x = testGroup s [fieldAxioms x, squareRoots x, quadraticEquations x]
+
+testEF :: forall k . GaloisField k => TestName -> k -> TestTree
+testEF s x = testGroup s [fieldAxioms x]
+
+testBF :: forall k . GaloisField k => TestName -> k -> TestTree
+testBF s x = testGroup s [fieldAxioms x]

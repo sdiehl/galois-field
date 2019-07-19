@@ -8,10 +8,14 @@ import Control.Monad.Random (MonadRandom, Random)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
+-------------------------------------------------------------------------------
+-- Galois field class
+-------------------------------------------------------------------------------
+
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
-class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
+class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Read k, Show k)
   => GaloisField k where
-  {-# MINIMAL char, deg, frob, pow, rnd #-}
+  {-# MINIMAL char, deg, frob, pow, quad, rnd, sr #-}
 
   -- Characteristics
 
@@ -21,18 +25,24 @@ class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Show k)
   -- | Degree @q@ of field as extension field over prime subfield.
   deg :: k -> Int
 
-  -- | Frobenius endomorphism @x->x^p@ of prime subfield.
-  frob :: k -> k
-
   -- | Order @p^q@ of field.
   order :: k -> Integer
   order = (^) <$> char <*> deg
   {-# INLINE order #-}
 
+  -- | Frobenius endomorphism @x->x^p@ of prime subfield.
+  frob :: k -> k
+
   -- Functions
 
-  -- | Exponentiation @x@ to the power of @y@.
+  -- | Exponentiation of a field element to an integer.
   pow :: k -> Integer -> k
 
-  -- | Randomised element @x@ of field.
+  -- | Solve quadratic @ax^2+bx+c=0@ over field.
+  quad :: k -> k -> k -> Maybe k
+
+  -- | Randomised field element.
   rnd :: MonadRandom m => m k
+
+  -- | Square root of a field element.
+  sr :: k -> Maybe k
