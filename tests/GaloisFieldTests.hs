@@ -65,4 +65,4 @@ testEF :: forall k . GaloisField k => TestName -> k -> TestTree
 testEF s x = testGroup s [fieldAxioms x]
 
 testBF :: forall k . GaloisField k => TestName -> k -> TestTree
-testBF s x = testGroup s [fieldAxioms x, quadraticEquations x]
+testBF s x = testGroup s [fieldAxioms x]
