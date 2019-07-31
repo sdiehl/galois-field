@@ -13,8 +13,8 @@ import Text.PrettyPrint.Leijen.Text (Pretty)
 -------------------------------------------------------------------------------
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
-class (Arbitrary k, Eq k, Fractional k, Pretty k, Random k, Read k, Show k)
-  => GaloisField k where
+class (Arbitrary k, Eq k, Fractional k, Generic k,
+       NFData k, Pretty k, Random k, Read k, Show k) => GaloisField k where
   {-# MINIMAL char, deg, frob, pow, quad, rnd, sr #-}
 
   -- Characteristics
