@@ -22,7 +22,7 @@ import GaloisField (GaloisField(..))
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
 newtype ExtensionField k im = EF (Polynomial k)
-  deriving (Eq, Generic, NFData, Read, Show)
+  deriving (Eq, Generic, NFData, Ord, Read, Show)
 
 -- | Irreducible monic splitting polynomial @f(X)@ of extension field.
 class IrreducibleMonic k im where
@@ -66,7 +66,7 @@ instance (GaloisField k, IrreducibleMonic k im)
 
 -- Polynomial rings.
 newtype Polynomial k = X [k]
-  deriving (Eq, Generic, NFData, Read, Show)
+  deriving (Eq, Generic, NFData, Ord, Read, Show)
 
 -- Polynomial rings are rings.
 instance GaloisField k => Num (Polynomial k) where
