@@ -61,52 +61,6 @@ instance (GaloisField k, IrreducibleMonic k im)
   {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
--- Extension field conversions
--------------------------------------------------------------------------------
-
--- Polynomial rings.
-newtype Polynomial k = X [k]
-  deriving (Eq, Generic, NFData, Ord, Read, Show)
-
--- Polynomial rings are rings.
-instance GaloisField k => Num (Polynomial k) where
-  X y + X z     = X (polyAdd y z)
-  {-# INLINE (+) #-}
-  X y * X z     = X (polyMul y z)
-  {-# INLINE (*) #-}
-  X y - X z     = X (polySub y z)
-  {-# INLINE (-) #-}
-  negate (X y)  = X (map negate y)
-  {-# INLINE negate #-}
-  fromInteger n = X (let m = fromInteger n in if m == 0 then [] else [m])
-  {-# INLINABLE fromInteger #-}
-  abs           = panic "not implemented."
-  signum        = panic "not implemented."
-
--- | Convert from field element to list representation.
-fromField :: ExtensionField k im -> [k]
-fromField (EF (X y)) = y
-{-# INLINABLE fromField #-}
-
--- | Convert from list representation to field element.
-fromList :: forall k im . (GaloisField k, IrreducibleMonic k im)
-  => [k] -> ExtensionField k im
-fromList = EF . X . snd . flip polyQR (plist w) . dropZero
-  where
-    w = witness :: ExtensionField k im
-{-# INLINABLE fromList #-}
-
--- | Descend tower of indeterminate variables.
-t :: Polynomial k -> Polynomial (ExtensionField k im)
-t = X . return . EF
-{-# INLINE t #-}
-
--- | Current indeterminate variable.
-x :: GaloisField k => Polynomial k
-x = X [0, 1]
-{-# INLINE x #-}
-
--------------------------------------------------------------------------------
 -- Extension field instances
 -------------------------------------------------------------------------------
 
@@ -157,6 +111,52 @@ instance (GaloisField k, IrreducibleMonic k im)
           (y, g') -> unfold (n - 1) (y : ys) g'
   {-# INLINE random #-}
   randomR = panic "not implemented."
+
+-------------------------------------------------------------------------------
+-- Extension field conversions
+-------------------------------------------------------------------------------
+
+-- Polynomial rings.
+newtype Polynomial k = X [k]
+  deriving (Eq, Generic, NFData, Ord, Read, Show)
+
+-- Polynomial rings are rings.
+instance GaloisField k => Num (Polynomial k) where
+  X y + X z     = X (polyAdd y z)
+  {-# INLINE (+) #-}
+  X y * X z     = X (polyMul y z)
+  {-# INLINE (*) #-}
+  X y - X z     = X (polySub y z)
+  {-# INLINE (-) #-}
+  negate (X y)  = X (map negate y)
+  {-# INLINE negate #-}
+  fromInteger n = X (let m = fromInteger n in if m == 0 then [] else [m])
+  {-# INLINABLE fromInteger #-}
+  abs           = panic "not implemented."
+  signum        = panic "not implemented."
+
+-- | Convert from field element to list representation.
+fromField :: ExtensionField k im -> [k]
+fromField (EF (X y)) = y
+{-# INLINABLE fromField #-}
+
+-- | Convert from list representation to field element.
+fromList :: forall k im . (GaloisField k, IrreducibleMonic k im)
+  => [k] -> ExtensionField k im
+fromList = EF . X . snd . flip polyQR (plist w) . dropZero
+  where
+    w = witness :: ExtensionField k im
+{-# INLINABLE fromList #-}
+
+-- | Descend tower of indeterminate variables.
+t :: Polynomial k -> Polynomial (ExtensionField k im)
+t = X . return . EF
+{-# INLINE t #-}
+
+-- | Current indeterminate variable.
+x :: GaloisField k => Polynomial k
+x = X [0, 1]
+{-# INLINE x #-}
 
 -------------------------------------------------------------------------------
 -- Extension field arithmetic

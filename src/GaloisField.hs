@@ -1,12 +1,67 @@
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS -fno-warn-orphans #-}
+
 module GaloisField
-  ( GaloisField(..)
+  ( Field(..)
+  , GaloisField(..)
   ) where
 
-import Protolude
+import Protolude hiding (Semiring, one, zero)
 
 import Control.Monad.Random (MonadRandom, Random)
+import Data.Semiring (Semiring(..))
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
+
+-------------------------------------------------------------------------------
+-- Field class
+-------------------------------------------------------------------------------
+
+-- | Fields.
+class Semiring k => Field k where
+  {-# MINIMAL (divide | inv), (minus | neg) #-}
+
+  -- | Negation.
+  neg :: k -> k
+  neg = minus zero
+  {-# INLINE neg #-}
+
+  -- | Subtraction.
+  minus :: k -> k -> k
+  minus = (. neg) . plus
+  {-# INLINE minus #-}
+
+  -- | Inversion.
+  inv :: k -> k
+  inv = divide one
+  {-# INLINE inv #-}
+
+  -- | Division.
+  divide :: k -> k -> k
+  divide = (. inv) . times
+  {-# INLINE divide #-}
+
+-- Fractionals are semirings.
+instance GaloisField k => Semiring k where
+  zero  = 0
+  {-# INLINE zero #-}
+  plus  = (+)
+  {-# INLINE plus #-}
+  one   = 1
+  {-# INLINE one #-}
+  times = (*)
+  {-# INLINE times #-}
+
+-- Fields are fractionals.
+instance GaloisField k => Field k where
+  neg    = negate
+  {-# INLINE neg #-}
+  minus  = (-)
+  {-# INLINE minus #-}
+  inv    = recip
+  {-# INLINE inv #-}
+  divide = (/)
+  {-# INLINE divide #-}
 
 -------------------------------------------------------------------------------
 -- Galois field class

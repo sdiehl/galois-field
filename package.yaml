@@ -27,6 +27,7 @@ dependencies:
   - protolude >= 0.2
   - integer-gmp
   - MonadRandom
+  - semirings
   - tasty-quickcheck
   - wl-pprint-text
 

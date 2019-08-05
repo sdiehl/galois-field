@@ -38,23 +38,6 @@ instance KnownNat p => GaloisField (PrimeField p) where
                    in if p == 2 || x == 0 then Just w else PF <$> primeSqrt p x
   {-# INLINE sr #-}
 
--------------------------------------------------------------------------------
--- Prime field conversions
--------------------------------------------------------------------------------
-
--- | Embed field element to integers.
-toInt :: PrimeField p -> Integer
-toInt (PF x) = x
-{-# INLINABLE toInt #-}
-
--------------------------------------------------------------------------------
--- Prime field instances
--------------------------------------------------------------------------------
-
--- Prime fields are arbitrary.
-instance KnownNat p => Arbitrary (PrimeField p) where
-  arbitrary = fromInteger <$> arbitrary
-
 -- Prime fields are fields.
 instance KnownNat p => Fractional (PrimeField p) where
   recip w@(PF x)      = PF (if x == 0 then panic "no multiplicative inverse."
@@ -86,6 +69,14 @@ instance KnownNat p => Num (PrimeField p) where
   abs             = panic "not implemented."
   signum          = panic "not implemented."
 
+-------------------------------------------------------------------------------
+-- Prime field instances
+-------------------------------------------------------------------------------
+
+-- Prime fields are arbitrary.
+instance KnownNat p => Arbitrary (PrimeField p) where
+  arbitrary = fromInteger <$> arbitrary
+
 -- Prime fields are pretty.
 instance KnownNat p => Pretty (PrimeField p) where
   pretty (PF x) = pretty x
@@ -95,6 +86,15 @@ instance KnownNat p => Random (PrimeField p) where
   random  = first PF . randomR (0, natVal (witness :: PrimeField p) - 1)
   {-# INLINE random #-}
   randomR = panic "not implemented."
+
+-------------------------------------------------------------------------------
+-- Prime field conversions
+-------------------------------------------------------------------------------
+
+-- | Embed field element to integers.
+toInt :: PrimeField p -> Integer
+toInt (PF x) = x
+{-# INLINABLE toInt #-}
 
 -------------------------------------------------------------------------------
 -- Prime field quadratics
