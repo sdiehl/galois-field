@@ -33,7 +33,7 @@ For example, GF(4) has order 2^2 and can be constructed as an extension field GF
 
 ### Binary fields
 
-A Galois field of the form GF(2^m) for big positive m is a sum of x^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string.
+A Galois field of the form GF(2^m) for big positive m is a sum of X^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string.
 
 For example, X^8 + X^4 + X^3 + X + 1 can be represented as the integer 283 that represents the bit string 100011011.
 
@@ -48,7 +48,8 @@ Include the following required language extensions.
 Import the following functions at minimum.
 ```haskell
 import PrimeField (PrimeField)
-import ExtensionField (ExtensionField, IrreducibleMonic(split), fromList, t, x)
+import ExtensionField (ExtensionField, IrreducibleMonic(split), fromList, t, X)
+import BinaryField (BinaryField)
 ```
 
 ### Prime fields
@@ -77,7 +78,7 @@ The following data type declaration creates a splitting polynomial given an irre
 ```haskell
 data P2
 instance IrreducibleMonic Fq P2 where
-  split _ = x^2 + 1
+  split _ = X^2 + 1
 ```
 The following type declaration then creates an extension field with this splitting polynomial.
 ```haskell
@@ -89,17 +90,17 @@ Similarly, further extension fields can be constructed iteratively as follows.
 ```haskell
 data P6
 instance IrreducibleMonic Fq2 P6 where
-  split _ = x^3 - (9 + t x)
+  split _ = X^3 - (9 + t X)
 
 type Fq6 = ExtensionField Fq2 P6
 
 data P12
 instance IrreducibleMonic Fq6 P12 where
-  split _ = x^2 - t x
+  split _ = X^2 - t X
 
 type Fq12 = ExtensionField Fq6 P12
 ```
-Note that `x` accesses the current indeterminate variable and `t` descends the tower of indeterminate variables.
+Note that `X` accesses the current indeterminate variable and `t` descends the tower of indeterminate variables.
 
 Galois field arithmetic can then be performed in this extension field.
 ```haskell
@@ -172,9 +173,9 @@ arithmeticFq12 = (fq12 + fq12', fq12 - fq12', fq12 * fq12', fq12 / fq12')
 ```
 Note that
 ```
-a + bx + (c + dx)y + (e + fx)y^2 + (g + hx + (i + jx)y + (k + lx)y^2)z
+a + bX + (c + dX)Y + (e + fX)Y^2 + (g + hX + (i + jX)Y + (k + lX)Y^2)Z
 ```
-where `x, y, z` is a tower of indeterminate variables is constructed by
+where `X, Y, Z` is a tower of indeterminate variables, is constructed by
 ```haskell
 fromList [ fromList [fromList [a, b], fromList [c, d], fromList [e, f]]
          , fromList [fromList [g, h], fromList [i, j], fromList [k, l]] ] :: Fq12
