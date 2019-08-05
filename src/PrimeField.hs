@@ -3,22 +3,24 @@ module PrimeField
   , toInt
   ) where
 
-import Protolude
+import Protolude as P hiding (Semiring)
 
 import Control.Monad.Random (Random(..), getRandom)
+import Data.Euclidean (Euclidean(..), GcdDomain(..))
+import Data.Semiring (Ring(..), Semiring(..))
 import GHC.Integer.GMP.Internals (powModInteger, recipModInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..))
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import GaloisField (GaloisField(..))
+import GaloisField (Field(..), GaloisField(..))
 
 -------------------------------------------------------------------------------
--- Prime field type
+-- Data types
 -------------------------------------------------------------------------------
 
 -- | Prime fields @GF(p)@ for @p@ prime.
 newtype PrimeField (p :: Nat) = PF Integer
-  deriving (Bits, Eq, Generic, NFData, Ord, Read, Show)
+  deriving (Bits, Eq, Generic, Ord, Show)
 
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
@@ -38,7 +40,11 @@ instance KnownNat p => GaloisField (PrimeField p) where
                    in if p == 2 || x == 0 then Just w else PF <$> primeSqrt p x
   {-# INLINE sr #-}
 
--- Prime fields are fields.
+-------------------------------------------------------------------------------
+-- Numeric instances
+-------------------------------------------------------------------------------
+
+-- Prime fields are fractional.
 instance KnownNat p => Fractional (PrimeField p) where
   recip w@(PF x)      = PF (if x == 0 then panic "no multiplicative inverse."
                             else recipModInteger x (natVal w))
@@ -46,14 +52,14 @@ instance KnownNat p => Fractional (PrimeField p) where
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
--- Prime fields are rings.
+-- Prime fields are numeric.
 instance KnownNat p => Num (PrimeField p) where
   w@(PF x) + PF y = PF (if xyp >= 0 then xyp else xy)
     where
       xy  = x + y
       xyp = xy - natVal w
   {-# INLINE (+) #-}
-  w@(PF x) * PF y = PF (rem (x * y) (natVal w))
+  w@(PF x) * PF y = PF (P.rem (x * y) (natVal w))
   {-# INLINE (*) #-}
   w@(PF x) - PF y = PF (if xy >= 0 then xy else xy + natVal w)
     where
@@ -63,14 +69,53 @@ instance KnownNat p => Num (PrimeField p) where
   {-# INLINE negate #-}
   fromInteger x   = PF (if y >= 0 then y else y + p)
     where
-      y = rem x p
+      y = P.rem x p
       p = natVal (witness :: PrimeField p)
   {-# INLINABLE fromInteger #-}
   abs             = panic "not implemented."
   signum          = panic "not implemented."
 
 -------------------------------------------------------------------------------
--- Prime field instances
+-- Semiring instances
+-------------------------------------------------------------------------------
+
+-- Prime fields are Euclidean domains.
+instance KnownNat p => Euclidean (PrimeField p) where
+  quotRem = (flip (,) 0 .) . (/)
+  {-# INLINE quotRem #-}
+  degree  = panic "not implemented."
+  {-# INLINE degree #-}
+
+-- Prime fields are fields.
+instance KnownNat p => Field (PrimeField p) where
+  invert = recip
+  {-# INLINE invert #-}
+  minus  = (-)
+  {-# INLINE minus #-}
+
+-- Prime fields are GCD domains.
+instance KnownNat p => GcdDomain (PrimeField p)
+
+-- Prime fields are rings.
+instance KnownNat p => Ring (PrimeField p) where
+  negate = P.negate
+  {-# INLINE negate #-}
+
+-- Prime fields are semirings.
+instance KnownNat p => Semiring (PrimeField p) where
+  zero        = 0
+  {-# INLINE zero #-}
+  plus        = (+)
+  {-# INLINE plus #-}
+  one         = 1
+  {-# INLINE one #-}
+  times       = (*)
+  {-# INLINE times #-}
+  fromNatural = fromIntegral
+  {-# INLINE fromNatural #-}
+
+-------------------------------------------------------------------------------
+-- Other instances
 -------------------------------------------------------------------------------
 
 -- Prime fields are arbitrary.
@@ -88,7 +133,7 @@ instance KnownNat p => Random (PrimeField p) where
   randomR = panic "not implemented."
 
 -------------------------------------------------------------------------------
--- Prime field conversions
+-- Type conversions
 -------------------------------------------------------------------------------
 
 -- | Embed field element to integers.
@@ -97,7 +142,7 @@ toInt (PF x) = x
 {-# INLINABLE toInt #-}
 
 -------------------------------------------------------------------------------
--- Prime field quadratics
+-- Quadratic equations
 -------------------------------------------------------------------------------
 
 -- Check quadratic nonresidue.
@@ -133,9 +178,9 @@ primeSqrt p n
   | isQNR p n = Nothing
   | otherwise = min <*> (-) p <$> case (factor2 p, getQNR p) of
     ((q, s), z) -> let zq  = powModInteger z q p
-                       nq  = powModInteger n (quot q 2) p
-                       nnq = rem (n * nq) p
-                   in loop s zq (rem (nq * nnq) p) nnq
+                       nq  = powModInteger n (P.quot q 2) p
+                       nnq = P.rem (n * nq) p
+                   in loop s zq (P.rem (nq * nnq) p) nnq
       where
         loop :: Int -> Integer -> Integer -> Integer -> Maybe Integer
         loop m c t r
@@ -143,12 +188,12 @@ primeSqrt p n
           | t == 1    = Just r
           | otherwise = let i  = least t 0
                             b  = powModInteger c (bit (m - i - 1)) p
-                            b2 = rem (b * b) p
-                        in loop i b2 (rem (t * b2) p) (rem (r * b) p)
+                            b2 = P.rem (b * b) p
+                        in loop i b2 (P.rem (t * b2) p) (P.rem (r * b) p)
           where
             least :: Integer -> Int -> Int
             least 1  j = j
-            least ti j = least (rem (ti * ti) p) (j + 1)
+            least ti j = least (P.rem (ti * ti) p) (j + 1)
 {-# INLINE primeSqrt #-}
 
 -- Prime quadratic @ax^2+bx+c=0@.

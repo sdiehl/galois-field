@@ -21,14 +21,17 @@ default-extensions:
   - GeneralizedNewtypeDeriving
   - KindSignatures
   - MultiParamTypeClasses
+  - PatternSynonyms
 
 dependencies:
   - base >= 4.7 && < 5
   - protolude >= 0.2
   - integer-gmp
   - MonadRandom
+  - poly
   - semirings
   - tasty-quickcheck
+  - vector
   - wl-pprint-text
 
 extra-source-files:

@@ -1,75 +1,44 @@
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS -fno-warn-orphans #-}
-
 module GaloisField
   ( Field(..)
   , GaloisField(..)
   ) where
 
-import Protolude hiding (Semiring, one, zero)
+import Protolude hiding ((-), one)
 
 import Control.Monad.Random (MonadRandom, Random)
-import Data.Semiring (Semiring(..))
+import Data.Euclidean (Euclidean)
+import Data.Semiring (Ring, (-), one, times)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
 -------------------------------------------------------------------------------
--- Field class
+-- Types
 -------------------------------------------------------------------------------
 
 -- | Fields.
-class Semiring k => Field k where
-  {-# MINIMAL (divide | inv), (minus | neg) #-}
+class (Euclidean k, Ring k) => Field k where
+  {-# MINIMAL (divide | invert) #-}
 
-  -- | Negation.
-  neg :: k -> k
-  neg = minus zero
-  {-# INLINE neg #-}
-
-  -- | Subtraction.
-  minus :: k -> k -> k
-  minus = (. neg) . plus
-  {-# INLINE minus #-}
-
-  -- | Inversion.
-  inv :: k -> k
-  inv = divide one
-  {-# INLINE inv #-}
+  -- Operations
 
   -- | Division.
   divide :: k -> k -> k
-  divide = (. inv) . times
+  divide = (. invert) . times
   {-# INLINE divide #-}
 
--- Fractionals are semirings.
-instance GaloisField k => Semiring k where
-  zero  = 0
-  {-# INLINE zero #-}
-  plus  = (+)
-  {-# INLINE plus #-}
-  one   = 1
-  {-# INLINE one #-}
-  times = (*)
-  {-# INLINE times #-}
+  -- | Inversion.
+  invert :: k -> k
+  invert = divide one
+  {-# INLINE invert #-}
 
--- Fields are fractionals.
-instance GaloisField k => Field k where
-  neg    = negate
-  {-# INLINE neg #-}
-  minus  = (-)
+  -- | Subtraction.
+  minus :: k -> k -> k
+  minus = (-)
   {-# INLINE minus #-}
-  inv    = recip
-  {-# INLINE inv #-}
-  divide = (/)
-  {-# INLINE divide #-}
-
--------------------------------------------------------------------------------
--- Galois field class
--------------------------------------------------------------------------------
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
-class (Arbitrary k, Eq k, Fractional k, Generic k,
-       NFData k, Pretty k, Random k, Read k, Show k) => GaloisField k where
+class (Arbitrary k, Eq k, Field k, Fractional k,
+       Generic k, Ord k, Pretty k, Random k, Show k) => GaloisField k where
   {-# MINIMAL char, deg, frob, pow, quad, rnd, sr #-}
 
   -- Characteristics
