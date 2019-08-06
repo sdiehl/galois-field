@@ -33,7 +33,7 @@ For example, GF(4) has order 2^2 and can be constructed as an extension field GF
 
 ### Binary fields
 
-A Galois field of the form GF(2^m) for big positive m is a sum of X^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string.
+A Galois field of the form GF(2^m) for big positive m is a sum of X^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string. It should always be used when the field characteristic is 2.
 
 For example, X^8 + X^4 + X^3 + X + 1 can be represented as the integer 283 that represents the bit string 100011011.
 
@@ -48,7 +48,8 @@ Include the following required language extensions.
 Import the following functions at minimum.
 ```haskell
 import PrimeField (PrimeField)
-import ExtensionField (ExtensionField, IrreducibleMonic(split), fromList, t, X)
+import ExtensionField (ExtensionField, IrreducibleMonic(split), toField,
+                       pattern X, pattern X2, pattern X3, pattern Y)
 import BinaryField (BinaryField)
 ```
 
@@ -78,7 +79,7 @@ The following data type declaration creates a splitting polynomial given an irre
 ```haskell
 data P2
 instance IrreducibleMonic Fq P2 where
-  split _ = X^2 + 1
+  split _ = X2 + 1
 ```
 The following type declaration then creates an extension field with this splitting polynomial.
 ```haskell
@@ -90,46 +91,46 @@ Similarly, further extension fields can be constructed iteratively as follows.
 ```haskell
 data P6
 instance IrreducibleMonic Fq2 P6 where
-  split _ = X^3 - (9 + t X)
+  split _ = X3 - (9 + Y X)
 
 type Fq6 = ExtensionField Fq2 P6
 
 data P12
 instance IrreducibleMonic Fq6 P12 where
-  split _ = X^2 - t X
+  split _ = X2 - Y X
 
 type Fq12 = ExtensionField Fq6 P12
 ```
-Note that `X` accesses the current indeterminate variable and `t` descends the tower of indeterminate variables.
+Note that `X` accesses the current indeterminate variable and `Y` descends the tower of indeterminate variables.
 
 Galois field arithmetic can then be performed in this extension field.
 ```haskell
 fq12 :: Fq12
-fq12 = fromList
-  [ fromList
-    [ fromList
+fq12 = toField
+  [ toField
+    [ toField
       [ 4025484419428246835913352650763180341703148406593523188761836807196412398582
       , 5087667423921547416057913184603782240965080921431854177822601074227980319916
       ]
-    , fromList
+    , toField
       [ 8868355606921194740459469119392835913522089996670570126495590065213716724895
       , 12102922015173003259571598121107256676524158824223867520503152166796819430680
       ]
-    , fromList
+    , toField
       [ 92336131326695228787620679552727214674825150151172467042221065081506740785
       , 5482141053831906120660063289735740072497978400199436576451083698548025220729
       ]
     ]
-  , fromList
-    [ fromList
+  , toField
+    [ toField
       [ 7642691434343136168639899684817459509291669149586986497725240920715691142493
       , 1211355239100959901694672926661748059183573115580181831221700974591509515378
       ]
-    , fromList
+    , toField
       [ 20725578899076721876257429467489710434807801418821512117896292558010284413176
       , 17642016461759614884877567642064231230128683506116557502360384546280794322728
       ]
-    , fromList
+    , toField
       [ 17449282511578147452934743657918270744212677919657988500433959352763226500950
       , 1205855382909824928004884982625565310515751070464736233368671939944606335817
       ]
@@ -137,31 +138,31 @@ fq12 = fromList
   ]
 
 fq12' :: Fq12
-fq12' = fromList
-  [ fromList
-    [ fromList
+fq12' = toField
+  [ toField
+    [ toField
       [ 495492586688946756331205475947141303903957329539236899715542920513774223311
       , 9283314577619389303419433707421707208215462819919253486023883680690371740600
       ]
-    , fromList
+    , toField
       [ 11142072730721162663710262820927009044232748085260948776285443777221023820448
       , 1275691922864139043351956162286567343365697673070760209966772441869205291758
       ]
-    , fromList
+    , toField
       [ 20007029371545157738471875537558122753684185825574273033359718514421878893242
       , 9839139739201376418106411333971304469387172772449235880774992683057627654905
       ]
     ]
-  , fromList
-    [ fromList
+  , toField
+    [ toField
       [ 9503058454919356208294350412959497499007919434690988218543143506584310390240
       , 19236630380322614936323642336645412102299542253751028194541390082750834966816
       ]
-    , fromList
+    , toField
       [ 18019769232924676175188431592335242333439728011993142930089933693043738917983
       , 11549213142100201239212924317641009159759841794532519457441596987622070613872
       ]
-    , fromList
+    , toField
       [ 9656683724785441232932664175488314398614795173462019188529258009817332577664
       , 20666848762667934776817320505559846916719041700736383328805334359135638079015
       ]
@@ -177,8 +178,8 @@ a + bX + (c + dX)Y + (e + fX)Y^2 + (g + hX + (i + jX)Y + (k + lX)Y^2)Z
 ```
 where `X, Y, Z` is a tower of indeterminate variables, is constructed by
 ```haskell
-fromList [ fromList [fromList [a, b], fromList [c, d], fromList [e, f]]
-         , fromList [fromList [g, h], fromList [i, j], fromList [k, l]] ] :: Fq12
+toField [ toField [toField [a, b], toField [c, d], toField [e, f]]
+        , toField [toField [g, h], toField [i, j], toField [k, l]] ] :: Fq12
 ```
 
 ### Binary fields
