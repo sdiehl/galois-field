@@ -1,19 +1,22 @@
 module ExtensionField
   ( ExtensionField
+  , PolynomialRing
   , IrreducibleMonic(split)
   , fromField
-  , fromList
-  , t
+  , toField
   , pattern X
+  , pattern X2
+  , pattern X3
+  , pattern Y
   ) where
 
 import Protolude as P hiding (Semiring, quot, quotRem, rem)
 
 import Control.Monad.Random (Random(..), getRandom)
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
-import Data.Semiring (Ring(..), Semiring(..))
 import Data.Poly.Semiring (VPoly, leading, monomial, scale, toPoly, unPoly, pattern X)
-import qualified Data.Vector as V
+import Data.Semiring as S (Ring(..), Semiring(..))
+import Data.Vector (fromList)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
@@ -28,6 +31,9 @@ import GaloisField (Field(..), GaloisField(..))
 newtype ExtensionField k im = EF (VPoly k)
   deriving (Eq, Generic, Ord, Show)
 
+-- | Polynomial rings.
+type PolynomialRing = VPoly
+
 -- | Irreducible monic splitting polynomial @f(X)@ of extension field.
 class GaloisField k => IrreducibleMonic k im where
   {-# MINIMAL split #-}
@@ -39,19 +45,32 @@ class GaloisField k => IrreducibleMonic k im where
 
 -- Extension fields are Galois fields.
 instance IrreducibleMonic k im => GaloisField (ExtensionField k im) where
-  char  = const (char (witness :: k))
+  char          = const (char (witness :: k))
   {-# INLINE char #-}
-  deg w = deg (witness :: k) * deg' w
+  deg           = (deg (witness :: k) *) . deg'
   {-# INLINE deg #-}
-  frob  = pow <*> char
+  frob          = pow <*> char
   {-# INLINE frob #-}
-  pow   = (^)
+  pow w@(EF x) n
+    | n < 0     = pow (recip w) (P.negate n)
+    | otherwise = EF (pow' 1 x n)
+    where
+      pow' ws xs m
+        | m == 0    = ws
+        | m == 1    = ws'
+        | even m    = pow' ws xs' m'
+        | otherwise = pow' ws' xs' m'
+        where
+          mul = (flip rem (split w) .) . times
+          ws' = mul ws xs
+          xs' = mul xs xs
+          m'  = div m 2
   {-# INLINE pow #-}
-  quad  = panic "not implemented."
+  quad          = panic "not implemented."
   {-# INLINE quad #-}
-  rnd   = getRandom
+  rnd           = getRandom
   {-# INLINE rnd #-}
-  sr    = panic "not implemented."
+  sr            = panic "not implemented."
   {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
@@ -60,25 +79,25 @@ instance IrreducibleMonic k im => GaloisField (ExtensionField k im) where
 
 -- Extension fields are fractional.
 instance IrreducibleMonic k im => Fractional (ExtensionField k im) where
-  recip w@(EF x)      = EF (polyInv x (split w))
+  recip (EF x)        = EF (polyInv x (split (witness :: ExtensionField k im)))
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Extension fields are numeric.
 instance IrreducibleMonic k im => Num (ExtensionField k im) where
-  EF x + EF y     = EF (x + y)
+  EF x + EF y   = EF (plus x y)
   {-# INLINE (+) #-}
-  w@(EF x) * EF y = EF (rem (x * y) (split w))
+  EF x * EF y   = EF (rem (times x y) (split (witness :: ExtensionField k im)))
   {-# INLINE (*) #-}
-  EF x - EF y     = EF (x - y)
+  EF x - EF y   = EF (x - y)
   {-# INLINE (-) #-}
-  negate (EF x)   = EF (P.negate x)
+  negate (EF x) = EF (S.negate x)
   {-# INLINE negate #-}
-  fromInteger     = EF . fromInteger
+  fromInteger   = EF . fromInteger
   {-# INLINABLE fromInteger #-}
-  abs             = panic "not implemented."
-  signum          = panic "not implemented."
+  abs           = panic "not implemented."
+  signum        = panic "not implemented."
 
 -------------------------------------------------------------------------------
 -- Semiring instances
@@ -125,15 +144,15 @@ instance IrreducibleMonic k im => Semiring (ExtensionField k im) where
 
 -- Extension fields are arbitrary.
 instance IrreducibleMonic k im => Arbitrary (ExtensionField k im) where
-  arbitrary = fromList <$> vector (deg' (witness :: ExtensionField k im))
+  arbitrary = toField <$> vector (deg' (witness :: ExtensionField k im))
 
 -- Extension fields are pretty.
 instance IrreducibleMonic k im => Pretty (ExtensionField k im) where
-  pretty (EF x) = pretty (show x :: Text)
+  pretty (EF x) = pretty (toList (unPoly x))
 
 -- Extension fields are random.
 instance IrreducibleMonic k im => Random (ExtensionField k im) where
-  random  = first fromList . unfold (deg' (witness :: ExtensionField k im)) []
+  random  = first toField . unfold (deg' (witness :: ExtensionField k im)) []
     where
       unfold n xs g
         | n <= 0    = (xs, g)
@@ -152,15 +171,21 @@ fromField (EF x) = toList (unPoly x)
 {-# INLINABLE fromField #-}
 
 -- | Convert from list representation to field element.
-fromList :: forall k im . IrreducibleMonic k im
-  => [k] -> ExtensionField k im
-fromList = EF . flip rem (split (witness :: ExtensionField k im)) . toPoly . V.fromList
-{-# INLINABLE fromList #-}
+toField :: forall k im . IrreducibleMonic k im => [k] -> ExtensionField k im
+toField = EF . flip rem (split (witness :: ExtensionField k im)) . toPoly . fromList
+{-# INLINABLE toField #-}
 
--- | Descend tower of indeterminate variables.
-t :: IrreducibleMonic k im => VPoly k -> VPoly (ExtensionField k im)
-t = monomial 0 . EF
-{-# INLINE t #-}
+-- | Pattern for @X^2@.
+pattern X2 :: GaloisField k => VPoly k
+pattern X2 <- _ where X2 = toPoly (fromList [0, 0, 1])
+
+-- | Pattern for @X^3@.
+pattern X3 :: GaloisField k => VPoly k
+pattern X3 <- _ where X3 = toPoly (fromList [0, 0, 0, 1])
+
+-- | Pattern for descending tower of indeterminate variables.
+pattern Y :: IrreducibleMonic k im => VPoly k -> VPoly (ExtensionField k im)
+pattern Y <- _ where Y = monomial 0 . EF
 
 -------------------------------------------------------------------------------
 -- Polynomial arithmetic
@@ -175,12 +200,10 @@ polyInv xs ps = case first leading (polyGCD xs ps) of
 
 -- Polynomial extended greatest common divisor algorithm.
 polyGCD :: forall k . GaloisField k => VPoly k -> VPoly k -> (VPoly k, VPoly k)
-polyGCD = flip (polyGCD' 0 1)
+polyGCD x y = polyGCD' 0 1 y x
   where
     polyGCD' :: VPoly k -> VPoly k -> VPoly k -> VPoly k -> (VPoly k, VPoly k)
-    polyGCD' s s' r r'
-      | r' == 0   = (r, s)
-      | otherwise = polyGCD' s' (s - q * s') r' (r - q * r')
-      where
-        q = quot r r'
+    polyGCD' s _  r 0  = (r, s)
+    polyGCD' s s' r r' = case quot r r' of
+      q -> polyGCD' s' (s - times q s') r' (r - times q r')
 {-# INLINE polyGCD #-}

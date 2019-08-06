@@ -24,20 +24,24 @@ newtype PrimeField (p :: Nat) = PF Integer
 
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
-  char           = natVal
+  char          = natVal
   {-# INLINE char #-}
-  deg            = const 1
+  deg           = const 1
   {-# INLINE deg #-}
-  frob           = identity
+  frob          = identity
   {-# INLINE frob #-}
-  pow w@(PF x) n = PF (powModInteger x n (natVal w))
+  pow (PF x) n  = PF (powModInteger x n (natVal (witness :: PrimeField p)))
   {-# INLINE pow #-}
-  quad           = primeQuad
+  quad          = primeQuad
   {-# INLINE quad #-}
-  rnd            = getRandom
+  rnd           = getRandom
   {-# INLINE rnd #-}
-  sr w@(PF x)    = let p = natVal w
-                   in if p == 2 || x == 0 then Just w else PF <$> primeSqrt p x
+  sr w@(PF x)
+    | p == 2    = Just w
+    | x == 0    = Just w
+    | otherwise = PF <$> primeSqrt p x
+    where
+      p = natVal (witness :: PrimeField p)
   {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
@@ -46,34 +50,35 @@ instance KnownNat p => GaloisField (PrimeField p) where
 
 -- Prime fields are fractional.
 instance KnownNat p => Fractional (PrimeField p) where
-  recip w@(PF x)      = PF (if x == 0 then panic "no multiplicative inverse."
-                            else recipModInteger x (natVal w))
+  recip (PF 0)        = panic "no multiplicative inverse."
+  recip (PF x)        = PF (recipModInteger x (natVal (witness :: PrimeField p)))
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Prime fields are numeric.
 instance KnownNat p => Num (PrimeField p) where
-  w@(PF x) + PF y = PF (if xyp >= 0 then xyp else xy)
+  PF x + PF y   = PF (if xyp >= 0 then xyp else xy)
     where
       xy  = x + y
-      xyp = xy - natVal w
+      xyp = xy - natVal (witness :: PrimeField p)
   {-# INLINE (+) #-}
-  w@(PF x) * PF y = PF (P.rem (x * y) (natVal w))
+  PF x * PF y   = PF (P.rem (x * y) (natVal (witness :: PrimeField p)))
   {-# INLINE (*) #-}
-  w@(PF x) - PF y = PF (if xy >= 0 then xy else xy + natVal w)
+  PF x - PF y   = PF (if xy >= 0 then xy else xy + natVal (witness :: PrimeField p))
     where
       xy = x - y
   {-# INLINE (-) #-}
-  negate w@(PF x) = PF (if x == 0 then 0 else -x + natVal w)
+  negate (PF 0) = PF 0
+  negate (PF x) = PF (natVal (witness :: PrimeField p) - x)
   {-# INLINE negate #-}
-  fromInteger x   = PF (if y >= 0 then y else y + p)
+  fromInteger x = PF (if y >= 0 then y else y + p)
     where
       y = P.rem x p
       p = natVal (witness :: PrimeField p)
   {-# INLINABLE fromInteger #-}
-  abs             = panic "not implemented."
-  signum          = panic "not implemented."
+  abs           = panic "not implemented."
+  signum        = panic "not implemented."
 
 -------------------------------------------------------------------------------
 -- Semiring instances

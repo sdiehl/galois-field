@@ -29,16 +29,20 @@ instance KnownNat im => GaloisField (BinaryField im) where
   {-# INLINE deg #-}
   frob          = flip pow 2
   {-# INLINE frob #-}
-  pow w@(BF y) n
-    | n < 0     = pow (recip w) (-n)
-    | otherwise = BF (pow' 1 y n)
+  pow w@(BF x) n
+    | n < 0     = pow (recip w) (P.negate n)
+    | otherwise = BF (pow' 1 x n)
     where
-      mul = (.) (binMod (natVal w)) . binMul
-      pow' ws zs m
+      pow' ws xs m
         | m == 0    = ws
-        | m == 1    = mul ws zs
-        | even m    = pow' ws (mul zs zs) (div m 2)
-        | otherwise = pow' (mul ws zs) (mul zs zs) (div m 2)
+        | m == 1    = ws'
+        | even m    = pow' ws xs' m'
+        | otherwise = pow' ws' xs' m'
+        where
+          mul = (binMod (natVal w) .) . binMul
+          ws' = mul ws xs
+          xs' = mul xs xs
+          m'  = div m 2
   {-# INLINE pow #-}
   quad a b c
     | b == 0    = sr c
@@ -55,7 +59,7 @@ instance KnownNat im => GaloisField (BinaryField im) where
 
 -- Binary fields are fractional.
 instance KnownNat im => Fractional (BinaryField im) where
-  recip w@(BF x)      = BF (binInv x (natVal w))
+  recip (BF x)        = BF (binInv x (natVal (witness :: BinaryField im)))
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
