@@ -39,14 +39,13 @@ instance KnownNat im => GaloisField (BinaryField im) where
         | even m    = pow' ws xs' m'
         | otherwise = pow' ws' xs' m'
         where
-          mul = (binMod (natVal w) .) . binMul
+          mul = binMul (natVal (witness :: BinaryField im))
           ws' = mul ws xs
           xs' = mul xs xs
           m'  = div m 2
   {-# INLINE pow #-}
-  quad a b c
-    | b == 0    = sr c
-    | otherwise = (* (b / a)) <$> binQuad (a * c / (b * b))
+  quad _ 0 c    = sr c
+  quad a b c    = (* (b / a)) <$> binQuad (a * c / (b * b))
   {-# INLINE quad #-}
   rnd           = getRandom
   {-# INLINE rnd #-}
@@ -68,7 +67,7 @@ instance KnownNat im => Fractional (BinaryField im) where
 instance KnownNat im => Num (BinaryField im) where
   BF x + BF y = BF (xor x y)
   {-# INLINE (+) #-}
-  BF x * BF y = fromInteger (binMul x y)
+  BF x * BF y = BF (binMul (natVal (witness :: BinaryField im)) x y)
   {-# INLINE (*) #-}
   BF x - BF y = BF (xor x y)
   {-# INLINE (-) #-}
@@ -157,8 +156,8 @@ binLog = binLog' 2
 {-# INLINE binLog #-}
 
 -- Binary multiplication.
-binMul :: Integer -> Integer -> Integer
-binMul = binMul' 0
+binMul :: Integer -> Integer -> Integer -> Integer
+binMul = (. binMul' 0) . (.) . binMod
   where
     binMul' :: Integer -> Integer -> Integer -> Integer
     binMul' n x y

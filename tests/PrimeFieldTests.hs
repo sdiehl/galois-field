@@ -7,7 +7,6 @@ import Test.Tasty
 
 import GaloisFieldTests
 
-type FS2 = PrimeField 2
 type FS3 = PrimeField 3
 type FS5 = PrimeField 5
 type FS7 = PrimeField 7
@@ -26,8 +25,7 @@ type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689
 
 testPrimeField :: TestTree
 testPrimeField = testGroup "Prime fields"
-  [ test "FS2" (witness :: FS2)
-  , test "FS3" (witness :: FS3)
+  [ test "FS3" (witness :: FS3)
   , test "FS5" (witness :: FS5)
   , test "FS7" (witness :: FS7)
   , test "FM0" (witness :: FM0)

@@ -8,21 +8,6 @@ import Test.Tasty
 import GaloisFieldTests
 import PrimeFieldTests
 
-data P111
-instance IrreducibleMonic FS2 P111 where
-  split _ = X2 + X + 1
-type FS4 = ExtensionField FS2 P111
-
-data P1101
-instance IrreducibleMonic FS2 P1101 where
-  split _ = X3 + X + 1
-type FS8 = ExtensionField FS2 P1101
-
-data P1011
-instance IrreducibleMonic FS2 P1011 where
-  split _ = X3 + X2 + 1
-type FS8' = ExtensionField FS2 P1011
-
 data P101
 instance IrreducibleMonic FS3 P101 where
   split _ = X2 + 1
@@ -59,15 +44,15 @@ instance IrreducibleMonic FM4 P101 where
 type FL4 = ExtensionField FM4 P101
 
 instance IrreducibleMonic FVL P101 where
-  split _ = X2 + 1
+  split _ = X2 + 17
 type FV2 = ExtensionField FVL P101
 
 instance IrreducibleMonic FXL P101 where
-  split _ = X2 + 1
+  split _ = X2 + 17
 type FX2 = ExtensionField FXL P101
 
 instance IrreducibleMonic FZL P101 where
-  split _ = X2 + 1
+  split _ = X2 + 17
 type FZ2 = ExtensionField FZL P101
 
 data Pu
@@ -87,21 +72,18 @@ type Fq12 = ExtensionField Fq6 Pw
 
 testExtensionField :: TestTree
 testExtensionField = testGroup "Extension fields"
-  [ testEF "FS4"   (witness :: FS4  )
-  , testEF "FS8"   (witness :: FS8  )
-  , testEF "FS8'"  (witness :: FS8' )
-  , testEF "FS9"   (witness :: FS9  )
-  , testEF "FS9'"  (witness :: FS9' )
-  , testEF "FS9''" (witness :: FS9'')
-  , testEF "FL0"   (witness :: FL0  )
-  , testEF "FL1"   (witness :: FL1  )
-  , testEF "FL2"   (witness :: FL2  )
-  , testEF "FL3"   (witness :: FL3  )
-  , testEF "FL4"   (witness :: FL4  )
-  , testEF "FV2"   (witness :: FV2  )
-  , testEF "FX2"   (witness :: FX2  )
-  , testEF "FZ2"   (witness :: FZ2  )
-  , testEF "Fq2"   (witness :: Fq2  )
+  [ test   "FS9"   (witness :: FS9  )
+  , test   "FS9'"  (witness :: FS9' )
+  , test   "FS9''" (witness :: FS9'')
+  , test   "FL0"   (witness :: FL0  )
+  , test   "FL1"   (witness :: FL1  )
+  , test   "FL2"   (witness :: FL2  )
+  , test   "FL3"   (witness :: FL3  )
+  , test   "FL4"   (witness :: FL4  )
+  , test   "FV2"   (witness :: FV2  )
+  , test   "FX2"   (witness :: FX2  )
+  , test   "FZ2"   (witness :: FZ2  )
+  , test   "Fq2"   (witness :: Fq2  )
   , testEF "Fq6"   (witness :: Fq6  )
   , testEF "Fq12"  (witness :: Fq12 )
   ]

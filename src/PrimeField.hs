@@ -36,12 +36,8 @@ instance KnownNat p => GaloisField (PrimeField p) where
   {-# INLINE quad #-}
   rnd           = getRandom
   {-# INLINE rnd #-}
-  sr w@(PF x)
-    | p == 2    = Just w
-    | x == 0    = Just w
-    | otherwise = PF <$> primeSqrt p x
-    where
-      p = natVal (witness :: PrimeField p)
+  sr 0          = Just 0
+  sr (PF x)     = PF <$> primeSqrt (natVal (witness :: PrimeField p)) x
   {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
@@ -152,24 +148,25 @@ toInt (PF x) = x
 
 -- Check quadratic nonresidue.
 isQNR :: Integer -> Integer -> Bool
-isQNR p n = powModInteger n (shiftR (p - 1) 1) p /= 1
+isQNR p n = powModInteger n (shiftR p 1) p /= 1
 {-# INLINE isQNR #-}
 
 -- Factor binary powers.
 factor2 :: Integer -> (Integer, Int)
-factor2 p = factor 0 (p - 1)
+factor2 p = factor (p - 1, 0)
   where
-    factor :: Int -> Integer -> (Integer, Int)
-    factor s q
-      | testBit q 0 = (q, s)
-      | otherwise   = factor (s + 1) (shiftR q 1)
+    factor :: (Integer, Int) -> (Integer, Int)
+    factor qs@(q, s)
+      | testBit q 0 = qs
+      | otherwise   = factor (shiftR q 1, s + 1)
 {-# INLINE factor2 #-}
 
 -- Get quadratic nonresidue.
 getQNR :: Integer -> Integer
 getQNR p
-  | p7 == 3 || p7 == 5 = 2
-  | otherwise          = case find (isQNR p) ps of
+  | p7 == 3   = 2
+  | p7 == 5   = 2
+  | otherwise = case find (isQNR p) ps of
     Just q -> q
     _      -> panic "no quadratic nonresidue."
   where
@@ -181,20 +178,19 @@ getQNR p
 primeSqrt :: Integer -> Integer -> Maybe Integer
 primeSqrt p n
   | isQNR p n = Nothing
-  | otherwise = min <*> (-) p <$> case (factor2 p, getQNR p) of
+  | otherwise = case (factor2 p, getQNR p) of
     ((q, s), z) -> let zq  = powModInteger z q p
-                       nq  = powModInteger n (P.quot q 2) p
+                       nq  = powModInteger n (shiftR q 1) p
                        nnq = P.rem (n * nq) p
                    in loop s zq (P.rem (nq * nnq) p) nnq
       where
         loop :: Int -> Integer -> Integer -> Integer -> Maybe Integer
-        loop m c t r
-          | t == 0    = Just 0
-          | t == 1    = Just r
-          | otherwise = let i  = least t 0
-                            b  = powModInteger c (bit (m - i - 1)) p
-                            b2 = P.rem (b * b) p
-                        in loop i b2 (P.rem (t * b2) p) (P.rem (r * b) p)
+        loop _ _ 0 _ = Just 0
+        loop _ _ 1 r = Just r
+        loop m c t r = let i  = least t 0
+                           b  = powModInteger c (bit (m - i - 1)) p
+                           b2 = P.rem (b * b) p
+                       in loop i b2 (P.rem (t * b2) p) (P.rem (r * b) p)
           where
             least :: Integer -> Int -> Int
             least 1  j = j
@@ -204,10 +200,6 @@ primeSqrt p n
 -- Prime quadratic @ax^2+bx+c=0@.
 primeQuad :: KnownNat p
   => PrimeField p -> PrimeField p -> PrimeField p -> Maybe (PrimeField p)
-primeQuad a b c
-  | a == 0    = Nothing
-  | p == 2    = if c == 0 then Just 0 else if b == 0 then Just 1 else Nothing
-  | otherwise = (/ (2 * a)) . subtract b <$> sr (b * b - 4 * a * c)
-  where
-    p = char a :: Integer
+primeQuad 0 _ _ = Nothing
+primeQuad a b c = (/ (2 * a)) . subtract b <$> sr (b * b - 4 * a * c)
 {-# INLINE primeQuad #-}
