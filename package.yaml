@@ -24,7 +24,7 @@ default-extensions:
   - PatternSynonyms
 
 dependencies:
-  - base
+  - base >=4.10 && < 5
   - protolude
   - integer-gmp
   - MonadRandom
