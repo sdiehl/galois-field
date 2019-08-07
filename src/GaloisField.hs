@@ -3,11 +3,11 @@ module GaloisField
   , GaloisField(..)
   ) where
 
-import Protolude hiding ((-), one)
+import Protolude hiding ((-), one, quot)
 
 import Control.Monad.Random (MonadRandom, Random)
-import Data.Euclidean (Euclidean)
-import Data.Semiring (Ring, (-), one, times)
+import Data.Euclidean (Euclidean(..))
+import Data.Semiring (Ring, (-), one)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
@@ -17,18 +17,17 @@ import Text.PrettyPrint.Leijen.Text (Pretty)
 
 -- | Fields.
 class (Euclidean k, Ring k) => Field k where
-  {-# MINIMAL (divide | invert) #-}
 
   -- Operations
 
   -- | Division.
   divide :: k -> k -> k
-  divide = (. invert) . times
+  divide = quot
   {-# INLINE divide #-}
 
   -- | Inversion.
   invert :: k -> k
-  invert = divide one
+  invert = quot one
   {-# INLINE invert #-}
 
   -- | Subtraction.
