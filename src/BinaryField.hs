@@ -31,7 +31,7 @@ instance KnownNat im => GaloisField (BinaryField im) where
   {-# INLINE frob #-}
 
 {-# RULES "BinaryField/pow"
-  forall (k :: BinaryField im) => BinaryField im) n . (^) k n = pow k n
+  forall (k :: KnownNat im => BinaryField im) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
