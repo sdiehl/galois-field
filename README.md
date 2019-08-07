@@ -44,6 +44,7 @@ Include the following required language extensions.
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE PatternSynonyms #-}
 ```
 Import the following functions at minimum.
 ```haskell
@@ -101,7 +102,7 @@ instance IrreducibleMonic Fq6 P12 where
 
 type Fq12 = ExtensionField Fq6 P12
 ```
-Note that `X` accesses the current indeterminate variable and `Y` descends the tower of indeterminate variables.
+Note that `X, X2, X3` accesses the current indeterminate variables and `Y` descends the tower of indeterminate variables.
 
 Galois field arithmetic can then be performed in this extension field.
 ```haskell
