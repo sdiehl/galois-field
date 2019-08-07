@@ -1,5 +1,16 @@
 # Change log for galois-field
 
+## 0.4.0
+
+* Add `Vector` implementation of extension fields.
+* Add `qnr` function for Galois fields.
+* Add `qr` function for Galois fields.
+* Add `quad` function for extension fields and binary fields.
+* Add `sr` function for extension fields and binary fields.
+* Add `Semiring` instances for Galois fields.
+* Add `Ord` instances for Galois fields.
+* Add minor optimisations to exponentiation with `RULES`.
+
 ## 0.3.0
 
 * Add complete implementation of binary fields.

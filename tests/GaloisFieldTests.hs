@@ -45,24 +45,17 @@ fieldAxioms _ = testGroup ("Field axioms")
   ]
 
 squareRoots :: forall k . GaloisField k => k -> TestTree
-squareRoots _ = testGroup "Square roots"
+squareRoots _ = localOption (QuickCheckTests 10) $ testGroup "Square roots"
   [ testProperty "squares of square roots"
     $ \(x :: k) -> isJust (sr x)
       ==> (((^ (2 :: Int)) <$> sr x) == Just x)
-  ]
-
-quadraticEquations :: forall k . GaloisField k => k -> TestTree
-quadraticEquations _ = testGroup "Quadratic equations"
-  [ testProperty "solutions of quadratic equations"
+  , testProperty "solutions of quadratic equations"
     $ \(a :: k) (b :: k) (c :: k) -> a /= 0 && b /= 0 && isJust (quad a b c)
       ==> (((\x -> a * x * x + b * x + c) <$> quad a b c) == Just 0)
   ]
 
 test :: forall k . GaloisField k => TestName -> k -> TestTree
-test s x = testGroup s [fieldAxioms x, squareRoots x, quadraticEquations x]
+test s x = testGroup s [fieldAxioms x, squareRoots x]
 
-testEF :: forall k . GaloisField k => TestName -> k -> TestTree
-testEF s x = testGroup s [fieldAxioms x]
-
-testBF :: forall k . GaloisField k => TestName -> k -> TestTree
-testBF s x = testGroup s [fieldAxioms x]
+test' :: forall k . GaloisField k => TestName -> k -> TestTree
+test' s x = testGroup s [fieldAxioms x]
