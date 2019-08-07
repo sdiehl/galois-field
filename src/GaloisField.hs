@@ -164,6 +164,7 @@ squareRoot n
 -- Solve a quadratic equation @ax^2 + bx + c = 0@.
 solveQuadratic :: forall k . GaloisField k => k -> k -> k -> Maybe k
 solveQuadratic 0 _ _ = Nothing
+solveQuadratic _ _ 0 = Just 0
 solveQuadratic a 0 c = squareRoot (-c / a)
 solveQuadratic a b c
   | char a == 2      = (* (b / a)) <$> solveQuadratic' (ac / bb)
