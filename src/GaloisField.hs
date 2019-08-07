@@ -37,7 +37,7 @@ class (Euclidean k, Ring k) => Field k where
   {-# INLINE minus #-}
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
-class (Arbitrary k, Eq k, Field k, Fractional k,
+class (Arbitrary k, Field k, Fractional k,
        Generic k, Ord k, Pretty k, Random k, Show k) => GaloisField k where
   {-# MINIMAL char, deg, frob #-}
 

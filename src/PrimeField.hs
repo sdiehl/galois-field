@@ -33,6 +33,10 @@ instance KnownNat p => GaloisField (PrimeField p) where
   pow (PF x) n = PF (powModInteger x n (natVal (witness :: PrimeField p)))
   {-# INLINE pow #-}
 
+{-# RULES "PrimeField/pow"
+  forall (k :: KnownNat p => PrimeField p) (n :: Integer) . (^) k n = pow k n
+  #-}
+
 -------------------------------------------------------------------------------
 -- Numeric instances
 -------------------------------------------------------------------------------

@@ -30,6 +30,10 @@ instance KnownNat im => GaloisField (BinaryField im) where
   frob          = flip pow 2
   {-# INLINE frob #-}
 
+{-# RULES "BinaryField/pow"
+  forall (k :: BinaryField im) => BinaryField im) n . (^) k n = pow k n
+  #-}
+
 -------------------------------------------------------------------------------
 -- Numeric instances
 -------------------------------------------------------------------------------

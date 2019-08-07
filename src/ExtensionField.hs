@@ -52,6 +52,10 @@ instance IrreducibleMonic k im => GaloisField (ExtensionField k im) where
   frob          = pow <*> char
   {-# INLINE frob #-}
 
+{-# RULES "ExtensionField/pow"
+  forall (k :: IrreducibleMonic k im => ExtensionField k im) n . (^) k n = pow k n
+  #-}
+
 -------------------------------------------------------------------------------
 -- Numeric instances
 -------------------------------------------------------------------------------
