@@ -12,7 +12,7 @@ module ExtensionField
 
 import Protolude as P hiding (Semiring, quot, quotRem, rem)
 
-import Control.Monad.Random (Random(..), StdGen, getRandom, mkStdGen, runRand)
+import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
 import Data.Poly.Semiring (VPoly, leading, monomial, scale, toPoly, unPoly, pattern X)
 import Data.Semiring as S (Ring(..), Semiring(..))
@@ -51,28 +51,6 @@ instance IrreducibleMonic k im => GaloisField (ExtensionField k im) where
   {-# INLINE deg #-}
   frob          = pow <*> char
   {-# INLINE frob #-}
-  pow w@(EF x) n
-    | n < 0     = pow (recip w) (P.negate n)
-    | otherwise = EF (pow' 1 x n)
-    where
-      pow' ws xs m
-        | m == 0    = ws
-        | m == 1    = ws'
-        | even m    = pow' ws xs' m'
-        | otherwise = pow' ws' xs' m'
-        where
-          mul = (flip rem (split w) .) . times
-          ws' = mul ws xs
-          xs' = mul xs xs
-          m'  = div m 2
-  {-# INLINE pow #-}
-  quad          = extensionQuad
-  {-# INLINE quad #-}
-  rnd           = getRandom
-  {-# INLINE rnd #-}
-  sr 0          = Just 0
-  sr x          = extensionSqrt x
-  {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
 -- Numeric instances
@@ -208,64 +186,3 @@ polyGCD x y = polyGCD' 0 1 y x
     polyGCD' s s' r r' = case quot r r' of
       q -> polyGCD' s' (s - times q s') r' (r - times q r')
 {-# INLINE polyGCD #-}
-
--------------------------------------------------------------------------------
--- Quadratic equations
--------------------------------------------------------------------------------
-
--- Check quadratic nonresidue.
-isQNR :: IrreducibleMonic k im => ExtensionField k im -> Bool
-isQNR x = pow x (shiftR (order x) 1) /= 1
-{-# INLINE isQNR #-}
-
--- Factor binary powers.
-factor2 :: IrreducibleMonic k im => ExtensionField k im -> (Integer, Int)
-factor2 w = factor (order w - 1, 0)
-  where
-    factor :: (Integer, Int) -> (Integer, Int)
-    factor qs@(q, s)
-      | testBit q 0 = qs
-      | otherwise   = factor (shiftR q 1, s + 1)
-{-# INLINE factor2 #-}
-
--- Get quadratic nonresidue.
-getQNR :: forall k im . IrreducibleMonic k im => ExtensionField k im
-getQNR = qnr (runRand rnd (mkStdGen 0))
-  where
-    qnr :: (ExtensionField k im, StdGen) -> ExtensionField k im
-    qnr (x, g)
-      | x /= 0 && isQNR x = x
-      | otherwise         = qnr (runRand rnd g)
-{-# INLINE getQNR #-}
-
--- Extension square root.
-extensionSqrt :: forall k im . IrreducibleMonic k im
-  => ExtensionField k im -> Maybe (ExtensionField k im)
-extensionSqrt n
-  | isQNR n   = Nothing
-  | otherwise = case (factor2 n, getQNR) of
-    ((q, s), z) -> let zq  = pow z q
-                       nq  = pow n (shiftR q 1)
-                       nnq = n * nq
-                   in loop s zq (nq * nnq) nnq
-      where
-        loop :: Int -> ExtensionField k im -> ExtensionField k im
-          -> ExtensionField k im -> Maybe (ExtensionField k im)
-        loop _ _ 0 _ = Just 0
-        loop _ _ 1 r = Just r
-        loop m c t r = let i  = least t 0
-                           b  = pow c (bit (m - i - 1))
-                           b2 = b * b
-                       in loop i b2 (t * b2) (r * b)
-          where
-            least :: ExtensionField k im -> Int -> Int
-            least 1  j = j
-            least ti j = least (ti * ti) (j + 1)
-{-# INLINE extensionSqrt #-}
-
--- Extension quadratic @ax^2+bx+c=0@.
-extensionQuad :: IrreducibleMonic k im
-  => ExtensionField k im -> ExtensionField k im -> ExtensionField k im -> Maybe (ExtensionField k im)
-extensionQuad 0 _ _ = Nothing
-extensionQuad a b c = (/ (2 * a)) . subtract b <$> sr (b * b - 4 * a * c)
-{-# INLINE extensionQuad #-}

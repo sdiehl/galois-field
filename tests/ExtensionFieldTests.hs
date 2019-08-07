@@ -8,6 +8,21 @@ import Test.Tasty
 import GaloisFieldTests
 import PrimeFieldTests
 
+data P111
+instance IrreducibleMonic FS2 P111 where
+  split _ = X2 + X + 1
+type FS4 = ExtensionField FS2 P111
+
+data P1101
+instance IrreducibleMonic FS2 P1101 where
+  split _ = X3 + X + 1
+type FS8 = ExtensionField FS2 P1101
+
+data P1011
+instance IrreducibleMonic FS2 P1011 where
+  split _ = X3 + X2 + 1
+type FS8' = ExtensionField FS2 P1011
+
 data P101
 instance IrreducibleMonic FS3 P101 where
   split _ = X2 + 1
@@ -72,18 +87,21 @@ type Fq12 = ExtensionField Fq6 Pw
 
 testExtensionField :: TestTree
 testExtensionField = testGroup "Extension fields"
-  [ test   "FS9"   (witness :: FS9  )
-  , test   "FS9'"  (witness :: FS9' )
-  , test   "FS9''" (witness :: FS9'')
-  , test   "FL0"   (witness :: FL0  )
-  , test   "FL1"   (witness :: FL1  )
-  , test   "FL2"   (witness :: FL2  )
-  , test   "FL3"   (witness :: FL3  )
-  , test   "FL4"   (witness :: FL4  )
-  , test   "FV2"   (witness :: FV2  )
-  , test   "FX2"   (witness :: FX2  )
-  , test   "FZ2"   (witness :: FZ2  )
-  , test   "Fq2"   (witness :: Fq2  )
-  , testEF "Fq6"   (witness :: Fq6  )
-  , testEF "Fq12"  (witness :: Fq12 )
+  [ test' "FS4"   (witness :: FS4  ) -- not implemented.
+  , test  "FS8"   (witness :: FS8  )
+  , test  "FS8'"  (witness :: FS8' )
+  , test  "FS9"   (witness :: FS9  )
+  , test  "FS9'"  (witness :: FS9' )
+  , test  "FS9''" (witness :: FS9'')
+  , test  "FL0"   (witness :: FL0  )
+  , test  "FL1"   (witness :: FL1  )
+  , test  "FL2"   (witness :: FL2  )
+  , test  "FL3"   (witness :: FL3  )
+  , test  "FL4"   (witness :: FL4  )
+  , test  "FV2"   (witness :: FV2  )
+  , test  "FX2"   (witness :: FX2  )
+  , test  "FZ2"   (witness :: FZ2  )
+  , test  "Fq2"   (witness :: Fq2  )
+  , test' "Fq6"   (witness :: Fq6  ) -- time out.
+  , test' "Fq12"  (witness :: Fq12 ) -- time out.
   ]

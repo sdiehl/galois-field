@@ -4,7 +4,7 @@ module BinaryField
 
 import Protolude as P hiding (Semiring)
 
-import Control.Monad.Random (Random(..), getRandom)
+import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
 import Data.Semiring (Ring(..), Semiring(..))
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
@@ -29,28 +29,6 @@ instance KnownNat im => GaloisField (BinaryField im) where
   {-# INLINE deg #-}
   frob          = flip pow 2
   {-# INLINE frob #-}
-  pow w@(BF x) n
-    | n < 0     = pow (recip w) (P.negate n)
-    | otherwise = BF (pow' 1 x n)
-    where
-      pow' ws xs m
-        | m == 0    = ws
-        | m == 1    = ws'
-        | even m    = pow' ws xs' m'
-        | otherwise = pow' ws' xs' m'
-        where
-          mul = binMul (natVal (witness :: BinaryField im))
-          ws' = mul ws xs
-          xs' = mul xs xs
-          m'  = div m 2
-  {-# INLINE pow #-}
-  quad _ 0 c    = sr c
-  quad a b c    = (* (b / a)) <$> binQuad (a * c / (b * b))
-  {-# INLINE quad #-}
-  rnd           = getRandom
-  {-# INLINE rnd #-}
-  sr            = panic "not implemented."
-  {-# INLINE sr #-}
 
 -------------------------------------------------------------------------------
 -- Numeric instances
@@ -195,20 +173,3 @@ binInv f x = case binInv' 0 1 x f of
       where
         q = max 0 (binLog r - binLog r') :: Int
 {-# INLINE binInv #-}
-
--------------------------------------------------------------------------------
--- Quadratic equations
--------------------------------------------------------------------------------
-
--- Binary quadratic @y^2+y+x=0@.
-binQuad :: forall im . KnownNat im
-  => BinaryField im -> Maybe (BinaryField im)
-binQuad x
-  | sum xs /= 0 = Nothing
-  | odd m       = Just (sum h)
-  | otherwise   = panic "not implemented."
-  where
-    m  = deg x :: Int
-    xs = take m (iterate (^ (2 :: Int)) x) :: [BinaryField im]
-    h  = zipWith ($) (cycle [identity, const 0]) xs :: [BinaryField im]
-{-# INLINE binQuad #-}
