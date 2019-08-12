@@ -24,17 +24,17 @@ class (Euclidean k, Ring k) => Field k where
   -- | Division.
   divide :: k -> k -> k
   divide = quot
-  {-# INLINE divide #-}
+  {-# INLINABLE divide #-}
 
   -- | Inversion.
   invert :: k -> k
   invert = quot one
-  {-# INLINE invert #-}
+  {-# INLINABLE invert #-}
 
   -- | Subtraction.
   minus :: k -> k -> k
   minus = (-)
-  {-# INLINE minus #-}
+  {-# INLINABLE minus #-}
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
 class (Arbitrary k, Field k, Fractional k,
@@ -52,9 +52,9 @@ class (Arbitrary k, Field k, Fractional k,
   -- | Order @p^q@ of field.
   order :: k -> Integer
   order = (^) <$> char <*> deg
-  {-# INLINE order #-}
+  {-# INLINABLE order #-}
 
-  -- | Frobenius endomorphism @x->x^p@ of prime subfield.
+  -- | Frobenius endomorphism @x -> x^p@ of prime subfield.
   frob :: k -> k
 
   -- Functions
@@ -74,32 +74,32 @@ class (Arbitrary k, Field k, Fractional k,
           z' = z * y
           y' = y * y
           m' = div m 2
-  {-# INLINE pow #-}
+  {-# INLINABLE pow #-}
 
   -- | Get randomised quadratic nonresidue.
   qnr :: k
   qnr = getQNR
-  {-# INLINE qnr #-}
+  {-# INLINABLE qnr #-}
 
   -- | Check if quadratic residue.
   qr :: k -> Bool
   qr = not . isQNR
-  {-# INLINE qr #-}
+  {-# INLINABLE qr #-}
 
   -- | Solve quadratic @ax^2 + bx + c = 0@ over field.
   quad :: k -> k -> k -> Maybe k
   quad = solveQuadratic
-  {-# INLINE quad #-}
+  {-# INLINABLE quad #-}
 
   -- | Randomised field element.
   rnd :: MonadRandom m => m k
   rnd = getRandom
-  {-# INLINE rnd #-}
+  {-# INLINABLE rnd #-}
 
   -- | Square root of field element.
   sr :: k -> Maybe k
   sr = squareRoot
-  {-# INLINE sr #-}
+  {-# INLINABLE sr #-}
 
 -------------------------------------------------------------------------------
 -- Square roots
@@ -108,7 +108,7 @@ class (Arbitrary k, Field k, Fractional k,
 -- Check if an element is a quadratic nonresidue.
 isQNR :: GaloisField k => k -> Bool
 isQNR n = pow n (shiftR (order n) 1) /= 1
-{-# INLINE isQNR #-}
+{-# INLINABLE isQNR #-}
 
 -- Factor the order @p - 1@ to get @q@ and @s@ such that @p - 1 = q2^s@.
 factorOrder :: GaloisField k => k -> (Integer, Int)
@@ -118,7 +118,7 @@ factorOrder w = factorOrder' (order w - 1, 0)
     factorOrder' qs@(q, s)
       | testBit q 0 = qs
       | otherwise   = factorOrder' (shiftR q 1, s + 1)
-{-# INLINE factorOrder #-}
+{-# INLINABLE factorOrder #-}
 
 -- Get a random quadratic nonresidue.
 getQNR :: forall k . GaloisField k => k
@@ -128,7 +128,7 @@ getQNR = getQNR' (runRand rnd (mkStdGen 0))
     getQNR' (x, g)
       | x /= 0 && isQNR x = x
       | otherwise         = getQNR' (runRand rnd g)
-{-# INLINE getQNR #-}
+{-# INLINABLE getQNR #-}
 
 -- Get a square root of @n@ with the Tonelli-Shanks algorithm.
 squareRoot :: forall k . GaloisField k => k -> Maybe k
@@ -159,7 +159,7 @@ squareRoot n
         least :: k -> Int -> Int
         least 1  j = j
         least ti j = least (ti * ti) (j + 1)
-{-# INLINE squareRoot #-}
+{-# INLINABLE squareRoot #-}
 
 -- Solve a quadratic equation @ax^2 + bx + c = 0@.
 solveQuadratic :: forall k . GaloisField k => k -> k -> k -> Maybe k
@@ -181,4 +181,4 @@ solveQuadratic a b c
         m  = deg x
         xs = take m (iterate (join (*)) x)
         h  = zipWith ($) (cycle [identity, const 0]) xs
-{-# INLINE solveQuadratic #-}
+{-# INLINABLE solveQuadratic #-}

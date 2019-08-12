@@ -25,11 +25,11 @@ newtype PrimeField (p :: Nat) = PF Integer
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (PrimeField p) where
   char         = natVal
-  {-# INLINE char #-}
+  {-# INLINABLE char #-}
   deg          = const 1
-  {-# INLINE deg #-}
+  {-# INLINABLE deg #-}
   frob         = identity
-  {-# INLINE frob #-}
+  {-# INLINABLE frob #-}
   pow (PF x) n = PF (powModInteger x n (natVal (witness :: PrimeField p)))
   {-# INLINE pow #-}
 
@@ -82,7 +82,6 @@ instance KnownNat p => Euclidean (PrimeField p) where
   quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
   degree  = panic "not implemented."
-  {-# INLINE degree #-}
 
 -- Prime fields are fields.
 instance KnownNat p => Field (PrimeField p) where
@@ -110,7 +109,7 @@ instance KnownNat p => Semiring (PrimeField p) where
   times       = (*)
   {-# INLINE times #-}
   fromNatural = fromIntegral
-  {-# INLINE fromNatural #-}
+  {-# INLINABLE fromNatural #-}
 
 -------------------------------------------------------------------------------
 -- Other instances
@@ -119,6 +118,7 @@ instance KnownNat p => Semiring (PrimeField p) where
 -- Prime fields are arbitrary.
 instance KnownNat p => Arbitrary (PrimeField p) where
   arbitrary = PF <$> choose (0, natVal (witness :: PrimeField p) - 1)
+  {-# INLINABLE arbitrary #-}
 
 -- Prime fields are pretty.
 instance KnownNat p => Pretty (PrimeField p) where
@@ -127,7 +127,7 @@ instance KnownNat p => Pretty (PrimeField p) where
 -- Prime fields are random.
 instance KnownNat p => Random (PrimeField p) where
   random  = first PF . randomR (0, natVal (witness :: PrimeField p) - 1)
-  {-# INLINE random #-}
+  {-# INLINABLE random #-}
   randomR = panic "not implemented."
 
 -------------------------------------------------------------------------------

@@ -23,12 +23,12 @@ newtype BinaryField (im :: Nat) = BF Integer
 
 -- Binary fields are Galois fields.
 instance KnownNat im => GaloisField (BinaryField im) where
-  char          = const 2
-  {-# INLINE char #-}
-  deg           = binLog . natVal
-  {-# INLINE deg #-}
-  frob          = flip pow 2
-  {-# INLINE frob #-}
+  char = const 2
+  {-# INLINABLE char #-}
+  deg  = binLog . natVal
+  {-# INLINABLE deg #-}
+  frob = flip pow 2
+  {-# INLINABLE frob #-}
 
 {-# RULES "BinaryField/pow"
   forall (k :: KnownNat im => BinaryField im) n . (^) k n = pow k n
@@ -69,7 +69,6 @@ instance KnownNat im => Euclidean (BinaryField im) where
   quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
   degree  = panic "not implemented."
-  {-# INLINE degree #-}
 
 -- Binary fields are fields.
 instance KnownNat im => Field (BinaryField im) where
@@ -97,7 +96,7 @@ instance KnownNat im => Semiring (BinaryField im) where
   times       = (*)
   {-# INLINE times #-}
   fromNatural = fromIntegral
-  {-# INLINE fromNatural #-}
+  {-# INLINABLE fromNatural #-}
 
 -------------------------------------------------------------------------------
 -- Other instances
@@ -106,6 +105,7 @@ instance KnownNat im => Semiring (BinaryField im) where
 -- Binary fields are arbitrary.
 instance KnownNat im => Arbitrary (BinaryField im) where
   arbitrary = BF <$> choose (0, order (witness :: BinaryField im) - 1)
+  {-# INLINABLE arbitrary #-}
 
 -- Binary fields are pretty.
 instance KnownNat im => Pretty (BinaryField im) where
@@ -114,7 +114,7 @@ instance KnownNat im => Pretty (BinaryField im) where
 -- Binary fields are random.
 instance KnownNat im => Random (BinaryField im) where
   random  = first BF . randomR (0, order (witness :: BinaryField im) - 1)
-  {-# INLINE random #-}
+  {-# INLINABLE random #-}
   randomR = panic "not implemented."
 
 -------------------------------------------------------------------------------
