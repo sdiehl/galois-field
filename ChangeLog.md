@@ -1,5 +1,9 @@
 # Change log for galois-field
 
+## 0.4.1
+
+* Add compilation optimisations with `INLINABLE`.
+
 ## 0.4.0
 
 * Add `Vector` implementation of extension fields.
