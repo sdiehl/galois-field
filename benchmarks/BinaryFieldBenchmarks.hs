@@ -1,6 +1,9 @@
 module BinaryFieldBenchmarks where
 
+import Protolude
+
 import BinaryField
+import Control.Monad.Random
 import Criterion.Main
 
 import GaloisFieldBenchmarks
@@ -8,10 +11,10 @@ import GaloisFieldBenchmarks
 type F2m = BinaryField 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
 
 f2m :: F2m
-f2m = 0x303001d34b856296c16c0d40d3cd7750a93d1d2955fa80aa5f40fc8db7b2abdbde53950f4c0d293cdd711a35b67fb1499ae60038614f1394abfa3b4c850d927e1e7769c8eec2d19
+f2m = evalRand getRandom $ mkStdGen 0
 
 f2m' :: F2m
-f2m' = 0x37bf27342da639b6dccfffeb73d69d78c6c27a6009cbbca1980f8533921e8a684423e43bab08a576291af8f461bb2a8b3531d2f0485c19b16e2f1516e23dd3c1a4827af1b8ac15b
+f2m' = evalRand getRandom $ mkStdGen 1
 
 benchmarkBinaryField :: Benchmark
 benchmarkBinaryField = benchmark "BinaryField F2m" f2m f2m'
