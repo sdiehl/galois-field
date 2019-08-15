@@ -45,7 +45,7 @@ fieldAxioms _ = testGroup ("Field axioms")
   ]
 
 squareRoots :: forall k . GaloisField k => k -> TestTree
-squareRoots _ = localOption (QuickCheckTests 10) $ testGroup "Square roots"
+squareRoots _ = localOption (QuickCheckMaxRatio 100) . localOption (QuickCheckTests 10) $ testGroup "Square roots"
   [ testProperty "squares of square roots"
     $ \(x :: k) -> isJust (sr x)
       ==> (((^ (2 :: Int)) <$> sr x) == Just x)
