@@ -16,7 +16,7 @@ import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
 import Data.Poly.Semiring (VPoly, leading, monomial, scale, toPoly, unPoly, pattern X)
 import Data.Semiring as S (Ring(..), Semiring(..))
-import Data.Vector (fromList)
+import Data.Vector (Vector, fromList)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
@@ -132,7 +132,7 @@ instance IrreducibleMonic k im => Arbitrary (ExtensionField k im) where
 
 -- Extension fields are pretty.
 instance IrreducibleMonic k im => Pretty (ExtensionField k im) where
-  pretty (EF x) = pretty (toList (unPoly x))
+  pretty = pretty . fromField
 
 -- Extension fields are random.
 instance IrreducibleMonic k im => Random (ExtensionField k im) where
@@ -151,13 +151,23 @@ instance IrreducibleMonic k im => Random (ExtensionField k im) where
 
 -- | Convert from field element to list representation.
 fromField :: ExtensionField k im -> [k]
-fromField (EF x) = toList (unPoly x)
+fromField = toList . fromField'
 {-# INLINABLE fromField #-}
+
+-- | Convert from field element to vector representation.
+fromField' :: ExtensionField k im -> Vector k
+fromField' (EF x) = unPoly x
+{-# INLINABLE fromField' #-}
 
 -- | Convert from list representation to field element.
 toField :: forall k im . IrreducibleMonic k im => [k] -> ExtensionField k im
-toField = EF . flip rem (split (witness :: ExtensionField k im)) . toPoly . fromList
+toField = toField' . fromList
 {-# INLINABLE toField #-}
+
+-- | Convert from vector representation to field element.
+toField' :: forall k im . IrreducibleMonic k im => Vector k -> ExtensionField k im
+toField' = EF . flip rem (split (witness :: ExtensionField k im)) . toPoly
+{-# INLINABLE toField' #-}
 
 -- | Pattern for @X^2@.
 pattern X2 :: GaloisField k => VPoly k
