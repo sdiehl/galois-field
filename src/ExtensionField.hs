@@ -29,7 +29,7 @@ import GaloisField (Field(..), GaloisField(..))
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
 newtype ExtensionField k im = EF (VPoly k)
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Eq, Generic, NFData, Ord, Show)
 
 -- | Polynomial rings.
 type PolynomialRing = VPoly

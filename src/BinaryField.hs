@@ -19,7 +19,7 @@ import GaloisField (Field(..), GaloisField(..))
 -- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
 -- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
 newtype BinaryField (im :: Nat) = BF Integer
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Eq, Generic, NFData, Ord, Show)
 
 -- Binary fields are Galois fields.
 instance KnownNat im => GaloisField (BinaryField im) where

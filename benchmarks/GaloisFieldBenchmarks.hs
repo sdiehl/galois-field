@@ -9,15 +9,15 @@ import GHC.Base
 benchmark :: GaloisField k => String -> k -> k -> Benchmark
 benchmark s a b = bgroup s
   [ bench "Addition" $
-    whnf (uncurry (+)) (a, b)
+    nf (uncurry (+)) (a, b)
   , bench "Multiplication" $
-    whnf (uncurry (*)) (a, b)
+    nf (uncurry (*)) (a, b)
   , bench "Negation" $
-    whnf negate a
+    nf negate a
   , bench "Subtraction" $
-    whnf (uncurry (-)) (a, b)
+    nf (uncurry (-)) (a, b)
   , bench "Inversion" $
-    whnf recip a
+    nf recip a
   , bench "Division" $
-    whnf (uncurry (/)) (a, b)
+    nf (uncurry (/)) (a, b)
   ]
