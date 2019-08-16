@@ -14,7 +14,7 @@ import Protolude as P hiding (Semiring, quot, quotRem, rem)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
-import Data.Poly.Semiring (VPoly, leading, monomial, scale, toPoly, unPoly, pattern X)
+import Data.Poly.Semiring (VPoly, extEuclid, leading, monomial, scale, toPoly, unPoly, pattern X)
 import Data.Semiring as S (Ring(..), Semiring(..))
 import Data.Vector (Vector, fromList)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
@@ -63,7 +63,11 @@ instance IrreducibleMonic k im => GaloisField (ExtensionField k im) where
 
 -- Extension fields are fractional.
 instance IrreducibleMonic k im => Fractional (ExtensionField k im) where
-  recip (EF x)        = EF (polyInv x (split (witness :: ExtensionField k im)))
+  recip (EF x)        = case first leading (second fst (extEuclid x p)) of
+    (Just (0, y), z) -> EF (scale 0 (recip y) z)
+    _                -> panic "no multiplicative inverse."
+    where
+      p = split (witness :: ExtensionField k im)
   {-# INLINABLE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
@@ -180,24 +184,3 @@ pattern X3 <- _ where X3 = toPoly (fromList [0, 0, 0, 1])
 -- | Pattern for descending tower of indeterminate variables.
 pattern Y :: IrreducibleMonic k im => VPoly k -> VPoly (ExtensionField k im)
 pattern Y <- _ where Y = monomial 0 . EF
-
--------------------------------------------------------------------------------
--- Polynomial arithmetic
--------------------------------------------------------------------------------
-
--- Polynomial inversion algorithm.
-polyInv :: GaloisField k => VPoly k -> VPoly k -> VPoly k
-polyInv xs ps = case first leading (polyGCD xs ps) of
-  (Just (0, x), ys) -> scale 0 (recip x) ys
-  _                 -> panic "no multiplicative inverse."
-{-# INLINABLE polyInv #-}
-
--- Polynomial extended greatest common divisor algorithm.
-polyGCD :: forall k . GaloisField k => VPoly k -> VPoly k -> (VPoly k, VPoly k)
-polyGCD x y = polyGCD' 0 1 y x
-  where
-    polyGCD' :: VPoly k -> VPoly k -> VPoly k -> VPoly k -> (VPoly k, VPoly k)
-    polyGCD' s _  r 0  = (r, s)
-    polyGCD' s s' r r' = case quot r r' of
-      q -> polyGCD' s' (s - times q s') r' (r - times q r')
-{-# INLINABLE polyGCD #-}
