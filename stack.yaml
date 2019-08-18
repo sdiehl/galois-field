@@ -1,5 +1,5 @@
 resolver: lts-13.19
 extra-deps:
 - git: git@github.com:adjoint-io/poly.git
-  commit: 6cb5bda053664a48d8a2f8bcb465eeba2eacd136
+  commit: bdab8cd52ba43d8eb9badcecd05ff45c202e6a82
 - semirings-0.4.2
