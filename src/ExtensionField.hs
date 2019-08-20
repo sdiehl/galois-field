@@ -14,7 +14,7 @@ import Protolude as P hiding (Semiring, quot, quotRem, rem)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
-import Data.Poly.Semiring (VPoly, fractionalGcdExt, monomial, toPoly, unPoly, pattern X)
+import Data.Poly.Semiring (VPoly, gcdExt, monomial, toPoly, unPoly, pattern X)
 import Data.Semiring as S (Ring(..), Semiring(..))
 import Data.Vector (Vector, fromList)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
@@ -63,7 +63,7 @@ instance IrreducibleMonic k im => GaloisField (ExtensionField k im) where
 
 -- Extension fields are fractional.
 instance IrreducibleMonic k im => Fractional (ExtensionField k im) where
-  recip (EF x)        = case fractionalGcdExt x (split (witness :: ExtensionField k im)) of
+  recip (EF x)        = case gcdExt x (split (witness :: ExtensionField k im)) of
     (1, y) -> EF y
     _      -> panic "no multiplicative inverse."
   {-# INLINABLE recip #-}
