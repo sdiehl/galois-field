@@ -1,4 +1,4 @@
-module PrimeField
+module Data.Field.Galois.Prime
   ( PrimeField
   , toInt
   ) where
@@ -12,7 +12,7 @@ import GHC.Integer.GMP.Internals (powModInteger, recipModInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import GaloisField (Field(..), GaloisField(..))
+import Data.Field.Galois.Galois (Field(..), GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types

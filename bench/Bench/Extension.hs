@@ -1,13 +1,13 @@
-module ExtensionFieldBenchmarks where
+module Bench.Extension where
 
 import Protolude
 
 import Control.Monad.Random
 import Criterion.Main
-import ExtensionField
+import Data.Field.Galois.Extension
 
-import GaloisFieldBenchmarks
-import PrimeFieldBenchmarks
+import Bench.Galois
+import Bench.Prime
 
 data Pu
 instance IrreducibleMonic Fq Pu where

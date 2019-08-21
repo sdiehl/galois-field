@@ -1,9 +1,9 @@
-module GaloisFieldBenchmarks where
+module Bench.Galois where
 
 import Protolude
 
 import Criterion.Main
-import GaloisField
+import Data.Field.Galois
 import GHC.Base
 
 benchmark :: GaloisField k => String -> k -> k -> Benchmark

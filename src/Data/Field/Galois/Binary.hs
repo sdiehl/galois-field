@@ -1,4 +1,4 @@
-module BinaryField
+module Data.Field.Galois.Binary
   ( BinaryField
   ) where
 
@@ -10,7 +10,7 @@ import Data.Semiring (Ring(..), Semiring(..))
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import GaloisField (Field(..), GaloisField(..))
+import Data.Field.Galois.Galois (Field(..), GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types

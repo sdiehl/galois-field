@@ -1,4 +1,4 @@
-module GaloisField
+module Data.Field.Galois.Galois
   ( Field(..)
   , GaloisField(..)
   ) where

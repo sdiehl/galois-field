@@ -1,12 +1,12 @@
-module ExtensionFieldTests where
+module Test.Extension where
 
 import Protolude
 
-import ExtensionField
+import Data.Field.Galois.Extension
 import Test.Tasty
 
-import GaloisFieldTests
-import PrimeFieldTests
+import Test.Galois
+import Test.Prime
 
 data P111
 instance IrreducibleMonic FS2 P111 where

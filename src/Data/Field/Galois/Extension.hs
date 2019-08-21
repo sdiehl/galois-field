@@ -1,6 +1,5 @@
-module ExtensionField
+module Data.Field.Galois.Extension
   ( ExtensionField
-  , PolynomialRing
   , IrreducibleMonic(split)
   , fromField
   , toField
@@ -20,7 +19,7 @@ import Data.Vector (Vector, fromList)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import GaloisField (Field(..), GaloisField(..))
+import Data.Field.Galois.Galois (Field(..), GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -30,9 +29,6 @@ import GaloisField (Field(..), GaloisField(..))
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
 newtype ExtensionField k im = EF (VPoly k)
   deriving (Eq, Generic, NFData, Ord, Show)
-
--- | Polynomial rings.
-type PolynomialRing = VPoly
 
 -- | Irreducible monic splitting polynomial @f(X)@ of extension field.
 class GaloisField k => IrreducibleMonic k im where

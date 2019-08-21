@@ -1,11 +1,11 @@
-module PrimeFieldTests where
+module Test.Prime where
 
 import Protolude
 
-import PrimeField
+import Data.Field.Galois.Prime
 import Test.Tasty
 
-import GaloisFieldTests
+import Test.Galois
 
 type FS2 = PrimeField 2
 type FS3 = PrimeField 3

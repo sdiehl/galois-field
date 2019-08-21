@@ -44,10 +44,12 @@ ghc-options:
 
 library:
   exposed-modules:
-    - BinaryField
-    - ExtensionField
-    - GaloisField
-    - PrimeField
+    - Data.Field.Galois
+  other-modules:
+    - Data.Field.Galois.Binary
+    - Data.Field.Galois.Extension
+    - Data.Field.Galois.Galois
+    - Data.Field.Galois.Prime
   source-dirs:
     - src
 
@@ -57,7 +59,7 @@ tests:
     dependencies:
       - tasty
     source-dirs:
-      - tests
+      - test
       - src
 
 benchmarks:
@@ -66,5 +68,5 @@ benchmarks:
     dependencies:
       - criterion
     source-dirs:
-      - benchmarks
+      - bench
       - src

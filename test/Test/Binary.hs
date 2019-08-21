@@ -1,11 +1,11 @@
-module BinaryFieldTests where
+module Test.Binary where
 
 import Protolude
 
-import BinaryField
+import Data.Field.Galois.Binary
 import Test.Tasty
 
-import GaloisFieldTests
+import Test.Galois
 
 type F2A = BinaryField 0x20000000000000000000000000201
 type F2B = BinaryField 0x80000000000000000000000000000010d

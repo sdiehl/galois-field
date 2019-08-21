@@ -1,8 +1,8 @@
-module GaloisFieldTests where
+module Test.Galois where
 
 import Protolude
 
-import GaloisField
+import Data.Field.Galois
 import Test.Tasty
 import Test.Tasty.QuickCheck
 

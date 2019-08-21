@@ -1,12 +1,12 @@
-module PrimeFieldBenchmarks where
+module Bench.Prime where
 
 import Protolude
 
 import Control.Monad.Random
 import Criterion.Main
-import PrimeField
+import Data.Field.Galois.Prime
 
-import GaloisFieldBenchmarks
+import Bench.Galois
 
 type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689037894645226208583
 

@@ -4,9 +4,9 @@ import Protolude
 
 import Test.Tasty
 
-import BinaryFieldTests
-import ExtensionFieldTests
-import PrimeFieldTests
+import Test.Binary
+import Test.Extension
+import Test.Prime
 
 main :: IO ()
 main = defaultMain $

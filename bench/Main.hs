@@ -4,9 +4,9 @@ import Protolude
 
 import Criterion.Main
 
-import BinaryFieldBenchmarks
-import ExtensionFieldBenchmarks
-import PrimeFieldBenchmarks
+import Bench.Binary
+import Bench.Extension
+import Bench.Prime
 
 main :: IO ()
 main = defaultMain

@@ -1,12 +1,12 @@
-module BinaryFieldBenchmarks where
+module Bench.Binary where
 
 import Protolude
 
-import BinaryField
 import Control.Monad.Random
 import Criterion.Main
+import Data.Field.Galois.Binary
 
-import GaloisFieldBenchmarks
+import Bench.Galois
 
 type F2m = BinaryField 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
 
