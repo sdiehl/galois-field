@@ -46,9 +46,9 @@ library:
   exposed-modules:
     - Data.Field.Galois
   other-modules:
+    - Data.Field.Galois.Base
     - Data.Field.Galois.Binary
     - Data.Field.Galois.Extension
-    - Data.Field.Galois.Galois
     - Data.Field.Galois.Prime
   source-dirs:
     - src

@@ -10,7 +10,7 @@ import Data.Semiring (Ring(..), Semiring(..))
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Galois (Field(..), GaloisField(..))
+import Data.Field.Galois.Base (Field(..), GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
