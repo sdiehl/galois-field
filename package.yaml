@@ -50,6 +50,7 @@ library:
     - Data.Field.Galois.Binary
     - Data.Field.Galois.Extension
     - Data.Field.Galois.Prime
+    - Data.Field.Galois.Sqrt
   source-dirs:
     - src
 
