@@ -33,7 +33,7 @@ class (Arbitrary k, Field k, Fractional k, Generic k,
   {-# INLINABLE order #-}
 
   -- | Exponentiation of field element to integer.
-  pow :: k -> Integer -> k
+  pow :: Integral n => k -> n -> k
   pow x n
     | n < 0     = pow (recip x) (negate n)
     | otherwise = pow' 1 x n
@@ -48,3 +48,7 @@ class (Arbitrary k, Field k, Fractional k, Generic k,
           y' = y * y
           m' = div m 2
   {-# INLINABLE pow #-}
+
+{-# SPECIALISE pow
+  :: GaloisField k => k -> Int -> k
+  #-}

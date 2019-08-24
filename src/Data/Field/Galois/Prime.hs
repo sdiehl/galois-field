@@ -46,7 +46,7 @@ instance KnownNat p => GaloisField (Prime p) where
   {-# INLINABLE frob #-}
   order       = natVal
   {-# INLINABLE order #-}
-  pow (P x) n = P (powModInteger x n (natVal (witness :: Prime p)))
+  pow (P x) n = P (powModInteger x (toInteger n) (natVal (witness :: Prime p)))
   {-# INLINE pow #-}
 
 {-# RULES "Prime.pow"

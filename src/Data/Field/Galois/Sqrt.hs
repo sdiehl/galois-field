@@ -91,7 +91,7 @@ squareRoot n
     loop _ _ 0 _ = Just 0
     loop _ _ 1 r = Just r
     loop m c t r = let i  = least t 0
-                       b  = pow c (bit (m - i - 1))
+                       b  = pow c (bit (m - i - 1) :: Int)
                        b2 = b * b
                    in loop i b2 (t * b2) (r * b)
       where
