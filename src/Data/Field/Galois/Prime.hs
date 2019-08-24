@@ -43,6 +43,8 @@ instance KnownNat p => GaloisField (Prime p) where
   {-# INLINABLE deg #-}
   frob        = identity
   {-# INLINABLE frob #-}
+  order       = natVal
+  {-# INLINABLE order #-}
   pow (P x) n = P (powModInteger x n (natVal (witness :: Prime p)))
   {-# INLINE pow #-}
 

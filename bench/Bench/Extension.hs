@@ -30,5 +30,5 @@ fq12 = evalRand getRandom $ mkStdGen 0
 fq12' :: Fq12
 fq12' = evalRand getRandom $ mkStdGen 1
 
-benchmarkExtension :: Benchmark
-benchmarkExtension = benchmark "Extension" fq12 fq12'
+benchExtension :: Benchmark
+benchExtension = benchmark "Extension" fq12 fq12'

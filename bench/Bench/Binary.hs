@@ -16,5 +16,5 @@ f2m = evalRand getRandom $ mkStdGen 0
 f2m' :: F2m
 f2m' = evalRand getRandom $ mkStdGen 1
 
-benchmarkBinary :: Benchmark
-benchmarkBinary = benchmark "Binary" f2m f2m'
+benchBinary :: Benchmark
+benchBinary = benchmark "Binary" f2m f2m'

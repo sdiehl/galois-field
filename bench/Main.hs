@@ -10,4 +10,4 @@ import Bench.Prime
 
 main :: IO ()
 main = defaultMain
-  [benchmarkBinary, benchmarkExtension, benchmarkPrime]
+  [benchBinary, benchExtension, benchPrime]

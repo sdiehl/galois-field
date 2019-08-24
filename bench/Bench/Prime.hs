@@ -16,5 +16,5 @@ fq = evalRand getRandom $ mkStdGen 0
 fq' :: Fq
 fq' = evalRand getRandom $ mkStdGen 1
 
-benchmarkPrime :: Benchmark
-benchmarkPrime = benchmark "Prime" fq fq'
+benchPrime :: Benchmark
+benchPrime = benchmark "Prime" fq fq'
