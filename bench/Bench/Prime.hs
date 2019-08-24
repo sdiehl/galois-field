@@ -8,7 +8,7 @@ import Data.Field.Galois.Prime
 
 import Bench.Galois
 
-type Fq = PrimeField 21888242871839275222246405745257275088696311157297823662689037894645226208583
+type Fq = Prime 21888242871839275222246405745257275088696311157297823662689037894645226208583
 
 fq :: Fq
 fq = evalRand getRandom $ mkStdGen 0
@@ -16,5 +16,5 @@ fq = evalRand getRandom $ mkStdGen 0
 fq' :: Fq
 fq' = evalRand getRandom $ mkStdGen 1
 
-benchmarkPrimeField :: Benchmark
-benchmarkPrimeField = benchmark "PrimeField Fq" fq fq'
+benchmarkPrime :: Benchmark
+benchmarkPrime = benchmark "Prime" fq fq'

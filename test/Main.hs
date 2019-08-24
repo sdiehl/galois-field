@@ -10,4 +10,4 @@ import Test.Prime
 
 main :: IO ()
 main = defaultMain $
-  testGroup "Tests" [testPrimeField, testExtensionField, testBinaryField]
+  testGroup "Tests" [testPrime, testExtension, testBinary]

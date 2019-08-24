@@ -176,7 +176,7 @@ solveQuadratic a b c
     solveQuadratic' x
       | sum xs /= 0 = Nothing
       | odd m       = Just (sum h)
-      | otherwise   = panic "not implemented."
+      | otherwise   = panic "Base.solveQuadratic: to be implemented."
       where
         m  = deg x
         xs = take m (iterate (join (*)) x)

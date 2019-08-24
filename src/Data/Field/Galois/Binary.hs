@@ -1,5 +1,8 @@
 module Data.Field.Galois.Binary
-  ( BinaryField
+  ( Binary
+  , BinaryField(..)
+  , toB
+  , toB'
   ) where
 
 import Protolude as P hiding (Semiring)
@@ -18,11 +21,22 @@ import Data.Field.Galois.Base (Field(..), GaloisField(..))
 
 -- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
 -- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
-newtype BinaryField (im :: Nat) = BF Integer
-  deriving (Eq, Generic, NFData, Ord, Show)
+class (Bits k, GaloisField k) => BinaryField k where
+  {-# MINIMAL fromB #-}
+  -- | Convert from @GF(2^q)[X]/\<f(X)\>@ to @Z@.
+  fromB :: k -> Integer
+
+-- | Binary field elements.
+newtype Binary (im :: Nat) = B Integer
+  deriving (Bits, Eq, Generic, NFData, Ord, Show)
+
+-- Binary fields are convertible.
+instance KnownNat im => BinaryField (Binary im) where
+  fromB (B x) = x
+  {-# INLINABLE fromB #-}
 
 -- Binary fields are Galois fields.
-instance KnownNat im => GaloisField (BinaryField im) where
+instance KnownNat im => GaloisField (Binary im) where
   char = const 2
   {-# INLINABLE char #-}
   deg  = binLog . natVal
@@ -30,8 +44,8 @@ instance KnownNat im => GaloisField (BinaryField im) where
   frob = flip pow 2
   {-# INLINABLE frob #-}
 
-{-# RULES "BinaryField/pow"
-  forall (k :: KnownNat im => BinaryField im) n . (^) k n = pow k n
+{-# RULES "Binary.pow"
+  forall (k :: KnownNat im => Binary im) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -39,54 +53,54 @@ instance KnownNat im => GaloisField (BinaryField im) where
 -------------------------------------------------------------------------------
 
 -- Binary fields are fractional.
-instance KnownNat im => Fractional (BinaryField im) where
-  recip (BF x)        = BF (binInv x (natVal (witness :: BinaryField im)))
+instance KnownNat im => Fractional (Binary im) where
+  recip (B x)         = B (binInv x (natVal (witness :: Binary im)))
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Binary fields are numeric.
-instance KnownNat im => Num (BinaryField im) where
-  BF x + BF y = BF (xor x y)
+instance KnownNat im => Num (Binary im) where
+  B x + B y   = B (xor x y)
   {-# INLINE (+) #-}
-  BF x * BF y = BF (binMul (natVal (witness :: BinaryField im)) x y)
+  B x * B y   = B (binMul (natVal (witness :: Binary im)) x y)
   {-# INLINE (*) #-}
-  BF x - BF y = BF (xor x y)
+  B x - B y   = B (xor x y)
   {-# INLINE (-) #-}
   negate      = identity
   {-# INLINE negate #-}
-  fromInteger = BF . binMod (natVal (witness :: BinaryField im))
+  fromInteger = B . binMod (natVal (witness :: Binary im))
   {-# INLINABLE fromInteger #-}
-  abs         = panic "not implemented."
-  signum      = panic "not implemented."
+  abs         = panic "Binary.abs: not implemented."
+  signum      = panic "Binary.signum: not implemented."
 
 -------------------------------------------------------------------------------
 -- Semiring instances
 -------------------------------------------------------------------------------
 
 -- Binary fields are Euclidean domains.
-instance KnownNat im => Euclidean (BinaryField im) where
+instance KnownNat im => Euclidean (Binary im) where
   quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
-  degree  = panic "not implemented."
+  degree  = panic "Binary.degree: not implemented."
 
 -- Binary fields are fields.
-instance KnownNat im => Field (BinaryField im) where
+instance KnownNat im => Field (Binary im) where
   invert = recip
   {-# INLINE invert #-}
   minus  = (-)
   {-# INLINE minus #-}
 
 -- Binary fields are GCD domains.
-instance KnownNat im => GcdDomain (BinaryField im)
+instance KnownNat im => GcdDomain (Binary im)
 
 -- Binary fields are rings.
-instance KnownNat im => Ring (BinaryField im) where
+instance KnownNat im => Ring (Binary im) where
   negate = P.negate
   {-# INLINE negate #-}
 
 -- Binary fields are semirings.
-instance KnownNat im => Semiring (BinaryField im) where
+instance KnownNat im => Semiring (Binary im) where
   zero        = 0
   {-# INLINE zero #-}
   plus        = (+)
@@ -103,19 +117,33 @@ instance KnownNat im => Semiring (BinaryField im) where
 -------------------------------------------------------------------------------
 
 -- Binary fields are arbitrary.
-instance KnownNat im => Arbitrary (BinaryField im) where
-  arbitrary = BF <$> choose (0, order (witness :: BinaryField im) - 1)
+instance KnownNat im => Arbitrary (Binary im) where
+  arbitrary = B <$> choose (0, order (witness :: Binary im) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Binary fields are pretty.
-instance KnownNat im => Pretty (BinaryField im) where
-  pretty (BF x) = pretty x
+instance KnownNat im => Pretty (Binary im) where
+  pretty (B x) = pretty x
 
 -- Binary fields are random.
-instance KnownNat im => Random (BinaryField im) where
-  random  = first BF . randomR (0, order (witness :: BinaryField im) - 1)
+instance KnownNat im => Random (Binary im) where
+  random  = first B . randomR (0, order (witness :: Binary im) - 1)
   {-# INLINABLE random #-}
-  randomR = panic "not implemented."
+  randomR = panic "Binary.randomR: not implemented."
+
+-------------------------------------------------------------------------------
+-- Auxiliary functions
+-------------------------------------------------------------------------------
+
+-- | Safe convert from @Z@ to @GF(2^q)[X]/\<f(X)\>@.
+toB :: KnownNat im => Integer -> Binary im
+toB = fromInteger
+{-# INLINABLE toB #-}
+
+-- | Unsafe convert from @Z@ to @GF(2^q)[X]/\<f(X)\>@.
+toB' :: KnownNat im => Integer -> Binary im
+toB' = B
+{-# INLINABLE toB' #-}
 
 -------------------------------------------------------------------------------
 -- Binary arithmetic
@@ -168,7 +196,7 @@ binMod f = binMod'
 binInv :: Integer -> Integer -> Integer
 binInv f x = case binInv' 0 1 x f of
   (y, 1) -> y
-  _      -> panic "no multiplicative inverse."
+  _      -> divZeroError
   where
     binInv' :: Integer -> Integer -> Integer -> Integer -> (Integer, Integer)
     binInv' s s' r r'

@@ -1,6 +1,8 @@
 module Data.Field.Galois.Prime
-  ( PrimeField
-  , toInt
+  ( Prime
+  , PrimeField(..)
+  , toP
+  , toP'
   ) where
 
 import Protolude as P hiding (Semiring)
@@ -18,23 +20,34 @@ import Data.Field.Galois.Base (Field(..), GaloisField(..))
 -- Data types
 -------------------------------------------------------------------------------
 
--- | Prime fields @GF(p)@ for @p@ prime.
-newtype PrimeField (p :: Nat) = PF Integer
+-- | Prime fields @GF(p) = Z/pZ@ for @p@ prime.
+class (Bits k, GaloisField k) => PrimeField k where
+  {-# MINIMAL fromP #-}
+  -- | Convert from @GF(p)@ to @Z@.
+  fromP :: k -> Integer
+
+-- | Prime field elements.
+newtype Prime (p :: Nat) = P Integer
   deriving (Bits, Eq, Generic, NFData, Ord, Show)
 
+-- Prime fields are convertible.
+instance KnownNat p => PrimeField (Prime p) where
+  fromP (P x) = x
+  {-# INLINABLE fromP #-}
+
 -- Prime fields are Galois fields.
-instance KnownNat p => GaloisField (PrimeField p) where
-  char         = natVal
+instance KnownNat p => GaloisField (Prime p) where
+  char        = natVal
   {-# INLINABLE char #-}
-  deg          = const 1
+  deg         = const 1
   {-# INLINABLE deg #-}
-  frob         = identity
+  frob        = identity
   {-# INLINABLE frob #-}
-  pow (PF x) n = PF (powModInteger x n (natVal (witness :: PrimeField p)))
+  pow (P x) n = P (powModInteger x n (natVal (witness :: Prime p)))
   {-# INLINE pow #-}
 
-{-# RULES "PrimeField/pow"
-  forall (k :: KnownNat p => PrimeField p) (n :: Integer) . (^) k n = pow k n
+{-# RULES "Prime.pow"
+  forall (k :: KnownNat p => Prime p) (n :: Integer) . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -42,64 +55,64 @@ instance KnownNat p => GaloisField (PrimeField p) where
 -------------------------------------------------------------------------------
 
 -- Prime fields are fractional.
-instance KnownNat p => Fractional (PrimeField p) where
-  recip (PF 0)        = panic "no multiplicative inverse."
-  recip (PF x)        = PF (recipModInteger x (natVal (witness :: PrimeField p)))
+instance KnownNat p => Fractional (Prime p) where
+  recip (P 0)         = divZeroError
+  recip (P x)         = P (recipModInteger x (natVal (witness :: Prime p)))
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Prime fields are numeric.
-instance KnownNat p => Num (PrimeField p) where
-  PF x + PF y   = PF (if xyp >= 0 then xyp else xy)
+instance KnownNat p => Num (Prime p) where
+  P x + P y     = P (if xyp >= 0 then xyp else xy)
     where
       xy  = x + y
-      xyp = xy - natVal (witness :: PrimeField p)
+      xyp = xy - natVal (witness :: Prime p)
   {-# INLINE (+) #-}
-  PF x * PF y   = PF (P.rem (x * y) (natVal (witness :: PrimeField p)))
+  P x * P y     = P (P.rem (x * y) (natVal (witness :: Prime p)))
   {-# INLINE (*) #-}
-  PF x - PF y   = PF (if xy >= 0 then xy else xy + natVal (witness :: PrimeField p))
+  P x - P y     = P (if xy >= 0 then xy else xy + natVal (witness :: Prime p))
     where
       xy = x - y
   {-# INLINE (-) #-}
-  negate (PF 0) = PF 0
-  negate (PF x) = PF (natVal (witness :: PrimeField p) - x)
+  negate (P 0)  = P 0
+  negate (P x)  = P (natVal (witness :: Prime p) - x)
   {-# INLINE negate #-}
-  fromInteger x = PF (if y >= 0 then y else y + p)
+  fromInteger x = P (if y >= 0 then y else y + p)
     where
       y = P.rem x p
-      p = natVal (witness :: PrimeField p)
+      p = natVal (witness :: Prime p)
   {-# INLINABLE fromInteger #-}
-  abs           = panic "not implemented."
-  signum        = panic "not implemented."
+  abs           = panic "Prime.abs: not implemented."
+  signum        = panic "Prime.signum: not implemented."
 
 -------------------------------------------------------------------------------
 -- Semiring instances
 -------------------------------------------------------------------------------
 
 -- Prime fields are Euclidean domains.
-instance KnownNat p => Euclidean (PrimeField p) where
+instance KnownNat p => Euclidean (Prime p) where
   quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
-  degree  = panic "not implemented."
+  degree  = panic "Prime.degree: not implemented."
 
 -- Prime fields are fields.
-instance KnownNat p => Field (PrimeField p) where
+instance KnownNat p => Field (Prime p) where
   invert = recip
   {-# INLINE invert #-}
   minus  = (-)
   {-# INLINE minus #-}
 
 -- Prime fields are GCD domains.
-instance KnownNat p => GcdDomain (PrimeField p)
+instance KnownNat p => GcdDomain (Prime p)
 
 -- Prime fields are rings.
-instance KnownNat p => Ring (PrimeField p) where
+instance KnownNat p => Ring (Prime p) where
   negate = P.negate
   {-# INLINE negate #-}
 
 -- Prime fields are semirings.
-instance KnownNat p => Semiring (PrimeField p) where
+instance KnownNat p => Semiring (Prime p) where
   zero        = 0
   {-# INLINE zero #-}
   plus        = (+)
@@ -116,25 +129,30 @@ instance KnownNat p => Semiring (PrimeField p) where
 -------------------------------------------------------------------------------
 
 -- Prime fields are arbitrary.
-instance KnownNat p => Arbitrary (PrimeField p) where
-  arbitrary = PF <$> choose (0, natVal (witness :: PrimeField p) - 1)
+instance KnownNat p => Arbitrary (Prime p) where
+  arbitrary = P <$> choose (0, natVal (witness :: Prime p) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Prime fields are pretty.
-instance KnownNat p => Pretty (PrimeField p) where
-  pretty (PF x) = pretty x
+instance KnownNat p => Pretty (Prime p) where
+  pretty (P x) = pretty x
 
 -- Prime fields are random.
-instance KnownNat p => Random (PrimeField p) where
-  random  = first PF . randomR (0, natVal (witness :: PrimeField p) - 1)
+instance KnownNat p => Random (Prime p) where
+  random  = first P . randomR (0, natVal (witness :: Prime p) - 1)
   {-# INLINABLE random #-}
-  randomR = panic "not implemented."
+  randomR = panic "Prime.randomR: not implemented."
 
 -------------------------------------------------------------------------------
--- Type conversions
+-- Auxiliary functions
 -------------------------------------------------------------------------------
 
--- | Embed field element to integers.
-toInt :: PrimeField p -> Integer
-toInt (PF x) = x
-{-# INLINABLE toInt #-}
+-- | Safe convert from @Z@ to @GF(p)@.
+toP :: KnownNat p => Integer -> Prime p
+toP = fromInteger
+{-# INLINABLE toP #-}
+
+-- | Unsafe convert from @Z@ to @GF(p)@.
+toP' :: KnownNat p => Integer -> Prime p
+toP' = P
+{-# INLINABLE toP' #-}
