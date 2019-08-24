@@ -9,11 +9,12 @@ import Protolude as P hiding (Semiring)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
+import Data.Field (Field)
 import Data.Semiring (Ring(..), Semiring(..))
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base (Field(..), GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -86,10 +87,6 @@ instance KnownNat im => Euclidean (Binary im) where
 
 -- Binary fields are fields.
 instance KnownNat im => Field (Binary im) where
-  invert = recip
-  {-# INLINE invert #-}
-  minus  = (-)
-  {-# INLINE minus #-}
 
 -- Binary fields are GCD domains.
 instance KnownNat im => GcdDomain (Binary im)

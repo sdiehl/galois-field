@@ -5,32 +5,13 @@ module Data.Field.Galois.Base
 import Protolude hiding ((-), one, quot)
 
 import Control.Monad.Random (Random)
-import Data.Euclidean (Euclidean(..))
-import Data.Semiring (Ring, (-), one)
+import Data.Field (Field)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
 -------------------------------------------------------------------------------
 -- Classes
 -------------------------------------------------------------------------------
-
--- | Fields.
-class (Euclidean k, Ring k) => Field k where
-
-  -- | Division.
-  divide :: k -> k -> k
-  divide = quot
-  {-# INLINABLE divide #-}
-
-  -- | Inversion.
-  invert :: k -> k
-  invert = quot one
-  {-# INLINABLE invert #-}
-
-  -- | Subtraction.
-  minus :: k -> k -> k
-  minus = (-)
-  {-# INLINABLE minus #-}
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
 class (Arbitrary k, Field k, Fractional k, Generic k,

@@ -14,13 +14,14 @@ import Protolude as P hiding (Semiring, quot, quotRem, rem)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
+import Data.Field (Field)
 import Data.Poly.Semiring (VPoly, gcdExt, monomial, toPoly, unPoly)
 import Data.Semiring as S (Ring(..), Semiring(..))
 import Data.Vector (fromList)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base (Field(..), GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -104,11 +105,7 @@ instance IrreducibleMonic k im => Euclidean (Extension k im) where
   degree  = panic "Extension.degree: not implemented."
 
 -- Extension fields are fields.
-instance IrreducibleMonic k im => Field (Extension k im) where
-  invert = recip
-  {-# INLINE invert #-}
-  minus  = (-)
-  {-# INLINE minus #-}
+instance IrreducibleMonic k im => Field (Extension k im)
 
 -- Extension fields are GCD domains.
 instance IrreducibleMonic k im => GcdDomain (Extension k im)

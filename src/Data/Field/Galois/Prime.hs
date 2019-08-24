@@ -9,12 +9,13 @@ import Protolude as P hiding (Semiring)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
+import Data.Field (Field)
 import Data.Semiring (Ring(..), Semiring(..))
 import GHC.Integer.GMP.Internals (powModInteger, recipModInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base (Field(..), GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -99,11 +100,7 @@ instance KnownNat p => Euclidean (Prime p) where
   degree  = panic "Prime.degree: not implemented."
 
 -- Prime fields are fields.
-instance KnownNat p => Field (Prime p) where
-  invert = recip
-  {-# INLINE invert #-}
-  minus  = (-)
-  {-# INLINE minus #-}
+instance KnownNat p => Field (Prime p)
 
 -- Prime fields are GCD domains.
 instance KnownNat p => GcdDomain (Prime p)
