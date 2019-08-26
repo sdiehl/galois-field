@@ -184,13 +184,13 @@ binMul = (. binMul' 0) . (.) . binMod
 binMod :: Natural -> Natural -> Natural
 binMod f = binMod'
   where
-    m = binLog f :: Word
+    m = fromIntegral $ binLog f :: Int
     binMod' :: Natural -> Natural
     binMod' x
       | n < 0     = x
       | otherwise = binMod' (xor x $ shiftL f n)
       where
-        n = fromIntegral $ binLog x - m :: Int
+        n = fromIntegral (binLog x) - m :: Int
 {-# INLINE binMod #-}
 
 -- Binary inversion.
@@ -204,5 +204,5 @@ binInv f x = case binInv' 0 1 x f of
       | r' == 0   = (s, r)
       | otherwise = binInv' s' (xor s $ shift s' q) r' (xor r $ shift r' q)
       where
-        q = fromIntegral $ max 0 (binLog r - binLog r') :: Int
+        q = max 0 $ fromIntegral (binLog r) - fromIntegral (binLog r') :: Int
 {-# INLINE binInv #-}
