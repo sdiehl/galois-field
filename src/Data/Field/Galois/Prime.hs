@@ -5,13 +5,15 @@ module Data.Field.Galois.Prime
   , toP'
   ) where
 
-import Protolude as P hiding (Semiring)
+import Protolude as P hiding (Semiring, natVal)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
 import Data.Field (Field)
 import Data.Semiring (Ring(..), Semiring(..))
-import GHC.Integer.GMP.Internals (powModInteger, recipModInteger)
+import GHC.Integer.GMP.Internals (recipModInteger)
+import GHC.Natural (Natural, naturalFromInteger, naturalToInteger, powModNatural)
+import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
@@ -28,12 +30,12 @@ class (Bits k, GaloisField k) => PrimeField k where
   fromP :: k -> Integer
 
 -- | Prime field elements.
-newtype Prime (p :: Nat) = P Integer
+newtype Prime (p :: Nat) = P Natural
   deriving (Bits, Eq, Generic, NFData, Ord, Show)
 
 -- Prime fields are convertible.
 instance KnownNat p => PrimeField (Prime p) where
-  fromP (P x) = x
+  fromP (P x) = naturalToInteger x
   {-# INLINABLE fromP #-}
 
 -- Prime fields are Galois fields.
@@ -46,11 +48,11 @@ instance KnownNat p => GaloisField (Prime p) where
   {-# INLINABLE frob #-}
   order       = natVal
   {-# INLINABLE order #-}
-  pow (P x) n = P (powModInteger x (toInteger n) (natVal (witness :: Prime p)))
+  pow (P x) n = P $ powModNatural x (fromIntegral n) $ natVal (witness :: Prime p)
   {-# INLINE pow #-}
 
 {-# RULES "Prime.pow"
-  forall (k :: KnownNat p => Prime p) (n :: Integer) . (^) k n = pow k n
+  forall (k :: KnownNat p => Prime p) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -60,30 +62,28 @@ instance KnownNat p => GaloisField (Prime p) where
 -- Prime fields are fractional.
 instance KnownNat p => Fractional (Prime p) where
   recip (P 0)         = divZeroError
-  recip (P x)         = P (recipModInteger x (natVal (witness :: Prime p)))
+  recip (P x)         = P $ recipModNatural x $ natVal (witness :: Prime p)
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Prime fields are numeric.
 instance KnownNat p => Num (Prime p) where
-  P x + P y     = P (if xyp >= 0 then xyp else xy)
+  P x + P y     = P $ if xy >= p then xy - p else xy
     where
-      xy  = x + y
-      xyp = xy - natVal (witness :: Prime p)
+      xy = x + y
+      p  = natVal (witness :: Prime p)
   {-# INLINE (+) #-}
-  P x * P y     = P (P.rem (x * y) (natVal (witness :: Prime p)))
+  P x * P y     = P $ P.rem (x * y) $ natVal (witness :: Prime p)
   {-# INLINE (*) #-}
-  P x - P y     = P (if xy >= 0 then xy else xy + natVal (witness :: Prime p))
-    where
-      xy = x - y
+  P x - P y     = P $ if x >= y then x - y else natVal (witness :: Prime p) + x - y
   {-# INLINE (-) #-}
   negate (P 0)  = P 0
-  negate (P x)  = P (natVal (witness :: Prime p) - x)
+  negate (P x)  = P $ natVal (witness :: Prime p) - x
   {-# INLINE negate #-}
-  fromInteger x = P (if y >= 0 then y else y + p)
+  fromInteger x = P $ if y >= 0 then y else y + p
     where
-      y = P.rem x p
+      y = P.rem (naturalFromInteger x) p
       p = natVal (witness :: Prime p)
   {-# INLINABLE fromInteger #-}
   abs           = panic "Prime.abs: not implemented."
@@ -129,16 +129,18 @@ instance KnownNat p => Semiring (Prime p) where
 
 -- Prime fields are arbitrary.
 instance KnownNat p => Arbitrary (Prime p) where
-  arbitrary = P <$> choose (0, natVal (witness :: Prime p) - 1)
+  arbitrary = P . naturalFromInteger <$>
+    choose (0, naturalToInteger $ natVal (witness :: Prime p) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Prime fields are pretty.
 instance KnownNat p => Pretty (Prime p) where
-  pretty (P x) = pretty x
+  pretty (P x) = pretty $ naturalToInteger x
 
 -- Prime fields are random.
 instance KnownNat p => Random (Prime p) where
-  random  = first P . randomR (0, natVal (witness :: Prime p) - 1)
+  random  = first (P . naturalFromInteger) .
+    randomR (0, naturalToInteger $ natVal (witness :: Prime p) - 1)
   {-# INLINABLE random #-}
   randomR = panic "Prime.randomR: not implemented."
 
@@ -153,5 +155,15 @@ toP = fromInteger
 
 -- | Unsafe convert from @Z@ to @GF(p)@.
 toP' :: KnownNat p => Integer -> Prime p
-toP' = P
+toP' = P . naturalFromInteger
 {-# INLINABLE toP' #-}
+
+-------------------------------------------------------------------------------
+-- Prime arithmetic
+-------------------------------------------------------------------------------
+
+-- Reciprocals modulo naturals.
+recipModNatural :: Natural -> Natural -> Natural
+recipModNatural x p = naturalFromInteger $
+  recipModInteger (naturalToInteger x) (naturalToInteger p)
+{-# INLINE recipModNatural #-}

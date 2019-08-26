@@ -33,7 +33,7 @@ class GaloisField k => IrreducibleMonic k im where
   -- | Splitting polynomial @f(X)@.
   split :: Extension k im -> VPoly k
   -- Splitting polynomial degree.
-  deg' :: Extension k im -> Int
+  deg' :: Extension k im -> Word
   deg' = pred . fromIntegral . degree . split
   {-# INLINABLE deg' #-}
 
@@ -50,12 +50,12 @@ newtype Extension k im = E (VPoly k)
 
 -- Extension fields are convertible.
 instance IrreducibleMonic k im => ExtensionField k (Extension k im) where
-  fromE (E x) = toList (unPoly x)
+  fromE (E x) = toList $ unPoly x
   {-# INLINABLE fromE #-}
 
 -- Extension fields are Galois fields.
 instance IrreducibleMonic k im => GaloisField (Extension k im) where
-  char = const (char (witness :: k))
+  char = const $ char (witness :: k)
   {-# INLINABLE char #-}
   deg  = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
@@ -72,7 +72,7 @@ instance IrreducibleMonic k im => GaloisField (Extension k im) where
 
 -- Extension fields are fractional.
 instance IrreducibleMonic k im => Fractional (Extension k im) where
-  recip (E x)         = case gcdExt x (split (witness :: Extension k im)) of
+  recip (E x)         = case gcdExt x $ split (witness :: Extension k im) of
     (1, y) -> E y
     _      -> divZeroError
   {-# INLINABLE recip #-}
@@ -81,13 +81,13 @@ instance IrreducibleMonic k im => Fractional (Extension k im) where
 
 -- Extension fields are numeric.
 instance IrreducibleMonic k im => Num (Extension k im) where
-  E x + E y    = E (plus x y)
+  E x + E y    = E $ plus x y
   {-# INLINE (+) #-}
-  E x * E y    = E (rem (times x y) (split (witness :: Extension k im)))
+  E x * E y    = E $ rem (times x y) $ split (witness :: Extension k im)
   {-# INLINABLE (*) #-}
-  E x - E y    = E (x - y)
+  E x - E y    = E $ x - y
   {-# INLINE (-) #-}
-  negate (E x) = E (S.negate x)
+  negate (E x) = E $ S.negate x
   {-# INLINE negate #-}
   fromInteger  = E . fromInteger
   {-# INLINABLE fromInteger #-}
@@ -134,12 +134,12 @@ instance IrreducibleMonic k im => Semiring (Extension k im) where
 
 -- Extension fields are arbitrary.
 instance IrreducibleMonic k im => Arbitrary (Extension k im) where
-  arbitrary = toE' <$> vector (deg' (witness :: Extension k im))
+  arbitrary = toE' <$> vector (fromIntegral $ deg' (witness :: Extension k im))
   {-# INLINABLE arbitrary #-}
 
 -- Extension fields are pretty.
 instance IrreducibleMonic k im => Pretty (Extension k im) where
-  pretty (E x) = pretty (toList (unPoly x))
+  pretty (E x) = pretty $ toList $ unPoly x
 
 -- Extension fields are random.
 instance IrreducibleMonic k im => Random (Extension k im) where
@@ -168,15 +168,15 @@ toE' = E . toPoly . fromList
 
 -- | Pattern for @X@.
 pattern X :: GaloisField k => VPoly k
-pattern X <- _ where X = toPoly (fromList [0, 1])
+pattern X <- _ where X = toPoly $ fromList [0, 1]
 
 -- | Pattern for @X^2@.
 pattern X2 :: GaloisField k => VPoly k
-pattern X2 <- _ where X2 = toPoly (fromList [0, 0, 1])
+pattern X2 <- _ where X2 = toPoly $ fromList [0, 0, 1]
 
 -- | Pattern for @X^3@.
 pattern X3 :: GaloisField k => VPoly k
-pattern X3 <- _ where X3 = toPoly (fromList [0, 0, 0, 1])
+pattern X3 <- _ where X3 = toPoly $ fromList [0, 0, 0, 1]
 
 -- | Pattern for descending tower of indeterminate variables.
 pattern Y :: IrreducibleMonic k im => VPoly k -> VPoly (Extension k im)

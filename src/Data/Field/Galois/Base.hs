@@ -6,6 +6,7 @@ import Protolude hiding ((-), one, quot)
 
 import Control.Monad.Random (Random)
 import Data.Field (Field)
+import GHC.Natural (Natural)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
@@ -19,16 +20,16 @@ class (Arbitrary k, Field k, Fractional k, Generic k,
   {-# MINIMAL char, deg, frob #-}
 
   -- | Characteristic @p@ of field and order of prime subfield.
-  char :: k -> Integer
+  char :: k -> Natural
 
   -- | Degree @q@ of field as extension field over prime subfield.
-  deg :: k -> Int
+  deg :: k -> Word
 
   -- | Frobenius endomorphism @x -> x^p@ of prime subfield.
   frob :: k -> k
 
   -- | Order @p^q@ of field.
-  order :: k -> Integer
+  order :: k -> Natural
   order = (^) <$> char <*> deg
   {-# INLINABLE order #-}
 
@@ -49,6 +50,9 @@ class (Arbitrary k, Field k, Fractional k, Generic k,
           m' = div m 2
   {-# INLINABLE pow #-}
 
-{-# SPECIALISE pow
-  :: GaloisField k => k -> Int -> k
+{-# SPECIALISE pow ::
+  GaloisField k => k -> Int -> k,
+  GaloisField k => k -> Integer -> k
+  GaloisField k => k -> Natural -> k
+  GaloisField k => k -> Word -> k
   #-}
