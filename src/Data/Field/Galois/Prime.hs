@@ -81,10 +81,7 @@ instance KnownNat p => Num (Prime p) where
   negate (P 0)  = P 0
   negate (P x)  = P $ natVal (witness :: Prime p) - x
   {-# INLINE negate #-}
-  fromInteger x = P $ if y >= 0 then y else y + p
-    where
-      y = P.rem (naturalFromInteger x) p
-      p = natVal (witness :: Prime p)
+  fromInteger x = P $ naturalFromInteger $ P.mod x $ naturalToInteger $ natVal (witness :: Prime p)
   {-# INLINABLE fromInteger #-}
   abs           = panic "Prime.abs: not implemented."
   signum        = panic "Prime.signum: not implemented."
