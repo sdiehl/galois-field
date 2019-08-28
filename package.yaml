@@ -17,6 +17,7 @@ default-extensions:
   - ScopedTypeVariables
   - RankNTypes
   - DataKinds
+  - DeriveFunctor
   - DeriveGeneric
   - GeneralizedNewtypeDeriving
   - KindSignatures
@@ -26,6 +27,7 @@ default-extensions:
 dependencies:
   - base >= 4.10 && < 5
   - protolude
+  - groups
   - integer-gmp
   - MonadRandom
   - poly
@@ -52,6 +54,7 @@ library:
     - Data.Field.Galois.Extension
     - Data.Field.Galois.Prime
     - Data.Field.Galois.Sqrt
+    - Data.Field.Galois.Unity
   source-dirs:
     - src
 
