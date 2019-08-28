@@ -14,7 +14,7 @@ jobs:
           command: stack setup
       - run:
           name: Run tests
-          command: stack test
+          command: stack test --fast
       - save_cache:
           name: Cache Dependencies
           key: galois-field-{{ checksum "package.yaml" }}
