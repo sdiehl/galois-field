@@ -39,6 +39,7 @@ extra-source-files:
   - ChangeLog.md
 
 ghc-options:
+  - -freverse-errors
   - -O2
   - -Wall
 
@@ -58,16 +59,16 @@ tests:
   galois-field-tests:
     main: Main
     dependencies:
+      - galois-field
       - tasty
     source-dirs:
       - test
-      - src
 
 benchmarks:
   galois-field-benchmarks:
     main: Main
     dependencies:
       - criterion
+      - galois-field
     source-dirs:
       - bench
-      - src
