@@ -2,7 +2,7 @@ module Test.Prime where
 
 import Protolude
 
-import Data.Field.Galois.Prime
+import Data.Field.Galois
 import Test.Tasty
 
 import Test.Galois

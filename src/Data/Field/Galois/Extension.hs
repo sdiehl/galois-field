@@ -59,8 +59,6 @@ instance IrreducibleMonic k im => GaloisField (Extension k im) where
   {-# INLINABLE char #-}
   deg  = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
-  frob = pow <*> char
-  {-# INLINABLE frob #-}
 
 {-# RULES "Extension.pow"
   forall (k :: IrreducibleMonic k im => Extension k im) n . (^) k n = pow k n

@@ -4,7 +4,7 @@ import Protolude
 
 import Control.Monad.Random
 import Criterion.Main
-import Data.Field.Galois.Extension
+import Data.Field.Galois
 
 import Bench.Galois
 import Bench.Prime

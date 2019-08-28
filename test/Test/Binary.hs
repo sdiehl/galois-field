@@ -2,7 +2,7 @@ module Test.Binary where
 
 import Protolude
 
-import Data.Field.Galois.Binary
+import Data.Field.Galois
 import Test.Tasty
 
 import Test.Galois

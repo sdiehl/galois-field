@@ -2,7 +2,7 @@ module Test.Extension where
 
 import Protolude
 
-import Data.Field.Galois.Extension
+import Data.Field.Galois
 import Test.Tasty
 
 import Test.Galois
