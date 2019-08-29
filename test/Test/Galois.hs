@@ -19,11 +19,14 @@ distributivity op op' x y z = op (op' x y) z == op' (op x z) (op y z)
 identities :: Eq a => (a -> a -> a) -> a -> a -> Bool
 identities op e x = op x e == x && op e x == x
 
+annihilation :: Eq a => (a -> a -> a) ->  a -> a -> Bool
+annihilation op e x = op x e == e && op e x == e
+
 inverses :: Eq a => (a -> a -> a) -> (a -> a) -> a -> a -> Bool
 inverses op inv e x = op x (inv x) == e && op (inv x) x == e
 
 fieldAxioms :: forall k . GaloisField k => k -> TestTree
-fieldAxioms _ = testGroup ("Field axioms")
+fieldAxioms _ = testGroup "Field axioms"
   [ testProperty "commutativity of addition"
     $ commutativity ((+) :: k -> k -> k)
   , testProperty "commutativity of multiplication"
@@ -38,6 +41,8 @@ fieldAxioms _ = testGroup ("Field axioms")
     $ identities ((+) :: k -> k -> k) 0
   , testProperty "multiplicative identity"
     $ identities ((*) :: k -> k -> k) 1
+  , testProperty "multiplicative annihilation"
+    $ annihilation ((*) :: k -> k -> k) 0
   , testProperty "additive inverses"
     $ inverses ((+) :: k -> k -> k) negate 0
   , testProperty "multiplicative inverses"
@@ -48,10 +53,10 @@ squareRoots :: forall k . GaloisField k => k -> TestTree
 squareRoots _ = localOption (QuickCheckMaxRatio 100)
   . localOption (QuickCheckTests 10) $ testGroup "Square roots"
   [ testProperty "squares of square roots"
-    $ \(x :: k) -> isJust (sr x)
+    $ \(x :: k) -> qr x
       ==> (((^ (2 :: Int)) <$> sr x) == Just x)
   , testProperty "solutions of quadratic equations"
-    $ \(a :: k) (b :: k) (c :: k) -> a /= 0 && b /= 0 && isJust (quad a b c)
+    $ \(a :: k) (b :: k) (c :: k) -> a /= 0 && isJust (quad a b c)
       ==> (((\x -> a * x * x + b * x + c) <$> quad a b c) == Just 0)
   ]
 

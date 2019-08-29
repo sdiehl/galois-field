@@ -17,7 +17,7 @@ import GHC.Natural (Natural)
 -------------------------------------------------------------------------------
 
 -- | Get randomised quadratic nonresidue.
-qnr :: GaloisField k => k
+qnr :: GaloisField k => Maybe k
 qnr = getQNR
 {-# INLINABLE qnr #-}
 
@@ -47,8 +47,20 @@ sr = squareRoot
 
 -- | Check if an element is a quadratic nonresidue.
 isQNR :: GaloisField k => k -> Bool
-isQNR n = pow n (shiftR (order n) 1) /= 1
+isQNR n = n == 0 || char n /= 2 && pow n (shiftR (order n) 1) /= 1
 {-# INLINABLE isQNR #-}
+
+-- Get a random quadratic nonresidue.
+getQNR :: forall k . GaloisField k => Maybe k
+getQNR
+  | char (witness :: k) == 2 = Nothing
+  | otherwise                = Just $ getQNR' $ runRand rnd $ mkStdGen 0
+  where
+    getQNR' :: (k, StdGen) -> k
+    getQNR' (x, g)
+      | x /= 0 && isQNR x = x
+      | otherwise         = getQNR' $ runRand rnd g
+{-# INLINABLE getQNR #-}
 
 -- Factor the order @p - 1@ to get @q@ and @s@ such that @p - 1 = q2^s@.
 factorOrder :: GaloisField k => k -> (Natural, Word)
@@ -60,16 +72,6 @@ factorOrder w = factorOrder' (order w - 1, 0)
       | otherwise   = factorOrder' (shiftR q 1, s + 1)
 {-# INLINABLE factorOrder #-}
 
--- Get a random quadratic nonresidue.
-getQNR :: forall k . GaloisField k => k
-getQNR = getQNR' $ runRand rnd $ mkStdGen 0
-  where
-    getQNR' :: (k, StdGen) -> k
-    getQNR' (x, g)
-      | x /= 0 && isQNR x = x
-      | otherwise         = getQNR' $ runRand rnd g
-{-# INLINABLE getQNR #-}
-
 -- Get a square root of @n@ with the Tonelli-Shanks algorithm.
 squareRoot :: forall k . GaloisField k => k -> Maybe k
 squareRoot 0    = Just 0
@@ -77,10 +79,11 @@ squareRoot n
   | char n == 2 = Just $ power n
   | isQNR n     = Nothing
   | otherwise   = case (factorOrder n, getQNR) of
-  ((q, s), z) -> let zq  = pow z q
-                     nq  = pow n $ shiftR q 1
-                     nnq = n * nq
-                 in loop s zq (nq * nnq) nnq
+  ((q, s), Just z) -> let zq  = pow z q
+                          nq  = pow n $ shiftR q 1
+                          nnq = n * nq
+                      in loop s zq (nq * nnq) nnq
+  _                -> panic "Sqrt.squareRoot: no quadratic nonresidue."
   where
     power :: k -> k
     power = next $ deg n
