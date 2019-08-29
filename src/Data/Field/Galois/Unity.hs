@@ -44,7 +44,7 @@ newtype RootsOfUnity (n :: Nat) k = U k
 -- Roots of unity cyclic subgroups are arbitrary.
 instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
           Group (RootsOfUnity n k)) => Arbitrary (RootsOfUnity n k) where
-  arbitrary = G.pow gen <$> choose (0, naturalToInteger $ order (witness :: k) - 1)
+  arbitrary = G.pow gen <$> choose (0, naturalToInteger $ order (witness :: Prime n) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Roots of unity are groups.
@@ -66,7 +66,7 @@ instance (KnownNat n, GaloisField k) => Pretty (RootsOfUnity n k) where
 -- Roots of unity cyclic subgroups are random.
 instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
           Group (RootsOfUnity n k)) => Random (RootsOfUnity n k) where
-  random  = first (G.pow gen) . randomR (0, naturalToInteger $ order (witness :: k) - 1)
+  random  = first (G.pow gen) . randomR (0, naturalToInteger $ order (witness :: Prime n) - 1)
   {-# INLINABLE random #-}
   randomR = panic "Unity.randomR: not implemented."
 
