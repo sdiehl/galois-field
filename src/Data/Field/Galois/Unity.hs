@@ -1,9 +1,14 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Data.Field.Galois.Unity
-  ( Cyclic(..)
+  ( CyclicSubgroup(..)
   , RootsOfUnity
-  , Subgroup(..)
+  , cardinality
+  , cofactor
+  , isPrimitiveRootOfUnity
+  , isRootOfUnity
+  , toU
+  , toU'
   ) where
 
 import Protolude hiding (natVal)
@@ -21,20 +26,8 @@ import Data.Field.Galois.Prime (Prime)
 -- Types
 -------------------------------------------------------------------------------
 
--- | Subgroups of finite groups.
-class Group g => Subgroup g where
-  {-# MINIMAL card, cof, def, prim #-}
-  -- | Cardinality of subgroup.
-  card :: g -> Natural
-  -- | Cofactor of subgroup in group.
-  cof :: g -> Natural
-  -- | Check group element in subgroup.
-  def :: g -> Bool
-  -- | Check primitive generator of subgroup.
-  prim :: g -> Bool
-
--- | Finite cyclic groups.
-class Group g => Cyclic g where
+-- | Cyclic subgroups of finite groups.
+class Group g => CyclicSubgroup g where
   {-# MINIMAL gen #-}
   -- | Generator of subgroup.
   gen :: g
@@ -68,25 +61,49 @@ instance (KnownNat n, GaloisField k) => Semigroup (RootsOfUnity n k) where
   U x <> U y = U $ x * y
   {-# INLINABLE (<>) #-}
 
--- Roots of unity are subgroups.
-instance (KnownNat n, GaloisField k) => Subgroup (RootsOfUnity n k) where
-  cof          = quot (order (witness :: k)) . card
-  {-# INLINABLE cof #-}
-  def u@(U x)  = powerOfUnity x $ card u
-  {-# INLINABLE def #-}
-  card         = const $ natVal (witness :: Prime n)
-  {-# INLINABLE card #-}
-  prim u@(U x) = (&&) (def u) $ not $ any (powerOfUnity x) [1 .. card u - 1]
-  {-# INLINABLE prim #-}
-
 -- Roots of unity cyclic subgroups are random.
-instance (KnownNat n, GaloisField k, Cyclic (RootsOfUnity n k),
-          Group (RootsOfUnity n k), Subgroup (RootsOfUnity n k)) => Random (RootsOfUnity n k) where
+instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
+          Group (RootsOfUnity n k)) => Random (RootsOfUnity n k) where
   random  = first (G.pow gen) . randomR (0, naturalToInteger $ order (witness :: k) - 1)
   {-# INLINABLE random #-}
   randomR = panic "Unity.randomR: not implemented."
 
--- Check power of unity.
-powerOfUnity :: (Integral n, GaloisField k) => k -> n -> Bool
-powerOfUnity = ((==) 1 .) . F.pow
-{-# INLINABLE powerOfUnity #-}
+-------------------------------------------------------------------------------
+-- Functions
+-------------------------------------------------------------------------------
+
+-- | Cardinality of subgroup.
+cardinality :: forall n k . (KnownNat n, GaloisField k) => RootsOfUnity n k -> Natural
+cardinality = const $ natVal (witness :: Prime n)
+{-# INLINABLE cardinality #-}
+
+-- | Cofactor of subgroup in group.
+cofactor :: forall n k . (KnownNat n, GaloisField k) => RootsOfUnity n k -> Natural
+cofactor = quot (order (witness :: k)) . cardinality
+{-# INLINABLE cofactor #-}
+
+-- | Check if element is primitive root of unity.
+isPrimitiveRootOfUnity :: (KnownNat n, GaloisField k) => RootsOfUnity n k -> Bool
+isPrimitiveRootOfUnity u@(U x) = isRootOfUnity u && not (any (isUnity x) [1 .. cardinality u - 1])
+{-# INLINABLE isPrimitiveRootOfUnity #-}
+
+-- | Check if element is root of unity.
+isRootOfUnity :: (KnownNat n, GaloisField k) => RootsOfUnity n k -> Bool
+isRootOfUnity u@(U x) = isUnity x $ cardinality u
+{-# INLINABLE isRootOfUnity #-}
+
+-- | Check if element is unity.
+isUnity :: (Integral n, GaloisField k) => k -> n -> Bool
+isUnity = ((==) 1 .) . F.pow
+{-# INLINABLE isUnity #-}
+
+-- | Safe convert from field to roots of unity.
+toU :: forall n k . (KnownNat n, GaloisField k) => k -> RootsOfUnity n k
+toU x = let u = U x :: RootsOfUnity n k in
+  if isRootOfUnity u then u else panic "Unity.toUnity: element is not a root of unity."
+{-# INLINABLE toU #-}
+
+-- | Unsafe convert from field to roots of unity.
+toU' :: forall n k . (KnownNat n, GaloisField k) => k -> RootsOfUnity n k
+toU' = U
+{-# INLINABLE toU' #-}
