@@ -19,7 +19,7 @@ distributivity op op' x y z = op (op' x y) z == op' (op x z) (op y z)
 identities :: Eq a => (a -> a -> a) -> a -> a -> Bool
 identities op e x = op x e == x && op e x == x
 
-annihilation :: Eq a => (a -> a -> a) ->  a -> a -> Bool
+annihilation :: Eq a => (a -> a -> a) -> a -> a -> Bool
 annihilation op e x = op x e == e && op e x == e
 
 inverses :: Eq a => (a -> a -> a) -> (a -> a) -> a -> a -> Bool
