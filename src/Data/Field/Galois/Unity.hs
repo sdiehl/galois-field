@@ -17,6 +17,7 @@ import Control.Monad.Random (Random(..))
 import Data.Group as G (Group(..))
 import GHC.Natural (Natural, naturalToInteger)
 import GHC.TypeNats (natVal)
+import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import Data.Field.Galois.Base as F (GaloisField(..))
@@ -40,6 +41,12 @@ newtype RootsOfUnity (n :: Nat) k = U k
 -- Instances
 -------------------------------------------------------------------------------
 
+-- Roots of unity cyclic subgroups are arbitrary.
+instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
+          Group (RootsOfUnity n k)) => Arbitrary (RootsOfUnity n k) where
+  arbitrary = G.pow gen <$> choose (0, naturalToInteger $ order (witness :: k) - 1)
+  {-# INLINABLE arbitrary #-}
+
 -- Roots of unity are groups.
 instance (KnownNat n, GaloisField k) => Group (RootsOfUnity n k) where
   invert (U x) = U $ recip x
@@ -56,17 +63,17 @@ instance (KnownNat n, GaloisField k) => Monoid (RootsOfUnity n k) where
 instance (KnownNat n, GaloisField k) => Pretty (RootsOfUnity n k) where
   pretty (U x) = pretty x
 
--- Roots of unity are semigroups.
-instance (KnownNat n, GaloisField k) => Semigroup (RootsOfUnity n k) where
-  U x <> U y = U $ x * y
-  {-# INLINABLE (<>) #-}
-
 -- Roots of unity cyclic subgroups are random.
 instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
           Group (RootsOfUnity n k)) => Random (RootsOfUnity n k) where
   random  = first (G.pow gen) . randomR (0, naturalToInteger $ order (witness :: k) - 1)
   {-# INLINABLE random #-}
   randomR = panic "Unity.randomR: not implemented."
+
+-- Roots of unity are semigroups.
+instance (KnownNat n, GaloisField k) => Semigroup (RootsOfUnity n k) where
+  U x <> U y = U $ x * y
+  {-# INLINABLE (<>) #-}
 
 -------------------------------------------------------------------------------
 -- Functions
