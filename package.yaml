@@ -23,6 +23,7 @@ default-extensions:
   - KindSignatures
   - MultiParamTypeClasses
   - PatternSynonyms
+  - TypeFamilies
 
 dependencies:
   - base >= 4.10 && < 5
