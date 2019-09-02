@@ -55,6 +55,7 @@ library:
     - Data.Field.Galois.Extension
     - Data.Field.Galois.Prime
     - Data.Field.Galois.Sqrt
+    - Data.Field.Galois.Tower
     - Data.Field.Galois.Unity
   source-dirs:
     - src

@@ -1,7 +1,7 @@
 module Data.Field.Galois.Extension
   ( Extension
   , ExtensionField(..)
-  , IrreducibleMonic(split)
+  , IrreducibleMonic(..)
   , toE
   , toE'
   , pattern X
@@ -32,10 +32,6 @@ class GaloisField k => IrreducibleMonic k im where
   {-# MINIMAL split #-}
   -- | Splitting polynomial @f(X)@.
   split :: Extension k im -> VPoly k
-  -- Splitting polynomial degree.
-  deg' :: Extension k im -> Word
-  deg' = pred . fromIntegral . degree . split
-  {-# INLINABLE deg' #-}
 
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
@@ -153,6 +149,11 @@ instance IrreducibleMonic k im => Random (Extension k im) where
 -------------------------------------------------------------------------------
 -- Auxiliary functions
 -------------------------------------------------------------------------------
+
+-- Splitting polynomial degree.
+deg' :: IrreducibleMonic k im => Extension k im -> Word
+deg' = pred . fromIntegral . degree . split
+{-# INLINABLE deg' #-}
 
 -- | Safe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
 toE :: forall k im . IrreducibleMonic k im => [k] -> Extension k im
