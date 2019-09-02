@@ -1,7 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Data.Field.Galois.Tower
-  ( embed
+  ( TowerOfFields(..)
   , (*^)
   ) where
 
@@ -18,9 +18,9 @@ import Data.Field.Galois.Binary (Binary, toB')
 
 -- | Tower of fields @L@ over @K@ strict partial ordering.
 class (GaloisField k, GaloisField l) => TowerOfFields k l where
-  {-# MINIMAL embed' #-}
-  -- Embed @K@ into @L@ naturally.
-  embed' :: k -> l
+  {-# MINIMAL embed #-}
+  -- | Embed @K@ into @L@ naturally.
+  embed :: k -> l
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -29,29 +29,24 @@ class (GaloisField k, GaloisField l) => TowerOfFields k l where
 -- Extension fields are towers of fields.
 instance {-# OVERLAPPING #-}
   IrreducibleMonic k im => TowerOfFields k (Extension k im) where
-  embed' = toE' . return
-  {-# INLINABLE embed' #-}
+  embed = toE' . return
+  {-# INLINABLE embed #-}
 
 -- Extension field towers are transitive.
 instance {-# OVERLAPPABLE #-}
   (TowerOfFields k l, IrreducibleMonic l im, TowerOfFields l (Extension l im))
   => TowerOfFields k (Extension l im) where
-  embed' = embed' . (embed' :: k -> l)
-  {-# INLINABLE embed' #-}
+  embed = embed . (embed :: k -> l)
+  {-# INLINABLE embed #-}
 
 -- Binary fields are towers of fields.
 instance KnownNat im => TowerOfFields (Prime 2) (Binary im) where
-  embed' = toB' . fromP
-  {-# INLINABLE embed' #-}
+  embed = toB' . fromP
+  {-# INLINABLE embed #-}
 
 -------------------------------------------------------------------------------
 -- Functions
 -------------------------------------------------------------------------------
-
--- | Embed @K@ into @L@ naturally.
-embed :: TowerOfFields k l => k -> l
-embed = embed'
-{-# INLINABLE embed #-}
 
 -- | Scalar multiplication.
 infixl 7 *^
