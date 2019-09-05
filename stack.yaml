@@ -1,6 +1,5 @@
 resolver: lts-13.19
 extra-deps:
-  - git: https://github.com/chessai/semirings.git
-    commit: 8b6c208f3d771fae066fcb637da492e7251a8e50
+  - semirings-0.5
   - git: https://github.com/adjoint-io/poly.git
     commit: 1eb5b7a820a685de7c07576e028dee332e3382f8
