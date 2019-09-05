@@ -26,17 +26,30 @@ class (GaloisField k, GaloisField l) => TowerOfFields k l where
 -- Instances
 -------------------------------------------------------------------------------
 
+-- Prime field towers are reflexive.
+instance KnownNat p => TowerOfFields (Prime p) (Prime p) where
+  embed = identity
+  {-# INLINABLE embed #-}
+
+-- Extension field towers are reflexive.
+instance IrreducibleMonic k im => TowerOfFields (Extension k im) (Extension k im) where
+  embed = identity
+  {-# INLINABLE embed #-}
+
 -- Extension fields are towers of fields.
-instance {-# OVERLAPPING #-}
-  IrreducibleMonic k im => TowerOfFields k (Extension k im) where
+instance {-# OVERLAPPING #-} IrreducibleMonic k im => TowerOfFields k (Extension k im) where
   embed = toE' . return
   {-# INLINABLE embed #-}
 
 -- Extension field towers are transitive.
-instance {-# OVERLAPPABLE #-}
-  (TowerOfFields k l, IrreducibleMonic l im, TowerOfFields l (Extension l im))
+instance {-# OVERLAPPABLE #-} (TowerOfFields k l, IrreducibleMonic l im, TowerOfFields l (Extension l im))
   => TowerOfFields k (Extension l im) where
   embed = embed . (embed :: k -> l)
+  {-# INLINABLE embed #-}
+
+-- Binary field towers are reflexive.
+instance KnownNat im => TowerOfFields (Binary im) (Binary im) where
+  embed = identity
   {-# INLINABLE embed #-}
 
 -- Binary fields are towers of fields.
