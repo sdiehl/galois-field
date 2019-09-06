@@ -30,16 +30,16 @@ class (Bits k, GaloisField k) => BinaryField k where
   fromB :: k -> Integer
 
 -- | Binary field elements.
-newtype Binary (im :: Nat) = B Natural
+newtype Binary (p :: Nat) = B Natural
   deriving (Bits, Eq, Generic, NFData, Ord, Show)
 
 -- Binary fields are convertible.
-instance KnownNat im => BinaryField (Binary im) where
+instance KnownNat p => BinaryField (Binary p) where
   fromB (B x) = naturalToInteger x
   {-# INLINABLE fromB #-}
 
 -- Binary fields are Galois fields.
-instance KnownNat im => GaloisField (Binary im) where
+instance KnownNat p => GaloisField (Binary p) where
   char = const 2
   {-# INLINABLE char #-}
   deg  = binLog . natVal
@@ -48,7 +48,7 @@ instance KnownNat im => GaloisField (Binary im) where
   {-# INLINABLE frob #-}
 
 {-# RULES "Binary.pow"
-  forall (k :: KnownNat im => Binary im) n . (^) k n = pow k n
+  forall (k :: KnownNat p => Binary p) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -56,23 +56,23 @@ instance KnownNat im => GaloisField (Binary im) where
 -------------------------------------------------------------------------------
 
 -- Binary fields are fractional.
-instance KnownNat im => Fractional (Binary im) where
-  recip (B x)         = B $ binInv x $ natVal (witness :: Binary im)
+instance KnownNat p => Fractional (Binary p) where
+  recip (B x)         = B $ binInv x $ natVal (witness :: Binary p)
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Binary fields are numeric.
-instance KnownNat im => Num (Binary im) where
+instance KnownNat p => Num (Binary p) where
   B x + B y   = B $ xor x y
   {-# INLINE (+) #-}
-  B x * B y   = B $ binMul (natVal (witness :: Binary im)) x y
+  B x * B y   = B $ binMul (natVal (witness :: Binary p)) x y
   {-# INLINE (*) #-}
   B x - B y   = B $ xor x y
   {-# INLINE (-) #-}
   negate      = identity
   {-# INLINE negate #-}
-  fromInteger = B . binMod (natVal (witness :: Binary im)) . naturalFromInteger
+  fromInteger = B . binMod (natVal (witness :: Binary p)) . naturalFromInteger
   {-# INLINABLE fromInteger #-}
   abs         = panic "Binary.abs: not implemented."
   signum      = panic "Binary.signum: not implemented."
@@ -82,24 +82,24 @@ instance KnownNat im => Num (Binary im) where
 -------------------------------------------------------------------------------
 
 -- Binary fields are Euclidean domains.
-instance KnownNat im => Euclidean (Binary im) where
+instance KnownNat p => Euclidean (Binary p) where
   quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
   degree  = panic "Binary.degree: not implemented."
 
 -- Binary fields are fields.
-instance KnownNat im => Field (Binary im) where
+instance KnownNat p => Field (Binary p) where
 
 -- Binary fields are GCD domains.
-instance KnownNat im => GcdDomain (Binary im)
+instance KnownNat p => GcdDomain (Binary p)
 
 -- Binary fields are rings.
-instance KnownNat im => Ring (Binary im) where
+instance KnownNat p => Ring (Binary p) where
   negate = P.negate
   {-# INLINE negate #-}
 
 -- Binary fields are semirings.
-instance KnownNat im => Semiring (Binary im) where
+instance KnownNat p => Semiring (Binary p) where
   zero        = 0
   {-# INLINE zero #-}
   plus        = (+)
@@ -116,19 +116,19 @@ instance KnownNat im => Semiring (Binary im) where
 -------------------------------------------------------------------------------
 
 -- Binary fields are arbitrary.
-instance KnownNat im => Arbitrary (Binary im) where
+instance KnownNat p => Arbitrary (Binary p) where
   arbitrary = B . naturalFromInteger <$>
-    choose (0, naturalToInteger $ order (witness :: Binary im) - 1)
+    choose (0, naturalToInteger $ order (witness :: Binary p) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Binary fields are pretty.
-instance KnownNat im => Pretty (Binary im) where
+instance KnownNat p => Pretty (Binary p) where
   pretty (B x) = pretty $ naturalToInteger x
 
 -- Binary fields are random.
-instance KnownNat im => Random (Binary im) where
+instance KnownNat p => Random (Binary p) where
   random  = first (B . naturalFromInteger) .
-    randomR (0, naturalToInteger $ order (witness :: Binary im) - 1)
+    randomR (0, naturalToInteger $ order (witness :: Binary p) - 1)
   {-# INLINABLE random #-}
   randomR = panic "Binary.randomR: not implemented."
 
@@ -137,12 +137,12 @@ instance KnownNat im => Random (Binary im) where
 -------------------------------------------------------------------------------
 
 -- | Safe convert from @Z@ to @GF(2^q)[X]/\<f(X)\>@.
-toB :: KnownNat im => Integer -> Binary im
+toB :: KnownNat p => Integer -> Binary p
 toB = fromInteger
 {-# INLINABLE toB #-}
 
 -- | Unsafe convert from @Z@ to @GF(2^q)[X]/\<f(X)\>@.
-toB' :: KnownNat im => Integer -> Binary im
+toB' :: KnownNat p => Integer -> Binary p
 toB' = B . naturalFromInteger
 {-# INLINABLE toB' #-}
 

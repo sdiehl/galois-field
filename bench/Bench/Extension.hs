@@ -11,17 +11,17 @@ import Bench.Prime
 
 data Pu
 instance IrreducibleMonic Fq Pu where
-  split _ = X2 + 1
+  poly _ = X2 + 1
 type Fq2 = Extension Fq Pu
 
 data Pv
 instance IrreducibleMonic Fq2 Pv where
-  split _ = X3 - 9 - Y X
+  poly _ = X3 - 9 - Y X
 type Fq6 = Extension Fq2 Pv
 
 data Pw
 instance IrreducibleMonic Fq6 Pw where
-  split _ = X2 - Y X
+  poly _ = X2 - Y X
 type Fq12 = Extension Fq6 Pw
 
 fq12 :: Fq12

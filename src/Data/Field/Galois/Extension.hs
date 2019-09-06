@@ -27,37 +27,37 @@ import Data.Field.Galois.Base (GaloisField(..))
 -- Data types
 -------------------------------------------------------------------------------
 
--- | Irreducible monic splitting polynomial @f(X)@ of extension field.
-class GaloisField k => IrreducibleMonic k im where
-  {-# MINIMAL split #-}
-  -- | Splitting polynomial @f(X)@.
-  split :: Extension k im -> VPoly k
+-- | Irreducible monic polynomial @f(X)@ of extension field.
+class GaloisField k => IrreducibleMonic k p where
+  {-# MINIMAL poly #-}
+  -- | Polynomial @f(X)@.
+  poly :: Extension k p -> VPoly k
 
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
 class GaloisField k => ExtensionField k where
   {-# MINIMAL fromE #-}
   -- | Convert from @GF(p^q)[X]/\<f(X)\>@ to @GF(p^q)[X]@.
-  fromE :: (GaloisField l, IrreducibleMonic l im, k ~ Extension l im) => k -> [l]
+  fromE :: (GaloisField l, IrreducibleMonic l p, k ~ Extension l p) => k -> [l]
 
 -- | Extension field elements.
-newtype Extension k im = E (VPoly k)
+newtype Extension k p = E (VPoly k)
   deriving (Eq, Generic, NFData, Ord, Show)
 
 -- Extension fields are convertible.
-instance IrreducibleMonic k im => ExtensionField (Extension k im) where
+instance IrreducibleMonic k p => ExtensionField (Extension k p) where
   fromE (E x) = toList $ unPoly x
   {-# INLINABLE fromE #-}
 
 -- Extension fields are Galois fields.
-instance IrreducibleMonic k im => GaloisField (Extension k im) where
+instance IrreducibleMonic k p => GaloisField (Extension k p) where
   char = const $ char (witness :: k)
   {-# INLINABLE char #-}
   deg  = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
 
 {-# RULES "Extension.pow"
-  forall (k :: IrreducibleMonic k im => Extension k im) n . (^) k n = pow k n
+  forall (k :: IrreducibleMonic k p => Extension k p) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -65,8 +65,8 @@ instance IrreducibleMonic k im => GaloisField (Extension k im) where
 -------------------------------------------------------------------------------
 
 -- Extension fields are fractional.
-instance IrreducibleMonic k im => Fractional (Extension k im) where
-  recip (E x)         = case gcdExt x $ split (witness :: Extension k im) of
+instance IrreducibleMonic k p => Fractional (Extension k p) where
+  recip (E x)         = case gcdExt x $ poly (witness :: Extension k p) of
     (1, y) -> E y
     _      -> divZeroError
   {-# INLINABLE recip #-}
@@ -74,10 +74,10 @@ instance IrreducibleMonic k im => Fractional (Extension k im) where
   {-# INLINABLE fromRational #-}
 
 -- Extension fields are numeric.
-instance IrreducibleMonic k im => Num (Extension k im) where
+instance IrreducibleMonic k p => Num (Extension k p) where
   E x + E y    = E $ plus x y
   {-# INLINE (+) #-}
-  E x * E y    = E $ rem (times x y) $ split (witness :: Extension k im)
+  E x * E y    = E $ rem (times x y) $ poly (witness :: Extension k p)
   {-# INLINABLE (*) #-}
   E x - E y    = E $ x - y
   {-# INLINE (-) #-}
@@ -93,24 +93,24 @@ instance IrreducibleMonic k im => Num (Extension k im) where
 -------------------------------------------------------------------------------
 
 -- Extension fields are Euclidean domains.
-instance IrreducibleMonic k im => Euclidean (Extension k im) where
+instance IrreducibleMonic k p => Euclidean (Extension k p) where
   quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
   degree  = panic "Extension.degree: not implemented."
 
 -- Extension fields are fields.
-instance IrreducibleMonic k im => Field (Extension k im)
+instance IrreducibleMonic k p => Field (Extension k p)
 
 -- Extension fields are GCD domains.
-instance IrreducibleMonic k im => GcdDomain (Extension k im)
+instance IrreducibleMonic k p => GcdDomain (Extension k p)
 
 -- Extension fields are rings.
-instance IrreducibleMonic k im => Ring (Extension k im) where
+instance IrreducibleMonic k p => Ring (Extension k p) where
   negate = P.negate
   {-# INLINE negate #-}
 
 -- Extension fields are semirings.
-instance IrreducibleMonic k im => Semiring (Extension k im) where
+instance IrreducibleMonic k p => Semiring (Extension k p) where
   zero        = 0
   {-# INLINE zero #-}
   plus        = (+)
@@ -127,17 +127,17 @@ instance IrreducibleMonic k im => Semiring (Extension k im) where
 -------------------------------------------------------------------------------
 
 -- Extension fields are arbitrary.
-instance IrreducibleMonic k im => Arbitrary (Extension k im) where
-  arbitrary = toE' <$> vector (fromIntegral $ deg' (witness :: Extension k im))
+instance IrreducibleMonic k p => Arbitrary (Extension k p) where
+  arbitrary = toE' <$> vector (fromIntegral $ deg' (witness :: Extension k p))
   {-# INLINABLE arbitrary #-}
 
 -- Extension fields are pretty.
-instance IrreducibleMonic k im => Pretty (Extension k im) where
+instance IrreducibleMonic k p => Pretty (Extension k p) where
   pretty (E x) = pretty $ toList $ unPoly x
 
 -- Extension fields are random.
-instance IrreducibleMonic k im => Random (Extension k im) where
-  random  = first toE' . unfold (deg' (witness :: Extension k im)) []
+instance IrreducibleMonic k p => Random (Extension k p) where
+  random  = first toE' . unfold (deg' (witness :: Extension k p)) []
     where
       unfold n xs g
         | n <= 0    = (xs, g)
@@ -150,18 +150,18 @@ instance IrreducibleMonic k im => Random (Extension k im) where
 -- Auxiliary functions
 -------------------------------------------------------------------------------
 
--- Splitting polynomial degree.
-deg' :: IrreducibleMonic k im => Extension k im -> Word
-deg' = pred . fromIntegral . degree . split
+-- Polynomial degree.
+deg' :: IrreducibleMonic k p => Extension k p -> Word
+deg' = pred . fromIntegral . degree . poly
 {-# INLINABLE deg' #-}
 
 -- | Safe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
-toE :: forall k im . IrreducibleMonic k im => [k] -> Extension k im
-toE = E . flip rem (split (witness :: Extension k im)) . toPoly . fromList
+toE :: forall k p . IrreducibleMonic k p => [k] -> Extension k p
+toE = E . flip rem (poly (witness :: Extension k p)) . toPoly . fromList
 {-# INLINABLE toE #-}
 
 -- | Unsafe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
-toE' :: forall k im . IrreducibleMonic k im => [k] -> Extension k im
+toE' :: forall k p . IrreducibleMonic k p => [k] -> Extension k p
 toE' = E . toPoly . fromList
 {-# INLINABLE toE' #-}
 
@@ -178,5 +178,5 @@ pattern X3 :: GaloisField k => VPoly k
 pattern X3 <- _ where X3 = toPoly $ fromList [0, 0, 0, 1]
 
 -- | Pattern for descending tower of indeterminate variables.
-pattern Y :: IrreducibleMonic k im => VPoly k -> VPoly (Extension k im)
+pattern Y :: IrreducibleMonic k p => VPoly k -> VPoly (Extension k p)
 pattern Y <- _ where Y = monomial 0 . E
