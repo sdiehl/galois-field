@@ -1,6 +1,7 @@
 module Data.Field.Galois.Prime
   ( Prime
-  , PrimeField(..)
+  , PrimeField
+  , fromP
   , toP
   , toP'
   ) where
@@ -24,7 +25,8 @@ import Data.Field.Galois.Base (GaloisField(..))
 -------------------------------------------------------------------------------
 
 -- | Prime fields @GF(p) = Z/pZ@ for @p@ prime.
-class (Bits k, GaloisField k) => PrimeField k where
+type PrimeField = PrimeGaloisField
+class (Bits k, GaloisField k) => PrimeGaloisField k where
   {-# MINIMAL fromP #-}
   -- | Convert from @GF(p)@ to @Z@.
   fromP :: k -> Integer
@@ -34,7 +36,7 @@ newtype Prime (p :: Nat) = P Natural
   deriving (Bits, Eq, Generic, NFData, Ord, Show)
 
 -- Prime fields are convertible.
-instance KnownNat p => PrimeField (Prime p) where
+instance KnownNat p => PrimeGaloisField (Prime p) where
   fromP (P x) = naturalToInteger x
   {-# INLINABLE fromP #-}
 

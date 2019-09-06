@@ -16,6 +16,7 @@ default-extensions:
   - FlexibleContexts
   - ScopedTypeVariables
   - RankNTypes
+  - ConstraintKinds
   - DataKinds
   - DeriveFunctor
   - DeriveGeneric
@@ -25,9 +26,10 @@ default-extensions:
   - PatternSynonyms
   - TypeFamilies
 
+
 dependencies:
   - base >= 4.10 && < 5
-  - protolude
+  - protolude >= 0.2 && < 0.3
   - groups
   - integer-gmp
   - MonadRandom
