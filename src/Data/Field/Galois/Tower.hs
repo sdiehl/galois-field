@@ -9,7 +9,7 @@ import Protolude
 
 import Data.Field.Galois.Base (GaloisField)
 import Data.Field.Galois.Prime (Prime, fromP)
-import Data.Field.Galois.Extension (Extension, IrreducibleMonic, toE')
+import Data.Field.Galois.Extension (Extension, IrreducibleMonic, pattern V)
 import Data.Field.Galois.Binary (Binary, toB')
 
 -------------------------------------------------------------------------------
@@ -32,28 +32,28 @@ instance KnownNat p => TowerOfFields (Prime p) (Prime p) where
   {-# INLINABLE embed #-}
 
 -- Extension field towers are reflexive.
-instance IrreducibleMonic k im => TowerOfFields (Extension k im) (Extension k im) where
+instance IrreducibleMonic k p => TowerOfFields (Extension k p) (Extension k p) where
   embed = identity
   {-# INLINABLE embed #-}
 
 -- Extension fields are towers of fields.
-instance {-# OVERLAPPING #-} IrreducibleMonic k im => TowerOfFields k (Extension k im) where
-  embed = toE' . return
+instance {-# OVERLAPPING #-} IrreducibleMonic k p => TowerOfFields k (Extension k p) where
+  embed = V
   {-# INLINABLE embed #-}
 
 -- Extension field towers are transitive.
-instance {-# OVERLAPPABLE #-} (TowerOfFields k l, IrreducibleMonic l im, TowerOfFields l (Extension l im))
-  => TowerOfFields k (Extension l im) where
+instance {-# OVERLAPPABLE #-} (TowerOfFields k l, IrreducibleMonic l p, TowerOfFields l (Extension l p))
+  => TowerOfFields k (Extension l p) where
   embed = embed . (embed :: k -> l)
   {-# INLINABLE embed #-}
 
 -- Binary field towers are reflexive.
-instance KnownNat im => TowerOfFields (Binary im) (Binary im) where
+instance KnownNat p => TowerOfFields (Binary p) (Binary p) where
   embed = identity
   {-# INLINABLE embed #-}
 
 -- Binary fields are towers of fields.
-instance KnownNat im => TowerOfFields (Prime 2) (Binary im) where
+instance KnownNat p => TowerOfFields (Prime 2) (Binary p) where
   embed = toB' . fromP
   {-# INLINABLE embed #-}
 

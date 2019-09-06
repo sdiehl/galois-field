@@ -5,6 +5,10 @@ module Data.Field.Galois.Extension
   , fromE
   , toE
   , toE'
+  , pattern U
+  , pattern U2
+  , pattern U3
+  , pattern V
   , pattern X
   , pattern X2
   , pattern X3
@@ -167,18 +171,38 @@ toE' :: forall k p . IrreducibleMonic k p => [k] -> Extension k p
 toE' = E . toPoly . fromList
 {-# INLINABLE toE' #-}
 
--- | Pattern for @X@.
+-------------------------------------------------------------------------------
+-- Pattern synonyms
+-------------------------------------------------------------------------------
+
+-- | Pattern for field element @U@.
+pattern U :: IrreducibleMonic k p => Extension k p
+pattern U <- _ where U = E X
+
+-- | Pattern for field element @U^2@.
+pattern U2 :: IrreducibleMonic k p => Extension k p
+pattern U2 <- _ where U2 = toE [0, 0, 1]
+
+-- | Pattern for field element @U^3@.
+pattern U3 :: IrreducibleMonic k p => Extension k p
+pattern U3 <- _ where U3 = toE [0, 0, 0, 1]
+
+-- | Pattern for descending tower of indeterminate variables for field elements.
+pattern V :: IrreducibleMonic k p => k -> Extension k p
+pattern V <- _ where V = E . monomial 0
+
+-- | Pattern for monic monomial @X@.
 pattern X :: GaloisField k => VPoly k
 pattern X <- _ where X = toPoly $ fromList [0, 1]
 
--- | Pattern for @X^2@.
+-- | Pattern for monic monomial @X^2@.
 pattern X2 :: GaloisField k => VPoly k
 pattern X2 <- _ where X2 = toPoly $ fromList [0, 0, 1]
 
--- | Pattern for @X^3@.
+-- | Pattern for monic monomial @X^3@.
 pattern X3 :: GaloisField k => VPoly k
 pattern X3 <- _ where X3 = toPoly $ fromList [0, 0, 0, 1]
 
--- | Pattern for descending tower of indeterminate variables.
+-- | Pattern for descending tower of indeterminate variables for monic monomials.
 pattern Y :: IrreducibleMonic k p => VPoly k -> VPoly (Extension k p)
 pattern Y <- _ where Y = monomial 0 . E
