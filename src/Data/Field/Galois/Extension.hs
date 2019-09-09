@@ -40,8 +40,7 @@ class GaloisField k => IrreducibleMonic k p where
 
 -- | Extension fields @GF(p^q)[X]/\<f(X)\>@ for @p@ prime, @q@ positive, and
 -- @f(X)@ irreducible monic in @GF(p^q)[X]@.
-type ExtensionField = ExtensionGaloisField
-class GaloisField k => ExtensionGaloisField k where
+class GaloisField k => ExtensionField k where
   {-# MINIMAL fromE #-}
   -- | Convert from @GF(p^q)[X]/\<f(X)\>@ to @GF(p^q)[X]@.
   fromE :: (GaloisField l, IrreducibleMonic l p, k ~ Extension l p) => k -> [l]
@@ -51,7 +50,7 @@ newtype Extension k p = E (VPoly k)
   deriving (Eq, Generic, NFData, Ord, Show)
 
 -- Extension fields are convertible.
-instance IrreducibleMonic k p => ExtensionGaloisField (Extension k p) where
+instance IrreducibleMonic k p => ExtensionField (Extension k p) where
   fromE (E x) = toList $ unPoly x
   {-# INLINABLE fromE #-}
 

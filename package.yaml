@@ -16,7 +16,6 @@ default-extensions:
   - FlexibleContexts
   - ScopedTypeVariables
   - RankNTypes
-  - ConstraintKinds
   - DataKinds
   - DeriveFunctor
   - DeriveGeneric
@@ -25,7 +24,6 @@ default-extensions:
   - MultiParamTypeClasses
   - PatternSynonyms
   - TypeFamilies
-
 
 dependencies:
   - base >= 4.10 && < 5

@@ -25,8 +25,7 @@ import Data.Field.Galois.Base (GaloisField(..))
 
 -- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
 -- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
-type BinaryField = BinaryGaloisField
-class (Bits k, GaloisField k) => BinaryGaloisField k where
+class (Bits k, GaloisField k) => BinaryField k where
   {-# MINIMAL fromB #-}
   -- | Convert from @GF(2^q)[X]/\<f(X)\>@ to @Z@.
   fromB :: k -> Integer
@@ -36,7 +35,7 @@ newtype Binary (p :: Nat) = B Natural
   deriving (Bits, Eq, Generic, NFData, Ord, Show)
 
 -- Binary fields are convertible.
-instance KnownNat p => BinaryGaloisField (Binary p) where
+instance KnownNat p => BinaryField (Binary p) where
   fromB (B x) = naturalToInteger x
   {-# INLINABLE fromB #-}
 
