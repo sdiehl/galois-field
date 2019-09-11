@@ -9,20 +9,20 @@ import Data.Field.Galois
 import Bench.Galois
 import Bench.Prime
 
-data Pu
-instance IrreducibleMonic Fq Pu where
+data PU
+instance IrreducibleMonic PU Fq where
   poly _ = X2 + 1
-type Fq2 = Extension Fq Pu
+type Fq2 = Extension PU Fq
 
-data Pv
-instance IrreducibleMonic Fq2 Pv where
+data PV
+instance IrreducibleMonic PV Fq2 where
   poly _ = X3 - 9 - Y X
-type Fq6 = Extension Fq2 Pv
+type Fq6 = Extension PV Fq2
 
-data Pw
-instance IrreducibleMonic Fq6 Pw where
+data PW
+instance IrreducibleMonic PW Fq6 where
   poly _ = X2 - Y X
-type Fq12 = Extension Fq6 Pw
+type Fq12 = Extension PW Fq6
 
 fq12 :: Fq12
 fq12 = evalRand getRandom $ mkStdGen 0

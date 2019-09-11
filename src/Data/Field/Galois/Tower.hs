@@ -32,18 +32,18 @@ instance KnownNat p => TowerOfFields (Prime p) (Prime p) where
   {-# INLINABLE embed #-}
 
 -- Extension field towers are reflexive.
-instance IrreducibleMonic k p => TowerOfFields (Extension k p) (Extension k p) where
+instance IrreducibleMonic p k => TowerOfFields (Extension p k) (Extension p k) where
   embed = identity
   {-# INLINABLE embed #-}
 
 -- Extension fields are towers of fields.
-instance {-# OVERLAPPING #-} IrreducibleMonic k p => TowerOfFields k (Extension k p) where
+instance {-# OVERLAPPING #-} IrreducibleMonic p k => TowerOfFields k (Extension p k) where
   embed = V
   {-# INLINABLE embed #-}
 
 -- Extension field towers are transitive.
-instance {-# OVERLAPPABLE #-} (TowerOfFields k l, IrreducibleMonic l p, TowerOfFields l (Extension l p))
-  => TowerOfFields k (Extension l p) where
+instance {-# OVERLAPPABLE #-} (TowerOfFields k l, IrreducibleMonic p l, TowerOfFields l (Extension p l))
+  => TowerOfFields k (Extension p l) where
   embed = embed . (embed :: k -> l)
   {-# INLINABLE embed #-}
 
