@@ -56,9 +56,16 @@ instance IrreducibleMonic p k => ExtensionField (Extension p k) where
 
 -- Extension fields are Galois fields.
 instance IrreducibleMonic p k => GaloisField (Extension p k) where
-  char = const $ char (witness :: k)
+  char                                = const $ char (witness :: k)
   {-# INLINABLE char #-}
-  deg  = (deg (witness :: k) *) . deg'
+  con2 x
+    | deg x == 2 * deg (witness :: k) = Just $ toE' $ case fromE x of
+      [a, b] -> [a, P.negate b]
+      [a]    -> [a]
+      _      -> []
+    | otherwise                       = Nothing
+  {-# INLINABLE con2 #-}
+  deg                                 = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
 
 {-# RULES "Extension.pow"

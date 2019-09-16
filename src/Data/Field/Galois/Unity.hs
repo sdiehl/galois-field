@@ -21,8 +21,6 @@ import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import Data.Field.Galois.Base as F (GaloisField(..))
-import Data.Field.Galois.Binary (Binary)
-import Data.Field.Galois.Extension (Extension, IrreducibleMonic, fromE, toE')
 import Data.Field.Galois.Prime (Prime)
 
 -------------------------------------------------------------------------------
@@ -49,28 +47,11 @@ instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
   arbitrary = G.pow gen <$> choose (0, naturalToInteger $ order (witness :: Prime n) - 1)
   {-# INLINABLE arbitrary #-}
 
--- Roots of unity of prime fields are groups.
-instance (KnownNat n, KnownNat p) => Group (RootsOfUnity n (Prime p)) where
-  invert (U x) = U $ recip x
-  {-# INLINABLE invert #-}
-  pow (U x) n  = U $ F.pow x n
-  {-# INLINABLE pow #-}
-
--- Roots of unity of extension fields are groups.
-instance (KnownNat n, IrreducibleMonic p k) => Group (RootsOfUnity n (Extension p k)) where
-  invert (U x)
-    | deg x == 2 * deg (witness :: k) = U $ toE' $ case fromE x of
-      [a, b] -> [a, negate b]
-      [a]    -> [a]
-      _      -> []
-    | otherwise                       = U $ recip x
-  {-# INLINABLE invert #-}
-  pow (U x) n                         = U $ F.pow x n
-  {-# INLINABLE pow #-}
-
--- Roots of unity of binary fields are groups.
-instance (KnownNat n, KnownNat p) => Group (RootsOfUnity n (Binary p)) where
-  invert (U x) = U $ recip x
+-- Roots of unity are groups.
+instance (KnownNat n, GaloisField k) => Group (RootsOfUnity n k) where
+  invert (U x) = case con2 x of
+    Just x' -> U x'
+    _       -> U $ recip x
   {-# INLINABLE invert #-}
   pow (U x) n  = U $ F.pow x n
   {-# INLINABLE pow #-}

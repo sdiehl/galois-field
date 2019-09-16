@@ -45,7 +45,7 @@ instance KnownNat p => GaloisField (Binary p) where
   {-# INLINABLE char #-}
   deg  = binLog . natVal
   {-# INLINABLE deg #-}
-  frob = flip pow (2 :: Word)
+  frob = join (*)
   {-# INLINABLE frob #-}
 
 {-# RULES "Binary.pow"
