@@ -93,7 +93,8 @@ cofactor = quot (order (witness :: k)) . cardinality
 
 -- | Check if element is primitive root of unity.
 isPrimitiveRootOfUnity :: (KnownNat n, GaloisField k) => RootsOfUnity n k -> Bool
-isPrimitiveRootOfUnity u@(U x) = isRootOfUnity u && not (any (isUnity x) [1 .. cardinality u - 1])
+isPrimitiveRootOfUnity u@(U x) = isRootOfUnity u
+  && not (any (isUnity x) ([1 .. cardinality u - 1] :: [Natural]))
 {-# INLINABLE isPrimitiveRootOfUnity #-}
 
 -- | Check if element is root of unity.

@@ -22,6 +22,7 @@ default-extensions:
   - GeneralizedNewtypeDeriving
   - KindSignatures
   - MultiParamTypeClasses
+  - OverloadedLists
   - PatternSynonyms
   - TypeFamilies
 
@@ -53,6 +54,7 @@ library:
     - Data.Field.Galois.Base
     - Data.Field.Galois.Binary
     - Data.Field.Galois.Extension
+    - Data.Field.Galois.Frobenius
     - Data.Field.Galois.Prime
     - Data.Field.Galois.Sqrt
     - Data.Field.Galois.Tower

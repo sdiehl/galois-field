@@ -27,6 +27,7 @@ import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import Data.Field.Galois.Base (GaloisField(..))
+import Data.Field.Galois.Frobenius (frobenius)
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -56,17 +57,21 @@ instance IrreducibleMonic p k => ExtensionField (Extension p k) where
 
 -- Extension fields are Galois fields.
 instance IrreducibleMonic p k => GaloisField (Extension p k) where
-  char                                = const $ char (witness :: k)
+  char         = const $ char (witness :: k)
   {-# INLINABLE char #-}
-  con2 x
-    | deg x == 2 * deg (witness :: k) = Just $ toE' $ case fromE x of
+  con2 y@(E x) = case unPoly $ poly y of
+    [_, 0, 1] -> Just $ toE' $ case x of
       [a, b] -> [a, P.negate b]
       [a]    -> [a]
       _      -> []
-    | otherwise                       = Nothing
+    _         -> Nothing
   {-# INLINABLE con2 #-}
-  deg                                 = (deg (witness :: k) *) . deg'
+  deg          = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
+  frob y@(E x) = case frobenius (unPoly x) (unPoly $ poly y) of
+    Just z  -> E $ toPoly z
+    Nothing -> y ^ char y
+  {-# INLINABLE frob #-}
 
 {-# RULES "Extension.pow"
   forall (k :: IrreducibleMonic p k => Extension p k) n . (^) k n = pow k n
