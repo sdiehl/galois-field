@@ -15,14 +15,14 @@ module Data.Field.Galois.Extension
   , pattern Y
   ) where
 
-import Protolude as P hiding (Semiring, quot, quotRem, rem)
+import Protolude as P hiding (Semiring, quot, quotRem, rem, toList)
 
 import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
 import Data.Field (Field)
 import Data.Poly.Semiring (VPoly, gcdExt, monomial, toPoly, unPoly)
 import Data.Semiring as S (Ring(..), Semiring(..))
-import Data.Vector (fromList)
+import GHC.Exts (IsList(..))
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
@@ -52,7 +52,7 @@ newtype Extension p k = E (VPoly k)
 
 -- Extension fields are convertible.
 instance IrreducibleMonic p k => ExtensionField (Extension p k) where
-  fromE (E x) = toList $ unPoly x
+  fromE = toList
   {-# INLINABLE fromE #-}
 
 -- Extension fields are Galois fields.
@@ -60,7 +60,7 @@ instance IrreducibleMonic p k => GaloisField (Extension p k) where
   char         = const $ char (witness :: k)
   {-# INLINABLE char #-}
   con2 y@(E x) = case unPoly $ poly y of
-    [_, 0, 1] -> Just $ toE' $ case x of
+    [_, 0, 1] -> Just $ case x of
       [a, b] -> [a, P.negate b]
       [a]    -> [a]
       _      -> []
@@ -148,9 +148,17 @@ instance IrreducibleMonic p k => Arbitrary (Extension p k) where
   arbitrary = toE' <$> vector (fromIntegral $ deg' (witness :: Extension p k))
   {-# INLINABLE arbitrary #-}
 
+-- Extension fields are lists.
+instance IrreducibleMonic p k => IsList (Extension p k) where
+  type instance Item (Extension p k) = k
+  fromList     = E . flip rem (poly (witness :: Extension p k)) . fromList
+  {-# INLINABLE fromList #-}
+  toList (E x) = toList $ unPoly x
+  {-# INLINABLE toList #-}
+
 -- Extension fields are pretty.
 instance IrreducibleMonic p k => Pretty (Extension p k) where
-  pretty (E x) = pretty $ toList $ unPoly x
+  pretty (E x) = pretty $ toList x
 
 -- Extension fields are random.
 instance IrreducibleMonic p k => Random (Extension p k) where
@@ -174,12 +182,12 @@ deg' = pred . fromIntegral . degree . poly
 
 -- | Safe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
 toE :: forall k p . IrreducibleMonic p k => [k] -> Extension p k
-toE = E . flip rem (poly (witness :: Extension p k)) . toPoly . fromList
+toE = fromList
 {-# INLINABLE toE #-}
 
 -- | Unsafe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
 toE' :: forall k p . IrreducibleMonic p k => [k] -> Extension p k
-toE' = E . toPoly . fromList
+toE' = E . fromList
 {-# INLINABLE toE' #-}
 
 -------------------------------------------------------------------------------
@@ -188,15 +196,15 @@ toE' = E . toPoly . fromList
 
 -- | Pattern for field element @U@.
 pattern U :: IrreducibleMonic p k => Extension p k
-pattern U <- _ where U = toE' [0, 1]
+pattern U <- _ where U = [0, 1]
 
 -- | Pattern for field element @U^2@.
 pattern U2 :: IrreducibleMonic p k => Extension p k
-pattern U2 <- _ where U2 = toE [0, 0, 1]
+pattern U2 <- _ where U2 = [0, 0, 1]
 
 -- | Pattern for field element @U^3@.
 pattern U3 :: IrreducibleMonic p k => Extension p k
-pattern U3 <- _ where U3 = toE [0, 0, 0, 1]
+pattern U3 <- _ where U3 = [0, 0, 0, 1]
 
 -- | Pattern for descending tower of indeterminate variables for field elements.
 pattern V :: IrreducibleMonic p k => k -> Extension p k
@@ -204,15 +212,15 @@ pattern V <- _ where V = E . monomial 0
 
 -- | Pattern for monic monomial @X@.
 pattern X :: GaloisField k => VPoly k
-pattern X <- _ where X = toPoly $ fromList [0, 1]
+pattern X <- _ where X = [0, 1]
 
 -- | Pattern for monic monomial @X^2@.
 pattern X2 :: GaloisField k => VPoly k
-pattern X2 <- _ where X2 = toPoly $ fromList [0, 0, 1]
+pattern X2 <- _ where X2 = [0, 0, 1]
 
 -- | Pattern for monic monomial @X^3@.
 pattern X3 :: GaloisField k => VPoly k
-pattern X3 <- _ where X3 = toPoly $ fromList [0, 0, 0, 1]
+pattern X3 <- _ where X3 = [0, 0, 0, 1]
 
 -- | Pattern for descending tower of indeterminate variables for monic monomials.
 pattern Y :: IrreducibleMonic p k => VPoly k -> VPoly (Extension p k)

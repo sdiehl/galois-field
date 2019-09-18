@@ -12,6 +12,7 @@ import Control.Monad.Random (Random(..))
 import Data.Euclidean (Euclidean(..), GcdDomain(..))
 import Data.Field (Field)
 import Data.Semiring (Ring(..), Semiring(..))
+import GHC.Exts (IsList(..))
 import GHC.Natural (Natural, naturalFromInteger, naturalToInteger)
 import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
@@ -121,6 +122,16 @@ instance KnownNat p => Arbitrary (Binary p) where
   arbitrary = B . naturalFromInteger <$>
     choose (0, naturalToInteger $ order (witness :: Binary p) - 1)
   {-# INLINABLE arbitrary #-}
+
+-- Binary fields are lists.
+instance KnownNat p => IsList (Binary p) where
+  type instance Item (Binary p) = Natural
+  fromList     = fromIntegral . foldr' ((. flip shiftL 1) . (+)) 0
+  {-# INLINABLE fromList #-}
+  toList (B x) = unfoldr unfold x
+    where
+      unfold y = if y == 0 then Nothing else Just (y .&. 1, shiftR y 1)
+  {-# INLINABLE toList #-}
 
 -- Binary fields are pretty.
 instance KnownNat p => Pretty (Binary p) where
