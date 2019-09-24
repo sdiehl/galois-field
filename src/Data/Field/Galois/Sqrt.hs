@@ -3,12 +3,13 @@ module Data.Field.Galois.Sqrt
   , qr
   , quad
   , rnd
+  , rndR
   , sr
   ) where
 
 import Protolude
 
-import Control.Monad.Random (MonadRandom, StdGen, getRandom, mkStdGen, runRand)
+import Control.Monad.Random (MonadRandom, StdGen, getRandom, getRandomR, mkStdGen, runRand)
 import GHC.Natural (Natural)
 
 import Data.Field.Galois.Base (GaloisField(..), pow)
@@ -36,6 +37,11 @@ quad = solveQuadratic
 rnd :: (GaloisField k, MonadRandom m) => m k
 rnd = getRandom
 {-# INLINABLE rnd #-}
+
+-- | Randomised field element in range.
+rndR :: (GaloisField k, MonadRandom m) => (k, k) -> m k
+rndR = getRandomR
+{-# INLINABLE rndR #-}
 
 -- | Square root of field element.
 sr :: GaloisField k => k -> Maybe k

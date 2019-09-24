@@ -160,10 +160,11 @@ instance KnownNat p => Pretty (Prime p) where
 
 -- Prime fields are random.
 instance KnownNat p => Random (Prime p) where
-  random  = first (P . naturalFromInteger) .
+  random         = first (P . naturalFromInteger) .
     randomR (0, naturalToInteger $ natVal (witness :: Prime p) - 1)
   {-# INLINABLE random #-}
-  randomR = panic "Prime.randomR: not implemented."
+  randomR (a, b) = first (P . naturalFromInteger) . randomR (fromP a, fromP b)
+  {-# INLINABLE randomR #-}
 
 -------------------------------------------------------------------------------
 -- Auxiliary functions
