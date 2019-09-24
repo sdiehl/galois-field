@@ -16,18 +16,20 @@ module Data.Field.Galois.Extension
   , pattern Y
   ) where
 
-import Protolude as P hiding (Semiring, quot, quotRem, rem, toList)
+import Protolude as P hiding (Semiring, one, quot, quotRem, rem, toList)
 
 import Control.Monad.Random (Random(..))
-import Data.Euclidean (Euclidean(..), GcdDomain(..))
-import Data.Field (Field)
+import Data.Euclidean as S (Euclidean(..), GcdDomain(..))
+import Data.Field as S (Field, recip, (/))
+import Data.Group (Group(..))
 import Data.Poly.Semiring (VPoly, gcdExt, monomial, toPoly, unPoly)
 import Data.Semiring as S (Ring(..), Semiring(..))
 import GHC.Exts (IsList(..))
+import GHC.Natural (naturalFromInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base (GaloisField(..))
+import Data.Field.Galois.Base as F (GaloisField(..))
 import Data.Field.Galois.Frobenius (frobenius)
 
 -------------------------------------------------------------------------------
@@ -68,8 +70,31 @@ instance IrreducibleMonic p k => GaloisField (Extension p k) where
   {-# INLINABLE frob #-}
 
 {-# RULES "Extension.pow"
-  forall (k :: IrreducibleMonic p k => Extension p k) n . (^) k n = pow k n
+  forall (k :: IrreducibleMonic p k => Extension p k) n . (^) k n = F.pow k n
   #-}
+
+-------------------------------------------------------------------------------
+-- Group instances
+-------------------------------------------------------------------------------
+
+-- Extension fields are multiplicative groups.
+instance IrreducibleMonic p k => Group (Extension p k) where
+  invert = S.recip
+  {-# INLINE invert #-}
+  pow    = F.pow
+  {-# INLINE pow #-}
+
+-- Extension fields are multiplicative monoids.
+instance IrreducibleMonic p k => Monoid (Extension p k) where
+  mempty = one
+  {-# INLINE mempty #-}
+
+-- Extension fields are multiplicative semigroups.
+instance IrreducibleMonic p k => Semigroup (Extension p k) where
+  (<>)   = times
+  {-# INLINE (<>) #-}
+  stimes = flip F.pow
+  {-# INLINE stimes #-}
 
 -------------------------------------------------------------------------------
 -- Numeric instances
@@ -77,27 +102,23 @@ instance IrreducibleMonic p k => GaloisField (Extension p k) where
 
 -- Extension fields are fractional.
 instance IrreducibleMonic p k => Fractional (Extension p k) where
-  recip (E x)         = case gcdExt x $ poly (witness :: Extension p k) of
-    (1, y) -> E y
-    _      -> divZeroError
-  {-# INLINABLE recip #-}
-  fromRational (x:%y) = fromInteger x / fromInteger y
+  (/)                 = S.quot
+  {-# INLINE (/) #-}
+  fromRational (x:%y) = fromInteger x S./ fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Extension fields are numeric.
 instance IrreducibleMonic p k => Num (Extension p k) where
-  E x + E y    = E $ plus x y
+  (+)         = plus
   {-# INLINE (+) #-}
-  E x * E y    = E $ rem (times x y) $ poly (witness :: Extension p k)
-  {-# INLINABLE (*) #-}
-  E x - E y    = E $ x - y
-  {-# INLINE (-) #-}
-  negate (E x) = E $ S.negate x
+  (*)         = times
+  {-# INLINE (*) #-}
+  negate      = S.negate
   {-# INLINE negate #-}
-  fromInteger  = E . fromInteger
+  fromInteger = fromNatural . naturalFromInteger
   {-# INLINABLE fromInteger #-}
-  abs          = panic "Extension.abs: not implemented."
-  signum       = panic "Extension.signum: not implemented."
+  abs         = panic "Extension.abs: not implemented."
+  signum      = panic "Extension.signum: not implemented."
 
 -------------------------------------------------------------------------------
 -- Semiring instances
@@ -105,9 +126,11 @@ instance IrreducibleMonic p k => Num (Extension p k) where
 
 -- Extension fields are Euclidean domains.
 instance IrreducibleMonic p k => Euclidean (Extension p k) where
-  quotRem = (flip (,) 0 .) . (/)
-  {-# INLINE quotRem #-}
-  degree  = panic "Extension.degree: not implemented."
+  degree              = panic "Extension.degree: not implemented."
+  quotRem (E x) (E y) = case gcdExt y $ poly (witness :: Extension p k) of
+    (1, z) -> (E $ rem (times x z) $ poly (witness :: Extension p k), 0)
+    _      -> divZeroError
+  {-# INLINABLE quotRem #-}
 
 -- Extension fields are fields.
 instance IrreducibleMonic p k => Field (Extension p k)
@@ -117,21 +140,21 @@ instance IrreducibleMonic p k => GcdDomain (Extension p k)
 
 -- Extension fields are rings.
 instance IrreducibleMonic p k => Ring (Extension p k) where
-  negate = P.negate
+  negate (E x) = E $ S.negate x
   {-# INLINE negate #-}
 
 -- Extension fields are semirings.
 instance IrreducibleMonic p k => Semiring (Extension p k) where
-  zero        = 0
-  {-# INLINE zero #-}
-  plus        = (+)
-  {-# INLINE plus #-}
-  one         = 1
-  {-# INLINE one #-}
-  times       = (*)
-  {-# INLINE times #-}
-  fromNatural = fromIntegral
+  fromNatural       = E . fromNatural
   {-# INLINABLE fromNatural #-}
+  one               = E 1
+  {-# INLINE one #-}
+  plus (E x) (E y)  = E $ plus x y
+  {-# INLINE plus #-}
+  times (E x) (E y) = E $ rem (times x y) $ poly (witness :: Extension p k)
+  {-# INLINE times #-}
+  zero              = E 0
+  {-# INLINE zero #-}
 
 -------------------------------------------------------------------------------
 -- Other instances

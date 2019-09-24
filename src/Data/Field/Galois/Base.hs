@@ -6,6 +6,7 @@ import Protolude hiding ((-), one, quot)
 
 import Control.Monad.Random (Random)
 import Data.Field (Field)
+import Data.Group (Group)
 import GHC.Natural (Natural)
 import Test.Tasty.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
@@ -15,7 +16,7 @@ import Text.PrettyPrint.Leijen.Text (Pretty)
 -------------------------------------------------------------------------------
 
 -- | Galois fields @GF(p^q)@ for @p@ prime and @q@ non-negative.
-class (Arbitrary k, Field k, Fractional k, Generic k,
+class (Arbitrary k, Field k, Fractional k, Generic k, Group k,
        NFData k, Ord k, Pretty k, Random k, Show k) => GaloisField k where
   {-# MINIMAL char, deg #-}
 

@@ -6,19 +6,20 @@ module Data.Field.Galois.Prime
   , toP'
   ) where
 
-import Protolude as P hiding (Semiring, natVal)
+import Protolude as P hiding (Semiring, natVal, one)
 
 import Control.Monad.Random (Random(..))
-import Data.Euclidean (Euclidean(..), GcdDomain(..))
-import Data.Field (Field)
-import Data.Semiring (Ring(..), Semiring(..))
+import Data.Euclidean as S (Euclidean(..), GcdDomain(..))
+import Data.Field as S (Field, recip, (/))
+import Data.Group (Group(..))
+import Data.Semiring as S (Ring(..), Semiring(..))
 import GHC.Integer.GMP.Internals (recipModInteger)
 import GHC.Natural (Natural, naturalFromInteger, naturalToInteger, powModNatural)
 import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base (GaloisField(..))
+import Data.Field.Galois.Base as F (GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -53,8 +54,31 @@ instance KnownNat p => GaloisField (Prime p) where
   {-# INLINE pow #-}
 
 {-# RULES "Prime.pow"
-  forall (k :: KnownNat p => Prime p) n . (^) k n = pow k n
+  forall (k :: KnownNat p => Prime p) n . (^) k n = F.pow k n
   #-}
+
+-------------------------------------------------------------------------------
+-- Group instances
+-------------------------------------------------------------------------------
+
+-- Prime fields are multiplicative groups.
+instance KnownNat p => Group (Prime p) where
+  invert = S.recip
+  {-# INLINE invert #-}
+  pow    = F.pow
+  {-# INLINE pow #-}
+
+-- Prime fields are multiplicative monoids.
+instance KnownNat p => Monoid (Prime p) where
+  mempty = one
+  {-# INLINE mempty #-}
+
+-- Prime fields are multiplicative semigroups.
+instance KnownNat p => Semigroup (Prime p) where
+  (<>)   = times
+  {-# INLINE (<>) #-}
+  stimes = flip F.pow
+  {-# INLINE stimes #-}
 
 -------------------------------------------------------------------------------
 -- Numeric instances
@@ -62,30 +86,25 @@ instance KnownNat p => GaloisField (Prime p) where
 
 -- Prime fields are fractional.
 instance KnownNat p => Fractional (Prime p) where
-  recip (P 0)         = divZeroError
-  recip (P x)         = P $ recipModNatural x $ natVal (witness :: Prime p)
-  {-# INLINE recip #-}
-  fromRational (x:%y) = fromInteger x / fromInteger y
+  (/)                 = S.quot
+  {-# INLINE (/) #-}
+  fromRational (x:%y) = fromInteger x S./ fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Prime fields are numeric.
 instance KnownNat p => Num (Prime p) where
-  P x + P y     = P $ if xy >= p then xy - p else xy
-    where
-      xy = x + y
-      p  = natVal (witness :: Prime p)
+  (+)         = plus
   {-# INLINE (+) #-}
-  P x * P y     = P $ P.rem (x * y) $ natVal (witness :: Prime p)
+  (*)         = times
   {-# INLINE (*) #-}
-  P x - P y     = P $ if x >= y then x - y else natVal (witness :: Prime p) + x - y
+  P x - P y   = P $ if x >= y then x - y else natVal (witness :: Prime p) + x - y
   {-# INLINE (-) #-}
-  negate (P 0)  = P 0
-  negate (P x)  = P $ natVal (witness :: Prime p) - x
+  negate      = S.negate
   {-# INLINE negate #-}
-  fromInteger x = P $ naturalFromInteger $ P.mod x $ naturalToInteger $ natVal (witness :: Prime p)
+  fromInteger = P . naturalFromInteger . flip P.mod (naturalToInteger $ natVal (witness :: Prime p))
   {-# INLINABLE fromInteger #-}
-  abs           = panic "Prime.abs: not implemented."
-  signum        = panic "Prime.signum: not implemented."
+  abs         = panic "Prime.abs: not implemented."
+  signum      = panic "Prime.signum: not implemented."
 
 -------------------------------------------------------------------------------
 -- Semiring instances
@@ -93,9 +112,11 @@ instance KnownNat p => Num (Prime p) where
 
 -- Prime fields are Euclidean domains.
 instance KnownNat p => Euclidean (Prime p) where
-  quotRem = (flip (,) 0 .) . (/)
+  degree              = panic "Prime.degree: not implemented."
+  quotRem _     (P 0) = divZeroError
+  quotRem (P x) (P y) = (P $ flip P.rem (natVal (witness :: Prime p)) $ (*) x $
+                         recipModNatural y $ natVal (witness :: Prime p), 0)
   {-# INLINE quotRem #-}
-  degree  = panic "Prime.degree: not implemented."
 
 -- Prime fields are fields.
 instance KnownNat p => Field (Prime p)
@@ -105,21 +126,25 @@ instance KnownNat p => GcdDomain (Prime p)
 
 -- Prime fields are rings.
 instance KnownNat p => Ring (Prime p) where
-  negate = P.negate
+  negate (P 0) = P 0
+  negate (P x) = P $ natVal (witness :: Prime p) - x
   {-# INLINE negate #-}
 
 -- Prime fields are semirings.
 instance KnownNat p => Semiring (Prime p) where
-  zero        = 0
-  {-# INLINE zero #-}
-  plus        = (+)
-  {-# INLINE plus #-}
-  one         = 1
-  {-# INLINE one #-}
-  times       = (*)
-  {-# INLINE times #-}
-  fromNatural = fromIntegral
+  fromNatural       = P . flip P.rem (natVal (witness :: Prime p))
   {-# INLINABLE fromNatural #-}
+  one               = P 1
+  {-# INLINE one #-}
+  plus (P x) (P y)  = P $ if xy >= p then xy - p else xy
+    where
+      xy = x + y
+      p  = natVal (witness :: Prime p)
+  {-# INLINE plus #-}
+  times (P x) (P y) = P $ P.rem (x * y) $ natVal (witness :: Prime p)
+  {-# INLINE times #-}
+  zero              = P 0
+  {-# INLINE zero #-}
 
 -------------------------------------------------------------------------------
 -- Other instances
