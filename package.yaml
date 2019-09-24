@@ -32,8 +32,8 @@ dependencies:
   - groups
   - integer-gmp
   - MonadRandom
-  - poly
-  - semirings
+  - poly >= 0.3.2
+  - semirings >= 0.5
   - tasty-quickcheck
   - vector
   - wl-pprint-text
