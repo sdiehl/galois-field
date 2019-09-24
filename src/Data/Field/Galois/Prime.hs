@@ -19,7 +19,7 @@ import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base as F (GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -42,19 +42,15 @@ instance KnownNat p => PrimeField (Prime p) where
 
 -- Prime fields are Galois fields.
 instance KnownNat p => GaloisField (Prime p) where
-  char        = natVal
+  char = natVal
   {-# INLINABLE char #-}
-  deg         = const 1
+  deg  = const 1
   {-# INLINABLE deg #-}
-  frob        = identity
+  frob = identity
   {-# INLINABLE frob #-}
-  order       = natVal
-  {-# INLINABLE order #-}
-  pow (P x) n = P $ powModNatural x (fromIntegral n) $ natVal (witness :: Prime p)
-  {-# INLINE pow #-}
 
 {-# RULES "Prime.pow"
-  forall (k :: KnownNat p => Prime p) n . (^) k n = F.pow k n
+  forall (k :: KnownNat p => Prime p) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -63,9 +59,11 @@ instance KnownNat p => GaloisField (Prime p) where
 
 -- Prime fields are multiplicative groups.
 instance KnownNat p => Group (Prime p) where
-  invert = S.recip
+  invert        = S.recip
   {-# INLINE invert #-}
-  pow    = F.pow
+  pow y@(P x) n
+    | n >= 0    = P $ powModNatural x (fromIntegral n) $ natVal (witness :: Prime p)
+    | otherwise = pow (S.recip y) $ P.negate n
   {-# INLINE pow #-}
 
 -- Prime fields are multiplicative monoids.
@@ -77,7 +75,7 @@ instance KnownNat p => Monoid (Prime p) where
 instance KnownNat p => Semigroup (Prime p) where
   (<>)   = times
   {-# INLINE (<>) #-}
-  stimes = flip F.pow
+  stimes = flip pow
   {-# INLINE stimes #-}
 
 -------------------------------------------------------------------------------

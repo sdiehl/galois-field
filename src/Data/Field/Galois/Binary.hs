@@ -19,7 +19,7 @@ import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base as F (GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 
 -------------------------------------------------------------------------------
 -- Data types
@@ -51,7 +51,7 @@ instance KnownNat p => GaloisField (Binary p) where
   {-# INLINABLE frob #-}
 
 {-# RULES "Binary.pow"
-  forall (k :: KnownNat p => Binary p) n . (^) k n = F.pow k n
+  forall (k :: KnownNat p => Binary p) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -60,9 +60,11 @@ instance KnownNat p => GaloisField (Binary p) where
 
 -- Binary fields are multiplicative groups.
 instance KnownNat p => Group (Binary p) where
-  invert = S.recip
+  invert        = S.recip
   {-# INLINE invert #-}
-  pow    = F.pow
+  pow x n
+    | n >= 0    = x ^ n
+    | otherwise = S.recip x ^ P.negate n
   {-# INLINE pow #-}
 
 -- Binary fields are multiplicative monoids.
@@ -74,7 +76,7 @@ instance KnownNat p => Monoid (Binary p) where
 instance KnownNat p => Semigroup (Binary p) where
   (<>)   = times
   {-# INLINE (<>) #-}
-  stimes = flip F.pow
+  stimes = flip pow
   {-# INLINE stimes #-}
 
 -------------------------------------------------------------------------------

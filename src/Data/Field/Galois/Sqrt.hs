@@ -11,7 +11,7 @@ import Protolude
 import Control.Monad.Random (MonadRandom, StdGen, getRandom, mkStdGen, runRand)
 import GHC.Natural (Natural)
 
-import Data.Field.Galois.Base (GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..), pow)
 
 -------------------------------------------------------------------------------
 -- Main functions

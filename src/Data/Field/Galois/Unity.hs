@@ -14,13 +14,13 @@ module Data.Field.Galois.Unity
 import Protolude hiding (natVal)
 
 import Control.Monad.Random (Random(..))
-import Data.Group as G (Group(..))
+import Data.Group (Group(..))
 import GHC.Natural (Natural, naturalToInteger)
 import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base as F (GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 import Data.Field.Galois.Prime (Prime)
 
 -------------------------------------------------------------------------------
@@ -44,14 +44,14 @@ newtype RootsOfUnity (n :: Nat) k = U k
 -- Roots of unity cyclic subgroups are arbitrary.
 instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
           Group (RootsOfUnity n k)) => Arbitrary (RootsOfUnity n k) where
-  arbitrary = G.pow gen <$> choose (0, naturalToInteger $ order (witness :: Prime n) - 1)
+  arbitrary = pow gen <$> choose (0, naturalToInteger $ order (witness :: Prime n) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Roots of unity are groups.
 instance (KnownNat n, GaloisField k) => Group (RootsOfUnity n k) where
   invert (U x) = U $ recip x
   {-# INLINABLE invert #-}
-  pow (U x) n  = U $ F.pow x n
+  pow (U x) n  = U $ pow x n
   {-# INLINABLE pow #-}
 
 -- Roots of unity are monoids.
@@ -66,7 +66,7 @@ instance (KnownNat n, GaloisField k) => Pretty (RootsOfUnity n k) where
 -- Roots of unity cyclic subgroups are random.
 instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
           Group (RootsOfUnity n k)) => Random (RootsOfUnity n k) where
-  random  = first (G.pow gen) . randomR (0, naturalToInteger $ order (witness :: Prime n) - 1)
+  random  = first (pow gen) . randomR (0, naturalToInteger $ order (witness :: Prime n) - 1)
   {-# INLINABLE random #-}
   randomR = panic "Unity.randomR: not implemented."
 
@@ -102,7 +102,7 @@ isRootOfUnity u@(U x) = isUnity x $ cardinality u
 
 -- | Check if element is unity.
 isUnity :: (Integral n, GaloisField k) => k -> n -> Bool
-isUnity = ((==) 1 .) . F.pow
+isUnity = ((==) 1 .) . pow
 {-# INLINABLE isUnity #-}
 
 -- | Safe convert from field to roots of unity.

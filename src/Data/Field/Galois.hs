@@ -8,10 +8,12 @@ module Data.Field.Galois
   , module Data.Field.Galois.Extension
   -- ** Binary fields
   , module Data.Field.Galois.Binary
-  -- ** Towers of fields
-  , module Data.Field.Galois.Tower
+  -- ** Frobenius endomorphisms
+  , module Data.Field.Galois.Frobenius
   -- ** Square roots
   , module Data.Field.Galois.Sqrt
+  -- ** Towers of fields
+  , module Data.Field.Galois.Tower
   -- ** Roots of unity
   , module Data.Field.Galois.Unity
   ) where
@@ -19,6 +21,7 @@ module Data.Field.Galois
 import Data.Field.Galois.Base
 import Data.Field.Galois.Binary
 import Data.Field.Galois.Extension
+import Data.Field.Galois.Frobenius
 import Data.Field.Galois.Prime
 import Data.Field.Galois.Sqrt
 import Data.Field.Galois.Tower

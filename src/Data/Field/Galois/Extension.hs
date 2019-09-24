@@ -29,7 +29,7 @@ import GHC.Natural (naturalFromInteger)
 import Test.Tasty.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
-import Data.Field.Galois.Base as F (GaloisField(..))
+import Data.Field.Galois.Base (GaloisField(..))
 import Data.Field.Galois.Frobenius (frobenius)
 
 -------------------------------------------------------------------------------
@@ -60,9 +60,9 @@ instance IrreducibleMonic p k => ExtensionField (Extension p k) where
 
 -- Extension fields are Galois fields.
 instance IrreducibleMonic p k => GaloisField (Extension p k) where
-  char         = const $ char (witness :: k)
+  char = const $ char (witness :: k)
   {-# INLINABLE char #-}
-  deg          = (deg (witness :: k) *) . deg'
+  deg  = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
   frob y@(E x) = case frobenius (unPoly x) (unPoly $ poly y) of
     Just z  -> E $ toPoly z
@@ -70,7 +70,7 @@ instance IrreducibleMonic p k => GaloisField (Extension p k) where
   {-# INLINABLE frob #-}
 
 {-# RULES "Extension.pow"
-  forall (k :: IrreducibleMonic p k => Extension p k) n . (^) k n = F.pow k n
+  forall (k :: IrreducibleMonic p k => Extension p k) n . (^) k n = pow k n
   #-}
 
 -------------------------------------------------------------------------------
@@ -79,9 +79,11 @@ instance IrreducibleMonic p k => GaloisField (Extension p k) where
 
 -- Extension fields are multiplicative groups.
 instance IrreducibleMonic p k => Group (Extension p k) where
-  invert = S.recip
+  invert        = S.recip
   {-# INLINE invert #-}
-  pow    = F.pow
+  pow x n
+    | n >= 0    = x ^ n
+    | otherwise = S.recip x ^ P.negate n
   {-# INLINE pow #-}
 
 -- Extension fields are multiplicative monoids.
@@ -93,7 +95,7 @@ instance IrreducibleMonic p k => Monoid (Extension p k) where
 instance IrreducibleMonic p k => Semigroup (Extension p k) where
   (<>)   = times
   {-# INLINE (<>) #-}
-  stimes = flip F.pow
+  stimes = flip pow
   {-# INLINE stimes #-}
 
 -------------------------------------------------------------------------------
@@ -162,13 +164,13 @@ instance IrreducibleMonic p k => Semiring (Extension p k) where
 
 -- Extension fields are arbitrary.
 instance IrreducibleMonic p k => Arbitrary (Extension p k) where
-  arbitrary = toE' <$> vector (fromIntegral $ deg' (witness :: Extension p k))
+  arbitrary = fromList <$> vector (fromIntegral $ deg' (witness :: Extension p k))
   {-# INLINABLE arbitrary #-}
 
 -- Extension fields are lists.
 instance IrreducibleMonic p k => IsList (Extension p k) where
   type instance Item (Extension p k) = k
-  fromList     = E . flip rem (poly (witness :: Extension p k)) . fromList
+  fromList     = E . fromList
   {-# INLINABLE fromList #-}
   toList (E x) = toList $ unPoly x
   {-# INLINABLE toList #-}
@@ -179,7 +181,7 @@ instance IrreducibleMonic p k => Pretty (Extension p k) where
 
 -- Extension fields are random.
 instance IrreducibleMonic p k => Random (Extension p k) where
-  random  = first toE' . unfold (deg' (witness :: Extension p k)) []
+  random  = first fromList . unfold (deg' (witness :: Extension p k)) []
     where
       unfold n xs g
         | n <= 0    = (xs, g)
@@ -209,12 +211,12 @@ conj y@(E x) = case unPoly $ poly y of
 
 -- | Safe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
 toE :: forall k p . IrreducibleMonic p k => [k] -> Extension p k
-toE = fromList
+toE = E . flip rem (poly (witness :: Extension p k)) . fromList
 {-# INLINABLE toE #-}
 
 -- | Unsafe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
 toE' :: forall k p . IrreducibleMonic p k => [k] -> Extension p k
-toE' = E . fromList
+toE' = fromList
 {-# INLINABLE toE' #-}
 
 -------------------------------------------------------------------------------
@@ -227,11 +229,11 @@ pattern U <- _ where U = [0, 1]
 
 -- | Pattern for field element @U^2@.
 pattern U2 :: IrreducibleMonic p k => Extension p k
-pattern U2 <- _ where U2 = [0, 0, 1]
+pattern U2 <- _ where U2 = toE [0, 0, 1]
 
 -- | Pattern for field element @U^3@.
 pattern U3 :: IrreducibleMonic p k => Extension p k
-pattern U3 <- _ where U3 = [0, 0, 0, 1]
+pattern U3 <- _ where U3 = toE [0, 0, 0, 1]
 
 -- | Pattern for descending tower of indeterminate variables for field elements.
 pattern V :: IrreducibleMonic p k => k -> Extension p k
