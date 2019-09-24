@@ -3,6 +3,7 @@ module Data.Field.Galois.Extension
   , ExtensionField
   , IrreducibleMonic(..)
   , fromE
+  , conj
   , toE
   , toE'
   , pattern U
@@ -59,13 +60,6 @@ instance IrreducibleMonic p k => ExtensionField (Extension p k) where
 instance IrreducibleMonic p k => GaloisField (Extension p k) where
   char         = const $ char (witness :: k)
   {-# INLINABLE char #-}
-  con2 y@(E x) = case unPoly $ poly y of
-    [_, 0, 1] -> Just $ case x of
-      [a, b] -> [a, P.negate b]
-      [a]    -> [a]
-      _      -> []
-    _         -> Nothing
-  {-# INLINABLE con2 #-}
   deg          = (deg (witness :: k) *) . deg'
   {-# INLINABLE deg #-}
   frob y@(E x) = case frobenius (unPoly x) (unPoly $ poly y) of
@@ -179,6 +173,16 @@ instance IrreducibleMonic p k => Random (Extension p k) where
 deg' :: IrreducibleMonic p k => Extension p k -> Word
 deg' = pred . fromIntegral . degree . poly
 {-# INLINABLE deg' #-}
+
+-- | Complex conjugation @a+bi -> a-bi@ of quadratic extension field.
+conj :: IrreducibleMonic p k => Extension p k -> Extension p k
+conj y@(E x) = case unPoly $ poly y of
+  [_, 0, 1] -> case x of
+    [a, b] -> [a, P.negate b]
+    [a]    -> [a]
+    _      -> []
+  _         -> panic "Extension.conj: extension degree is not two."
+{-# INLINABLE conj #-}
 
 -- | Safe convert from @GF(p^q)[X]@ to @GF(p^q)[X]/\<f(X)\>@.
 toE :: forall k p . IrreducibleMonic p k => [k] -> Extension p k

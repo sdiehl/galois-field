@@ -49,9 +49,7 @@ instance (KnownNat n, GaloisField k, CyclicSubgroup (RootsOfUnity n k),
 
 -- Roots of unity are groups.
 instance (KnownNat n, GaloisField k) => Group (RootsOfUnity n k) where
-  invert (U x) = case con2 x of
-    Just x' -> U x'
-    _       -> U $ recip x
+  invert (U x) = U $ recip x
   {-# INLINABLE invert #-}
   pow (U x) n  = U $ F.pow x n
   {-# INLINABLE pow #-}

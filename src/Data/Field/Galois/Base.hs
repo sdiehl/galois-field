@@ -22,10 +22,6 @@ class (Arbitrary k, Field k, Fractional k, Generic k,
   -- | Characteristic @p@ of field and order of prime subfield.
   char :: k -> Natural
 
-  -- | Complex conjugation @a+bi -> a-bi@ of quadratic extension field.
-  con2 :: k -> Maybe k
-  con2 = const Nothing
-
   -- | Degree @q@ of field as extension field over prime subfield.
   deg :: k -> Word
 
