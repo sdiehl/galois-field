@@ -20,4 +20,8 @@ benchmark s a b = bgroup s
     nf recip a
   , bench "Division" $
     nf (uncurry (/)) (a, b)
+  , bench "Frobenius endomorphism" $
+    nf frob a
+  , bench "Square root" $
+    nf sr a
   ]
