@@ -9,7 +9,7 @@ module Data.Field.Galois.Binary
 import Protolude as P hiding (Semiring, natVal)
 
 import Control.Monad.Random (Random(..))
-import Data.Euclidean (Euclidean(..), GcdDomain)
+import Data.Euclidean as S (Euclidean(..), GcdDomain)
 import Data.Field (Field)
 import Data.Group (Group(..))
 import Data.Semiring (Ring(..), Semiring(..))
@@ -27,14 +27,14 @@ import Data.Field.Galois.Base (GaloisField(..))
 
 -- | Binary fields @GF(2^q)[X]/\<f(X)\>@ for @q@ positive and
 -- @f(X)@ irreducible monic in @GF(2^q)[X]@ encoded as an integer.
-class (Bits k, GaloisField k) => BinaryField k where
+class GaloisField k => BinaryField k where
   {-# MINIMAL fromB #-}
   -- | Convert from @GF(2^q)[X]/\<f(X)\>@ to @Z@.
   fromB :: k -> Integer
 
 -- | Binary field elements.
 newtype Binary (p :: Nat) = B Natural
-  deriving (Bits, Eq, Generic, NFData, Ord, Show)
+  deriving (Bits, Eq, Generic, Hashable, NFData, Ord, Show)
 
 -- Binary fields are convertible.
 instance KnownNat p => BinaryField (Binary p) where
@@ -159,16 +159,42 @@ instance KnownNat p => IsList (Binary p) where
       unfold y = if y == 0 then Nothing else Just (y .&. 1, shiftR y 1)
   {-# INLINABLE toList #-}
 
+-- Binary fields are bounded.
+instance KnownNat p => Bounded (Binary p) where
+  maxBound = B $ order (witness :: Binary p) - 1
+  {-# INLINE maxBound #-}
+  minBound = B 0
+  {-# INLINE minBound #-}
+
+-- Binary fields are enumerable.
+instance KnownNat p => Enum (Binary p) where
+  fromEnum = fromIntegral
+  {-# INLINABLE fromEnum #-}
+  toEnum   = fromIntegral
+  {-# INLINABLE toEnum #-}
+
+-- Binary fields are integral.
+instance KnownNat p => Integral (Binary p) where
+  quotRem   = S.quotRem
+  {-# INLINE quotRem #-}
+  toInteger = fromB
+  {-# INLINABLE toInteger #-}
+
 -- Binary fields are pretty.
 instance KnownNat p => Pretty (Binary p) where
   pretty (B x) = pretty $ naturalToInteger x
 
 -- Binary fields are random.
 instance KnownNat p => Random (Binary p) where
-  random  = first (B . naturalFromInteger) .
-    randomR (0, naturalToInteger $ order (witness :: Binary p) - 1)
+  random         = randomR (B 0, B $ natVal (witness :: Binary p) - 1)
   {-# INLINABLE random #-}
-  randomR = panic "Binary.randomR: not implemented."
+  randomR (a, b) = first (B . naturalFromInteger) . randomR (fromB a, fromB b)
+  {-# INLINABLE randomR #-}
+
+-- Binary fields are real.
+instance KnownNat p => Real (Binary p) where
+  toRational = fromIntegral
+  {-# INLINABLE toRational #-}
 
 -------------------------------------------------------------------------------
 -- Auxiliary functions

@@ -9,7 +9,7 @@ module Data.Field.Galois.Prime
 import Protolude as P hiding (Semiring, natVal, rem)
 
 import Control.Monad.Random (Random(..))
-import Data.Euclidean (Euclidean(..), GcdDomain)
+import Data.Euclidean as S (Euclidean(..), GcdDomain)
 import Data.Field (Field)
 import Data.Group (Group(..))
 import Data.Semiring (Ring(..), Semiring(..))
@@ -26,14 +26,14 @@ import Data.Field.Galois.Base (GaloisField(..))
 -------------------------------------------------------------------------------
 
 -- | Prime fields @GF(p) = Z/pZ@ for @p@ prime.
-class (Bits k, GaloisField k) => PrimeField k where
+class GaloisField k => PrimeField k where
   {-# MINIMAL fromP #-}
   -- | Convert from @GF(p)@ to @Z@.
   fromP :: k -> Integer
 
 -- | Prime field elements.
 newtype Prime (p :: Nat) = P Natural
-  deriving (Bits, Eq, Generic, NFData, Ord, Show)
+  deriving (Bits, Eq, Generic, Hashable, NFData, Ord, Show)
 
 -- Prime fields are convertible.
 instance KnownNat p => PrimeField (Prime p) where
@@ -153,6 +153,27 @@ instance KnownNat p => Arbitrary (Prime p) where
     choose (0, naturalToInteger $ natVal (witness :: Prime p) - 1)
   {-# INLINABLE arbitrary #-}
 
+-- Prime fields are bounded.
+instance KnownNat p => Bounded (Prime p) where
+  maxBound = P $ natVal (witness :: Prime p) - 1
+  {-# INLINE maxBound #-}
+  minBound = P 0
+  {-# INLINE minBound #-}
+
+-- Prime fields are enumerable.
+instance KnownNat p => Enum (Prime p) where
+  fromEnum = fromIntegral
+  {-# INLINABLE fromEnum #-}
+  toEnum   = fromIntegral
+  {-# INLINABLE toEnum #-}
+
+-- Prime fields are integral.
+instance KnownNat p => Integral (Prime p) where
+  quotRem   = S.quotRem
+  {-# INLINE quotRem #-}
+  toInteger = fromP
+  {-# INLINABLE toInteger #-}
+
 -- Prime fields are pretty.
 instance KnownNat p => Pretty (Prime p) where
   pretty (P x) = pretty $ naturalToInteger x
@@ -163,6 +184,11 @@ instance KnownNat p => Random (Prime p) where
   {-# INLINABLE random #-}
   randomR (a, b) = first (P . naturalFromInteger) . randomR (fromP a, fromP b)
   {-# INLINABLE randomR #-}
+
+-- Prime fields are real.
+instance KnownNat p => Real (Prime p) where
+  toRational = fromIntegral
+  {-# INLINABLE toRational #-}
 
 -------------------------------------------------------------------------------
 -- Auxiliary functions
