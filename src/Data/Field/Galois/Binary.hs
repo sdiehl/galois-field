@@ -6,13 +6,13 @@ module Data.Field.Galois.Binary
   , toB'
   ) where
 
-import Protolude as P hiding (Semiring, natVal, one)
+import Protolude as P hiding (Semiring, natVal)
 
 import Control.Monad.Random (Random(..))
-import Data.Euclidean as S (Euclidean(..), GcdDomain(..))
-import Data.Field as S (Field, recip, (/))
+import Data.Euclidean (Euclidean(..), GcdDomain)
+import Data.Field (Field)
 import Data.Group (Group(..))
-import Data.Semiring as S (Ring(..), Semiring(..))
+import Data.Semiring (Ring(..), Semiring(..))
 import GHC.Exts (IsList(..))
 import GHC.Natural (Natural, naturalFromInteger, naturalToInteger)
 import GHC.TypeNats (natVal)
@@ -60,21 +60,21 @@ instance KnownNat p => GaloisField (Binary p) where
 
 -- Binary fields are multiplicative groups.
 instance KnownNat p => Group (Binary p) where
-  invert        = S.recip
+  invert        = recip
   {-# INLINE invert #-}
   pow x n
     | n >= 0    = x ^ n
-    | otherwise = S.recip x ^ P.negate n
+    | otherwise = recip x ^ P.negate n
   {-# INLINE pow #-}
 
 -- Binary fields are multiplicative monoids.
 instance KnownNat p => Monoid (Binary p) where
-  mempty = one
+  mempty = B 1
   {-# INLINE mempty #-}
 
 -- Binary fields are multiplicative semigroups.
 instance KnownNat p => Semigroup (Binary p) where
-  (<>)   = times
+  (<>)   = (*)
   {-# INLINE (<>) #-}
   stimes = flip pow
   {-# INLINE stimes #-}
@@ -85,22 +85,22 @@ instance KnownNat p => Semigroup (Binary p) where
 
 -- Binary fields are fractional.
 instance KnownNat p => Fractional (Binary p) where
-  (/)                 = S.quot
-  {-# INLINE (/) #-}
-  fromRational (x:%y) = fromInteger x S./ fromInteger y
+  recip (B x)         = B $ binInv x $ natVal (witness :: Binary p)
+  {-# INLINE recip #-}
+  fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Binary fields are numeric.
 instance KnownNat p => Num (Binary p) where
-  (+)         = plus
+  B x + B y   = B $ xor x y
   {-# INLINE (+) #-}
-  (*)         = times
+  B x * B y   = B $ binMul (natVal (witness :: Binary p)) x y
   {-# INLINE (*) #-}
-  (-)         = plus
+  B x - B y   = B $ xor x y
   {-# INLINE (-) #-}
-  negate      = S.negate
+  negate      = identity
   {-# INLINE negate #-}
-  fromInteger = fromNatural . naturalFromInteger
+  fromInteger = B . binMod (natVal (witness :: Binary p)) . naturalFromInteger
   {-# INLINABLE fromInteger #-}
   abs         = panic "Binary.abs: not implemented."
   signum      = panic "Binary.signum: not implemented."
@@ -111,9 +111,8 @@ instance KnownNat p => Num (Binary p) where
 
 -- Binary fields are Euclidean domains.
 instance KnownNat p => Euclidean (Binary p) where
-  degree              = panic "Binary.degree: not implemented."
-  quotRem (B x) (B y) = (B $ binMul (natVal (witness :: Binary p)) x $
-                         binInv y $ natVal (witness :: Binary p), 0)
+  degree  = panic "Binary.degree: not implemented."
+  quotRem = (flip (,) 0 .) . (/)
   {-# INLINE quotRem #-}
 
 -- Binary fields are fields.
@@ -124,20 +123,20 @@ instance KnownNat p => GcdDomain (Binary p)
 
 -- Binary fields are rings.
 instance KnownNat p => Ring (Binary p) where
-  negate = identity
+  negate = P.negate
   {-# INLINE negate #-}
 
 -- Binary fields are semirings.
 instance KnownNat p => Semiring (Binary p) where
-  fromNatural       = B . binMod (natVal (witness :: Binary p))
+  fromNatural = fromIntegral
   {-# INLINABLE fromNatural #-}
-  one               = B 1
+  one         = B 1
   {-# INLINE one #-}
-  plus (B x) (B y)  = B $ xor x y
+  plus        = (+)
   {-# INLINE plus #-}
-  times (B x) (B y) = B $ binMul (natVal (witness :: Binary p)) x y
+  times       = (*)
   {-# INLINE times #-}
-  zero              = B 0
+  zero        = B 0
   {-# INLINE zero #-}
 
 -------------------------------------------------------------------------------
