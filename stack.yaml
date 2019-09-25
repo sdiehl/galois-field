@@ -1,4 +1,4 @@
-resolver: lts-13.19
+resolver: lts-14.7
 extra-deps:
   - semirings-0.5.1
   - poly-0.3.2.0
