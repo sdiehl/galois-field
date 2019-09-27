@@ -1,7 +1,7 @@
 module Data.Field.Galois
-  (
+  ( module Data.Field
   -- * Galois fields
-    module Data.Field.Galois.Base
+  , module Data.Field.Galois.Base
   -- ** Prime fields
   , module Data.Field.Galois.Prime
   -- ** Extension fields
@@ -16,6 +16,7 @@ module Data.Field.Galois
   , module Data.Field.Galois.Unity
   ) where
 
+import Data.Field
 import Data.Field.Galois.Base
 import Data.Field.Galois.Binary
 import Data.Field.Galois.Extension

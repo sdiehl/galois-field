@@ -3,6 +3,7 @@
 ## 1.0.0
 
 * Refactor library structure from `GaloisField` to `Data.Field.Galois`.
+* Add `Field` export for Galois fields.
 * Add `Semiring` dependency for Galois fields.
 * Rename `PrimeField` to `Prime` and add `PrimeField` class.
 * Rename `ExtensionField` to `Extension` and add `ExtensionField` class.
