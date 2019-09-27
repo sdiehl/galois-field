@@ -1,5 +1,5 @@
 name:        galois-field
-version:     0.4.1
+version:     1.0.0
 synopsis:    Galois field library
 description: An efficient implementation of Galois fields used in cryptography research
 maintainer:  Adjoint Inc (info@adjoint.io)
@@ -17,19 +17,23 @@ default-extensions:
   - ScopedTypeVariables
   - RankNTypes
   - DataKinds
+  - DeriveFunctor
   - DeriveGeneric
   - GeneralizedNewtypeDeriving
   - KindSignatures
   - MultiParamTypeClasses
+  - OverloadedLists
   - PatternSynonyms
+  - TypeFamilies
 
 dependencies:
-  - base >=4.10 && < 5
-  - protolude
+  - base >= 4.10 && < 5
+  - protolude >= 0.2 && < 0.3
+  - groups
   - integer-gmp
   - MonadRandom
-  - poly
-  - semirings
+  - poly >= 0.3.2
+  - semirings >= 0.5
   - tasty-quickcheck
   - vector
   - wl-pprint-text
@@ -39,14 +43,22 @@ extra-source-files:
   - ChangeLog.md
 
 ghc-options:
+  - -freverse-errors
+  - -O2
   - -Wall
 
 library:
   exposed-modules:
-    - BinaryField
-    - ExtensionField
-    - GaloisField
-    - PrimeField
+    - Data.Field.Galois
+  other-modules:
+    - Data.Field.Galois.Base
+    - Data.Field.Galois.Binary
+    - Data.Field.Galois.Extension
+    - Data.Field.Galois.Frobenius
+    - Data.Field.Galois.Prime
+    - Data.Field.Galois.Sqrt
+    - Data.Field.Galois.Tower
+    - Data.Field.Galois.Unity
   source-dirs:
     - src
 
@@ -54,16 +66,16 @@ tests:
   galois-field-tests:
     main: Main
     dependencies:
+      - galois-field
       - tasty
     source-dirs:
-      - tests
-      - src
+      - test
 
 benchmarks:
   galois-field-benchmarks:
     main: Main
     dependencies:
       - criterion
+      - galois-field
     source-dirs:
-      - benchmarks
-      - src
+      - bench
