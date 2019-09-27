@@ -3,7 +3,7 @@ module Bench.Galois where
 import Protolude
 
 import Criterion.Main
-import Data.Field.Galois
+import Data.Field.Galois hiding (recip, (/))
 import GHC.Base
 
 benchmark :: GaloisField k => String -> k -> k -> Benchmark
