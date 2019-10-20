@@ -29,6 +29,7 @@ default-extensions:
 dependencies:
   - base >= 4.10 && < 5
   - protolude >= 0.2 && < 0.3
+  - bitvec >= 1.0.2
   - groups
   - integer-gmp
   - MonadRandom
