@@ -1,6 +1,5 @@
 resolver: lts-14.7
 extra-deps:
+  - bitvec-1.0.2.0
   - poly-0.3.2.0
   - semirings-0.5.1
-  - git: https://github.com/Bodigrim/bitvec.git
-    commit: 295cc4e5f4b5b2233c7cab15dca1492a0066206b
