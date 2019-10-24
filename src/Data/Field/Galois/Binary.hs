@@ -9,12 +9,14 @@ module Data.Field.Galois.Binary
 import Protolude as P hiding (Semiring, natVal)
 
 import Control.Monad.Random (Random(..))
+import Data.Bit (Bit, F2Poly, gcdExt, toF2Poly, unF2Poly)
 import Data.Euclidean as S (Euclidean(..), GcdDomain)
 import Data.Field (Field)
 import Data.Group (Group(..))
 import Data.Semiring (Ring(..), Semiring(..))
+import Data.Vector.Unboxed as V (fromList, length, toList)
 import GHC.Exts (IsList(..))
-import GHC.Natural (Natural, naturalFromInteger, naturalToInteger)
+import GHC.Natural (Natural)
 import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
@@ -33,19 +35,19 @@ class GaloisField k => BinaryField k where
   fromB :: k -> Integer
 
 -- | Binary field elements.
-newtype Binary (p :: Nat) = B Natural
-  deriving (Bits, Eq, Generic, Hashable, NFData, Ord, Show)
+newtype Binary (p :: Nat) = B F2Poly
+  deriving (Eq, Generic, NFData, Ord, Show)
 
 -- Binary fields are convertible.
 instance KnownNat p => BinaryField (Binary p) where
-  fromB (B x) = naturalToInteger x
+  fromB (B x) = toInteger x
   {-# INLINABLE fromB #-}
 
 -- Binary fields are Galois fields.
 instance KnownNat p => GaloisField (Binary p) where
   char = const 2
   {-# INLINABLE char #-}
-  deg  = binLog . natVal
+  deg  = pred . fromIntegral . V.length . unF2Poly . toPoly . natVal
   {-# INLINABLE deg #-}
   frob = join (*)
   {-# INLINABLE frob #-}
@@ -85,22 +87,24 @@ instance KnownNat p => Semigroup (Binary p) where
 
 -- Binary fields are fractional.
 instance KnownNat p => Fractional (Binary p) where
-  recip (B x)         = B $ binInv x $ natVal (witness :: Binary p)
+  recip (B x)         = case gcdExt x $ toPoly $ natVal (witness :: Binary p) of
+    (1, y) -> B y
+    _      -> divZeroError
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Binary fields are numeric.
 instance KnownNat p => Num (Binary p) where
-  B x + B y   = B $ xor x y
+  B x + B y   = B $ x + y
   {-# INLINE (+) #-}
-  B x * B y   = B $ binMul (natVal (witness :: Binary p)) x y
+  B x * B y   = B $ P.rem (x * y) $ toPoly $ natVal (witness :: Binary p)
   {-# INLINE (*) #-}
-  B x - B y   = B $ xor x y
+  B x - B y   = B $ x + y
   {-# INLINE (-) #-}
   negate      = identity
   {-# INLINE negate #-}
-  fromInteger = B . binMod (natVal (witness :: Binary p)) . naturalFromInteger
+  fromInteger = B . flip P.rem (toPoly $ natVal (witness :: Binary p)) . toPoly
   {-# INLINABLE fromInteger #-}
   abs         = panic "Binary.abs: not implemented."
   signum      = panic "Binary.signum: not implemented."
@@ -145,23 +149,21 @@ instance KnownNat p => Semiring (Binary p) where
 
 -- Binary fields are arbitrary.
 instance KnownNat p => Arbitrary (Binary p) where
-  arbitrary = B . naturalFromInteger <$>
-    choose (0, naturalToInteger $ order (witness :: Binary p) - 1)
+  arbitrary = toB' <$>
+    choose (0, toInteger $ order (witness :: Binary p) - 1)
   {-# INLINABLE arbitrary #-}
 
 -- Binary fields are lists.
 instance KnownNat p => IsList (Binary p) where
-  type instance Item (Binary p) = Natural
-  fromList     = fromIntegral . foldr' ((. flip shiftL 1) . (+)) 0
+  type instance Item (Binary p) = Bit
+  fromList     = B . toF2Poly . V.fromList
   {-# INLINABLE fromList #-}
-  toList (B x) = unfoldr unfold x
-    where
-      unfold y = if y == 0 then Nothing else Just (y .&. 1, shiftR y 1)
+  toList (B x) = V.toList $ unF2Poly x
   {-# INLINABLE toList #-}
 
 -- Binary fields are bounded.
 instance KnownNat p => Bounded (Binary p) where
-  maxBound = B $ order (witness :: Binary p) - 1
+  maxBound = B $ toPoly $ order (witness :: Binary p) - 1
   {-# INLINE maxBound #-}
   minBound = B 0
   {-# INLINE minBound #-}
@@ -182,13 +184,13 @@ instance KnownNat p => Integral (Binary p) where
 
 -- Binary fields are pretty.
 instance KnownNat p => Pretty (Binary p) where
-  pretty (B x) = pretty $ naturalToInteger x
+  pretty (B x) = pretty $ toInteger x
 
 -- Binary fields are random.
 instance KnownNat p => Random (Binary p) where
-  random         = randomR (B 0, B $ natVal (witness :: Binary p) - 1)
+  random         = randomR (B 0, B $ toPoly $ order (witness :: Binary p) - 1)
   {-# INLINABLE random #-}
-  randomR (a, b) = first (B . naturalFromInteger) . randomR (fromB a, fromB b)
+  randomR (a, b) = first toB' . randomR (fromB a, fromB b)
   {-# INLINABLE randomR #-}
 
 -- Binary fields are real.
@@ -207,66 +209,15 @@ toB = fromInteger
 
 -- | Unsafe convert from @Z@ to @GF(2^q)[X]/\<f(X)\>@.
 toB' :: KnownNat p => Integer -> Binary p
-toB' = B . naturalFromInteger
+toB' = B . toPoly
 {-# INLINABLE toB' #-}
 
--------------------------------------------------------------------------------
--- Binary arithmetic
--------------------------------------------------------------------------------
+-- Specialisation convert from integer to polynomial.
+toPoly :: Integral a => a -> F2Poly
+toPoly = fromIntegral
+{-# INLINABLE toPoly #-}
 
--- Binary logarithm.
-binLog :: Natural -> Word
-binLog = binLog' 2
-  where
-    binLog' :: Natural -> Natural -> Word
-    binLog' p x
-      | x < p     = 0
-      | otherwise = case binLog' (p * p) x of
-        l -> let l' = 2 * l in binLog'' (P.quot x $ p ^ l') l'
-      where
-        binLog'' :: Natural -> Word -> Word
-        binLog'' y n
-          | y < p     = n
-          | otherwise = binLog'' (P.quot y p) (n + 1)
-{-# INLINE binLog #-}
-
--- Binary multiplication.
-binMul :: Natural -> Natural -> Natural -> Natural
-binMul = (. binMul' 0) . (.) . binMod
-  where
-    binMul' :: Natural -> Natural -> Natural -> Natural
-    binMul' n x y
-      | y == 0      = n
-      | testBit y 0 = binMul' (xor n x) x' y'
-      | otherwise   = binMul' n x' y'
-      where
-        x' = shiftL x 1 :: Natural
-        y' = shiftR y 1 :: Natural
-{-# INLINE binMul #-}
-
--- Binary modulus.
-binMod :: Natural -> Natural -> Natural
-binMod f = binMod'
-  where
-    m = fromIntegral $ binLog f :: Int
-    binMod' :: Natural -> Natural
-    binMod' x
-      | n < 0     = x
-      | otherwise = binMod' (xor x $ shiftL f n)
-      where
-        n = fromIntegral (binLog x) - m :: Int
-{-# INLINE binMod #-}
-
--- Binary inversion.
-binInv :: Natural -> Natural -> Natural
-binInv f x = case binInv' 0 1 x f of
-  (y, 1) -> y
-  _      -> divZeroError
-  where
-    binInv' :: Natural -> Natural -> Natural -> Natural -> (Natural, Natural)
-    binInv' s s' r r'
-      | r' == 0   = (s, r)
-      | otherwise = binInv' s' (xor s $ shift s' q) r' (xor r $ shift r' q)
-      where
-        q = max 0 $ fromIntegral (binLog r) - fromIntegral (binLog r') :: Int
-{-# INLINE binInv #-}
+{-# SPECIALISE toPoly ::
+  Integer -> F2Poly,
+  Natural -> F2Poly
+  #-}

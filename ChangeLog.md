@@ -1,5 +1,10 @@
 # Change log for galois-field
 
+## 1.0.1
+
+* Add `Bit` dependency for binary fields.
+* Add major optimisations for binary fields.
+
 ## 1.0.0
 
 * Refactor library structure from `GaloisField` to `Data.Field.Galois`.
