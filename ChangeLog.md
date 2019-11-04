@@ -1,5 +1,10 @@
 # Change log for galois-field
 
+## 1.0.2
+
+* Add `Mod` dependency for prime fields.
+* Add minor optimisations for prime fields.
+
 ## 1.0.1
 
 * Add `Bit` dependency for binary fields.

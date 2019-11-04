@@ -32,6 +32,7 @@ dependencies:
   - bitvec >= 1.0.2
   - groups
   - integer-gmp
+  - mod >= 0.1
   - MonadRandom
   - poly >= 0.3.2
   - semirings >= 0.5
