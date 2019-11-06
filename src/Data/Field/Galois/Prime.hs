@@ -12,12 +12,13 @@ import Control.Monad.Random (Random(..))
 import Data.Euclidean as S (Euclidean(..), GcdDomain)
 import Data.Field (Field)
 import Data.Group (Group(..))
+import Data.Mod (Mod, unMod, (^%))
 import Data.Semiring (Ring(..), Semiring(..))
-import GHC.Integer.GMP.Internals (recipModInteger)
-import GHC.Natural (Natural, naturalFromInteger, naturalToInteger, powModNatural)
+import GHC.Natural (Natural, naturalFromInteger, naturalToInteger)
 import GHC.TypeNats (natVal)
 import Test.Tasty.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 import Data.Field.Galois.Base (GaloisField(..))
 
@@ -61,9 +62,7 @@ instance KnownNat p => GaloisField (Prime p) where
 instance KnownNat p => Group (Prime p) where
   invert = recip
   {-# INLINE invert #-}
-  pow y@(P x) n
-    | n >= 0    = P $ powModNatural x (fromIntegral n) $ natVal (witness :: Prime p)
-    | otherwise = pow (recip y) $ P.negate n
+  pow x  = P . unMod . (^%) (unsafeCoerce x :: Mod p)
   {-# INLINE pow #-}
 
 -- Prime fields are multiplicative monoids.
@@ -84,27 +83,22 @@ instance KnownNat p => Semigroup (Prime p) where
 
 -- Prime fields are fractional.
 instance KnownNat p => Fractional (Prime p) where
-  recip (P 0)         = divZeroError
-  recip (P x)         = P $ recipModNatural x $ natVal (witness :: Prime p)
+  recip x             = P $ unMod $ recip $ (unsafeCoerce x :: Mod p)
   {-# INLINE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
 
 -- Prime fields are numeric.
 instance KnownNat p => Num (Prime p) where
-  P x + P y     = P $ if xy >= p then xy - p else xy
-    where
-      xy = x + y
-      p  = natVal (witness :: Prime p)
+  x + y         = P $ unMod $ (unsafeCoerce x + unsafeCoerce y :: Mod p)
   {-# INLINE (+) #-}
-  P x * P y     = P $ rem (x * y) $ natVal (witness :: Prime p)
+  x * y         = P $ unMod $ (unsafeCoerce x * unsafeCoerce y :: Mod p)
   {-# INLINE (*) #-}
-  P x - P y     = P $ if x >= y then x - y else natVal (witness :: Prime p) + x - y
+  x - y         = P $ unMod $ (unsafeCoerce x - unsafeCoerce y :: Mod p)
   {-# INLINE (-) #-}
-  negate (P 0)  = P 0
-  negate (P x)  = P $ natVal (witness :: Prime p) - x
+  negate x      = P $ unMod $ P.negate $ (unsafeCoerce x :: Mod p)
   {-# INLINE negate #-}
-  fromInteger x = P $ naturalFromInteger $ mod x $ naturalToInteger $ natVal (witness :: Prime p)
+  fromInteger x = P $ unMod $ (fromIntegral x :: Mod p)
   {-# INLINABLE fromInteger #-}
   abs           = panic "Prime.abs: not implemented."
   signum        = panic "Prime.signum: not implemented."
@@ -203,13 +197,3 @@ toP = fromInteger
 toP' :: KnownNat p => Integer -> Prime p
 toP' = P . naturalFromInteger
 {-# INLINABLE toP' #-}
-
--------------------------------------------------------------------------------
--- Prime arithmetic
--------------------------------------------------------------------------------
-
--- Reciprocals modulo naturals.
-recipModNatural :: Natural -> Natural -> Natural
-recipModNatural x p = naturalFromInteger $
-  recipModInteger (naturalToInteger x) (naturalToInteger p)
-{-# INLINE recipModNatural #-}
