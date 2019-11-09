@@ -186,6 +186,11 @@ arithmeticF2m :: (F2m, F2m, F2m, F2m)
 arithmeticF2m = (f2m + f2m', f2m - f2m', f2m * f2m', f2m / f2m')
 ```
 
+## Disclaimer
+
+This is experimental code meant for research-grade projects only. Please do not
+use this code in production until it has matured significantly.
+
 ## License
 
 ```
