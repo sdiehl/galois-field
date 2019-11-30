@@ -21,21 +21,21 @@ A **Galois field** $\text{GF}(p^q)$, for prime $p$ and positive $q$, is a *field
 
 ### Prime fields
 
-Any Galois field has a unique *characteristic* p, the minimum positive p such that p(1) = 1 + ... + 1 = 0, and p is prime. The smallest Galois field of characteristic p is a **prime field**, and any Galois field of characteristic p is a *finite-dimensional vector space* over its prime subfield.
+Any Galois field has a unique *characteristic* $p$, the minimum positive $p$ such that $p(1) = 1 + \cdots + 1 = 0$, and $p$ is prime. The smallest Galois field of characteristic $p$ is a **prime field**, and any Galois field of characteristic $p$ is a *finite-dimensional vector space* over its prime subfield.
 
-For example, GF(4) is a Galois field of characteristic 2 that is a two-dimensional vector space over the prime subfield GF(2) = Z / 2Z.
+For example, $\text{GF}(4)$ is a Galois field of characteristic 2 that is a two-dimensional vector space over the prime subfield $GF(2) = \mathbb{Z} / 2 \mathbb{Z}$.
 
 ### Extension fields
 
-Any Galois field has order a prime power p^q for prime p and positive q, and there is a Galois field GF(p^q) of any prime power order p^q that is *unique up to non-unique isomorphism*. Any Galois field GF(p^q) can be constructed as an **extension field** over a smaller Galois subfield GF(p^r), through the identification GF(p^q) = GF(p^r)[X] / \<f(X)\> for an *irreducible monic polynomial* f(X) of degree q - r + 1 in the *polynomial ring* GF(p^r)[X].
+Any Galois field has order a prime power $p^q$ for prime $p$ and positive $q$, and there is a Galois field $\text{GF}(p^q)$ of any prime power order $p^q$ that is *unique up to non-unique isomorphism*. Any Galois field $GF(p^q)$ can be constructed as an **extension field** over a smaller Galois subfield $\text{GF}(p^r)$, through the identification $\text{GF}(p^q) = \text{GF}(p^r)[X] / \langle f(X) \rangle$ for an *irreducible monic polynomial* $f(X)$ of degree $q - r + 1$ in the *polynomial ring* $\text{GF}(p^r)[X]$.
 
-For example, GF(4) has order 2^2 and can be constructed as an extension field GF(2)[X] / \<f(X)\> where f(X) = X^2 + X + 1 is an irreducible monic quadratic polynomial in GF(2)[X].
+For example, $\text{GF}(4)$ has order $2^2$ and can be constructed as an extension field $\text{GF}(2)[X] / \langle f(X) \rangle$ where $f(X) = X^2 + X + 1$ is an irreducible monic quadratic polynomial in $\text{GF}(2)[X]$.
 
 ### Binary fields
 
-A Galois field of the form GF(2^m) for big positive m is a sum of X^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string. It should always be used when the field characteristic is 2.
+A Galois field of the form $\text{GF}(2^m)$ for big positive $m$ is a sum of $X^n$ for a non-empty set of $0 < n < m$. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string. It should always be used when the field characteristic is 2.
 
-For example, X^8 + X^4 + X^3 + X + 1 can be represented as the integer 283 that represents the bit string 100011011.
+For example, $X^8 + X^4 + X^3 + X + 1$ can be represented as the integer 283 that represents the bit string 100011011.
 
 ## Example usage
 
