@@ -15,7 +15,7 @@ An efficient implementation of Galois fields used in cryptography research.
 
 A **Galois field** $\text{GF}(p^q)$, for prime $p$ and positive $q$, is a *field* ($\text{GF}(p^q)$, +, $\times$, 0, 1) of finite *order*. Explicitly,
 - ($\text{GF}(p^q)$, +, 0) is an abelian group,
-- ($\text{GF}(p^q) \\ \{0\}$, $\times$, 1) is an abelian group,
+- ($\text{GF}(p^q) \backslash \{0\}$, $\times$, 1) is an abelian group,
 - $\times$ is distributive over +, and
 - $#\text{GF}(p^q)$ is finite.
 
