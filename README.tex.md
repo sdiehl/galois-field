@@ -160,7 +160,7 @@ Note that
 
 $a + bX + (c + dX)Y + (e + fX)Y^2 + (g + hX + (i + jX)Y + (k + lX)Y^2)Z$
 
-where `X, Y, Z` is a tower of indeterminate variables, is constructed by
+where $X$, $Y$, $Z$ is a tower of indeterminate variables, is constructed by
 ```haskell
 [ [ [a, b], [c, d], [e, f] ]
 , [ [g, h], [i, j], [k, l] ] ] :: Fq12
