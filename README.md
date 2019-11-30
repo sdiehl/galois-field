@@ -160,7 +160,7 @@ Note that
 
 <img src="/tex/7ddc69d41c4a5172b739624242de9306.svg?invert_in_darkmode&sanitize=true" align=middle width=548.77807545pt height=26.76175259999998pt/>
 
-where `X, Y, Z` is a tower of indeterminate variables, is constructed by
+where <img src="/tex/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode&sanitize=true" align=middle width=14.908688849999992pt height=22.465723500000017pt/>, <img src="/tex/91aac9730317276af725abd8cef04ca9.svg?invert_in_darkmode&sanitize=true" align=middle width=13.19638649999999pt height=22.465723500000017pt/>, <img src="/tex/5b51bd2e6f329245d425b8002d7cf942.svg?invert_in_darkmode&sanitize=true" align=middle width=12.397274999999992pt height=22.465723500000017pt/> is a tower of indeterminate variables, is constructed by
 ```haskell
 [ [ [a, b], [c, d], [e, f] ]
 , [ [g, h], [i, j], [k, l] ] ] :: Fq12
