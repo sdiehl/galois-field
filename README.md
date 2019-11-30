@@ -157,9 +157,9 @@ arithmeticFq12 :: (Fq12, Fq12, Fq12, Fq12)
 arithmeticFq12 = (fq12 + fq12', fq12 - fq12', fq12 * fq12', fq12 / fq12')
 ```
 Note that
-```
-a + bX + (c + dX)Y + (e + fX)Y^2 + (g + hX + (i + jX)Y + (k + lX)Y^2)Z
-```
+
+<img src="/tex/7ddc69d41c4a5172b739624242de9306.svg?invert_in_darkmode&sanitize=true" align=middle width=548.77807545pt height=26.76175259999998pt/>
+
 where `X, Y, Z` is a tower of indeterminate variables, is constructed by
 ```haskell
 [ [ [a, b], [c, d], [e, f] ]
