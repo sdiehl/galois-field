@@ -174,7 +174,7 @@ The following type declaration creates a binary field modulo a given irreducible
 type F2m = Binary 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
 ```
 
-Note that the polynomial given *must* be irreducible in <img src="/tex/3956a0723425282b441b7a17d9cc4be7.svg?invert_in_darkmode&sanitize=true" align=middle width=17.12334524999999pt height=22.465723500000017pt/>.
+Note that the polynomial given *must* be irreducible in <img src="/tex/d0b03602a2acb8c4b039c03c890f1729.svg?invert_in_darkmode&sanitize=true" align=middle width=16.59823274999999pt height=22.648391699999998pt/>.
 
 Galois field arithmetic can then be performed in this binary field.
 
