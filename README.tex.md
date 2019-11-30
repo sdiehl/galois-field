@@ -169,12 +169,15 @@ where $X$, $Y$, $Z$ is a tower of indeterminate variables, is constructed by
 ### Binary fields
 
 The following type declaration creates a binary field modulo a given irreducible binary polynomial.
+
 ```haskell
 type F2m = Binary 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
 ```
-Note that the polynomial given *must* be irreducible in F2.
+
+Note that the polynomial given *must* be irreducible in $F_2$.
 
 Galois field arithmetic can then be performed in this binary field.
+
 ```haskell
 f2m :: F2m
 f2m = 0x303001d34b856296c16c0d40d3cd7750a93d1d2955fa80aa5f40fc8db7b2abdbde53950f4c0d293cdd711a35b67fb1499ae60038614f1394abfa3b4c850d927e1e7769c8eec2d19
