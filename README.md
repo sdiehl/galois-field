@@ -13,29 +13,29 @@ An efficient implementation of Galois fields used in cryptography research.
 
 ## Technical background
 
-A **Galois field** GF(p^q), for prime p and positive q, is a *field* (GF(p^q), +, \*, 0, 1) of finite *order*. Explicitly,
-- (GF(p^q), +, 0) is an abelian group,
-- (GF(p^q) \\ \{0\}, \*, 1) is an abelian group,
-- \* is distributive over +, and
-- \#GF(p^q) is finite.
+A **Galois field** <img src="/tex/e749ad7d18f2855210ea115451c98828.svg?invert_in_darkmode&sanitize=true" align=middle width=51.94591709999999pt height=24.65753399999998pt/>, for prime <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/> and positive <img src="/tex/d5c18a8ca1894fd3a7d25f242cbe8890.svg?invert_in_darkmode&sanitize=true" align=middle width=7.928106449999989pt height=14.15524440000002pt/>, is a *field* (<img src="/tex/e749ad7d18f2855210ea115451c98828.svg?invert_in_darkmode&sanitize=true" align=middle width=51.94591709999999pt height=24.65753399999998pt/>, +, <img src="/tex/bdbf342b57819773421273d508dba586.svg?invert_in_darkmode&sanitize=true" align=middle width=12.785434199999989pt height=19.1781018pt/>, 0, 1) of finite *order*. Explicitly,
+- (<img src="/tex/e749ad7d18f2855210ea115451c98828.svg?invert_in_darkmode&sanitize=true" align=middle width=51.94591709999999pt height=24.65753399999998pt/>, +, 0) is an abelian group,
+- (<img src="/tex/1bd3c330eb2232e45ee8cc54a23d716b.svg?invert_in_darkmode&sanitize=true" align=middle width=84.82275614999998pt height=24.65753399999998pt/>, <img src="/tex/bdbf342b57819773421273d508dba586.svg?invert_in_darkmode&sanitize=true" align=middle width=12.785434199999989pt height=19.1781018pt/>, 1) is an abelian group,
+- <img src="/tex/bdbf342b57819773421273d508dba586.svg?invert_in_darkmode&sanitize=true" align=middle width=12.785434199999989pt height=19.1781018pt/> is distributive over +, and
+- <img src="/tex/dc7ba567ce3ac714a62c171a3db2f3a4.svg?invert_in_darkmode&sanitize=true" align=middle width=51.94591709999999pt height=24.65753399999998pt/> is finite.
 
 ### Prime fields
 
-Any Galois field has a unique *characteristic* p, the minimum positive p such that p(1) = 1 + ... + 1 = 0, and p is prime. The smallest Galois field of characteristic p is a **prime field**, and any Galois field of characteristic p is a *finite-dimensional vector space* over its prime subfield.
+Any Galois field has a unique *characteristic* <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/>, the minimum positive <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/> such that <img src="/tex/c89470a5c4f7e9473c0ebeb6148bdf5d.svg?invert_in_darkmode&sanitize=true" align=middle width=157.12847205pt height=24.65753399999998pt/>, and <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/> is prime. The smallest Galois field of characteristic <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/> is a **prime field**, and any Galois field of characteristic <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/> is a *finite-dimensional vector space* over its prime subfield.
 
-For example, GF(4) is a Galois field of characteristic 2 that is a two-dimensional vector space over the prime subfield GF(2) = Z / 2Z.
+For example, <img src="/tex/b566101ab803ed6b496286a86485ba7d.svg?invert_in_darkmode&sanitize=true" align=middle width=44.634829799999984pt height=24.65753399999998pt/> is a Galois field of characteristic 2 that is a two-dimensional vector space over the prime subfield <img src="/tex/01352daed7334b69544be287fa1dc7af.svg?invert_in_darkmode&sanitize=true" align=middle width=104.90876054999998pt height=24.65753399999998pt/>.
 
 ### Extension fields
 
-Any Galois field has order a prime power p^q for prime p and positive q, and there is a Galois field GF(p^q) of any prime power order p^q that is *unique up to non-unique isomorphism*. Any Galois field GF(p^q) can be constructed as an **extension field** over a smaller Galois subfield GF(p^r), through the identification GF(p^q) = GF(p^r)[X] / \<f(X)\> for an *irreducible monic polynomial* f(X) of degree q - r + 1 in the *polynomial ring* GF(p^r)[X].
+Any Galois field has order a prime power <img src="/tex/f5bb40e395f7fadf8da15b1de7cb359e.svg?invert_in_darkmode&sanitize=true" align=middle width=14.70840524999999pt height=21.839370299999988pt/> for prime <img src="/tex/2ec6e630f199f589a2402fdf3e0289d5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.270567249999992pt height=14.15524440000002pt/> and positive <img src="/tex/d5c18a8ca1894fd3a7d25f242cbe8890.svg?invert_in_darkmode&sanitize=true" align=middle width=7.928106449999989pt height=14.15524440000002pt/>, and there is a Galois field <img src="/tex/e749ad7d18f2855210ea115451c98828.svg?invert_in_darkmode&sanitize=true" align=middle width=51.94591709999999pt height=24.65753399999998pt/> of any prime power order <img src="/tex/f5bb40e395f7fadf8da15b1de7cb359e.svg?invert_in_darkmode&sanitize=true" align=middle width=14.70840524999999pt height=21.839370299999988pt/> that is *unique up to non-unique isomorphism*. Any Galois field <img src="/tex/e749ad7d18f2855210ea115451c98828.svg?invert_in_darkmode&sanitize=true" align=middle width=51.94591709999999pt height=24.65753399999998pt/> can be constructed as an **extension field** over a smaller Galois subfield <img src="/tex/7f17ac2b8db44db36d376e44dbca459b.svg?invert_in_darkmode&sanitize=true" align=middle width=51.96550754999999pt height=24.65753399999998pt/>, through the identification <img src="/tex/676c07f4913e5983d30644120a2190a0.svg?invert_in_darkmode&sanitize=true" align=middle width=208.38632594999999pt height=24.65753399999998pt/> for an *irreducible monic polynomial* <img src="/tex/161805ece9a8142e4ebe9d356fd0f763.svg?invert_in_darkmode&sanitize=true" align=middle width=37.51151249999999pt height=24.65753399999998pt/> of degree <img src="/tex/610a0cab14ccd2bc1d2080214ad87a19.svg?invert_in_darkmode&sanitize=true" align=middle width=64.20263354999999pt height=21.18721440000001pt/> in the *polynomial ring* <img src="/tex/16fd46b712782718e9e17184e9d36aa0.svg?invert_in_darkmode&sanitize=true" align=middle width=76.00662299999999pt height=24.65753399999998pt/>.
 
-For example, GF(4) has order 2^2 and can be constructed as an extension field GF(2)[X] / \<f(X)\> where f(X) = X^2 + X + 1 is an irreducible monic quadratic polynomial in GF(2)[X].
+For example, <img src="/tex/b566101ab803ed6b496286a86485ba7d.svg?invert_in_darkmode&sanitize=true" align=middle width=44.634829799999984pt height=24.65753399999998pt/> has order <img src="/tex/ec4089d7f3fb410f521723b967e41a69.svg?invert_in_darkmode&sanitize=true" align=middle width=14.771756999999988pt height=26.76175259999998pt/> and can be constructed as an extension field <img src="/tex/eff7dfe6e7384ba3c57607f1376fda7b.svg?invert_in_darkmode&sanitize=true" align=middle width=127.19210129999998pt height=24.65753399999998pt/> where <img src="/tex/14204002b85c3f046fbde37b519e83c8.svg?invert_in_darkmode&sanitize=true" align=middle width=145.02252929999997pt height=26.76175259999998pt/> is an irreducible monic quadratic polynomial in <img src="/tex/b5b165971fad7e6b6c890db109b9d2fd.svg?invert_in_darkmode&sanitize=true" align=middle width=68.67594524999998pt height=24.65753399999998pt/>.
 
 ### Binary fields
 
-A Galois field of the form GF(2^m) for big positive m is a sum of X^n for a non-empty set of 0 \< n \< m. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string. It should always be used when the field characteristic is 2.
+A Galois field of the form <img src="/tex/f4687471921caacf38fd0e0667005c1f.svg?invert_in_darkmode&sanitize=true" align=middle width=57.12159419999999pt height=24.65753399999998pt/> for big positive <img src="/tex/0e51a2dede42189d77627c4d742822c3.svg?invert_in_darkmode&sanitize=true" align=middle width=14.433101099999991pt height=14.15524440000002pt/> is a sum of <img src="/tex/aedfd2f0682e37eedb201bcd2ca04442.svg?invert_in_darkmode&sanitize=true" align=middle width=23.034689699999987pt height=22.465723500000017pt/> for a non-empty set of <img src="/tex/ddce1c5958e2d066abe368e96fa697db.svg?invert_in_darkmode&sanitize=true" align=middle width=76.35444795pt height=21.18721440000001pt/>. For computational efficiency in cryptography, an element of a **binary field** can be represented by an integer that represents a bit string. It should always be used when the field characteristic is 2.
 
-For example, X^8 + X^4 + X^3 + X + 1 can be represented as the integer 283 that represents the bit string 100011011.
+For example, <img src="/tex/72891ad284e66d0f200979d5f8209d4e.svg?invert_in_darkmode&sanitize=true" align=middle width=170.34202019999998pt height=26.76175259999998pt/> can be represented as the integer 283 that represents the bit string 100011011.
 
 ## Example usage
 
@@ -157,10 +157,10 @@ arithmeticFq12 :: (Fq12, Fq12, Fq12, Fq12)
 arithmeticFq12 = (fq12 + fq12', fq12 - fq12', fq12 * fq12', fq12 / fq12')
 ```
 Note that
-```
-a + bX + (c + dX)Y + (e + fX)Y^2 + (g + hX + (i + jX)Y + (k + lX)Y^2)Z
-```
-where `X, Y, Z` is a tower of indeterminate variables, is constructed by
+
+<img src="/tex/7ddc69d41c4a5172b739624242de9306.svg?invert_in_darkmode&sanitize=true" align=middle width=548.77807545pt height=26.76175259999998pt/>
+
+where <img src="/tex/cbfb1b2a33b28eab8a3e59464768e810.svg?invert_in_darkmode&sanitize=true" align=middle width=14.908688849999992pt height=22.465723500000017pt/>, <img src="/tex/91aac9730317276af725abd8cef04ca9.svg?invert_in_darkmode&sanitize=true" align=middle width=13.19638649999999pt height=22.465723500000017pt/>, <img src="/tex/5b51bd2e6f329245d425b8002d7cf942.svg?invert_in_darkmode&sanitize=true" align=middle width=12.397274999999992pt height=22.465723500000017pt/> is a tower of indeterminate variables, is constructed by
 ```haskell
 [ [ [a, b], [c, d], [e, f] ]
 , [ [g, h], [i, j], [k, l] ] ] :: Fq12
@@ -169,12 +169,15 @@ where `X, Y, Z` is a tower of indeterminate variables, is constructed by
 ### Binary fields
 
 The following type declaration creates a binary field modulo a given irreducible binary polynomial.
+
 ```haskell
 type F2m = Binary 0x80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000425
 ```
-Note that the polynomial given *must* be irreducible in F2.
+
+Note that the polynomial given *must* be irreducible in <img src="/tex/d0b03602a2acb8c4b039c03c890f1729.svg?invert_in_darkmode&sanitize=true" align=middle width=16.59823274999999pt height=22.648391699999998pt/>.
 
 Galois field arithmetic can then be performed in this binary field.
+
 ```haskell
 f2m :: F2m
 f2m = 0x303001d34b856296c16c0d40d3cd7750a93d1d2955fa80aa5f40fc8db7b2abdbde53950f4c0d293cdd711a35b67fb1499ae60038614f1394abfa3b4c850d927e1e7769c8eec2d19
