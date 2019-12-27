@@ -1,22 +1,29 @@
+-- |
+-- An efficient implementation of Galois fields used in cryptography research.
 module Data.Field.Galois
-  ( module Data.Field
-  -- * Galois fields
-  , module Data.Field.Galois.Base
-  -- ** Prime fields
-  , module Data.Field.Galois.Prime
-  -- ** Extension fields
-  , module Data.Field.Galois.Extension
-  -- ** Binary fields
-  , module Data.Field.Galois.Binary
-  -- ** Square roots
-  , module Data.Field.Galois.Sqrt
-  -- ** Towers of fields
-  , module Data.Field.Galois.Tower
-  -- ** Roots of unity
-  , module Data.Field.Galois.Unity
-  ) where
+  ( -- * Galois fields
+    module Data.Field.Galois.Base,
 
-import Data.Field
+    -- ** Prime fields
+    module Data.Field.Galois.Prime,
+
+    -- ** Extension fields
+    module Data.Field.Galois.Extension,
+
+    -- ** Binary fields
+    module Data.Field.Galois.Binary,
+
+    -- ** Square roots
+    module Data.Field.Galois.Sqrt,
+
+    -- ** Towers of fields
+    module Data.Field.Galois.Tower,
+
+    -- ** Roots of unity
+    module Data.Field.Galois.Unity,
+  )
+where
+
 import Data.Field.Galois.Base
 import Data.Field.Galois.Binary
 import Data.Field.Galois.Extension
