@@ -5,12 +5,19 @@
 
 packages:
 - completed:
-    hackage: bitvec-1.0.1.2@sha256:a1deb340a01fc5e203cd50e6a6d137d8113a14bf600af3873bee4450c27df41a,4184
+    hackage: bitvec-1.0.2.0@sha256:492256514c4c7297d6b09f1dfdcb0fe579f1896b8ace89cb33842f797ac91544,4232
     pantry-tree:
-      size: 2190
-      sha256: 23ff118f4dabe0447b4c8ac1e215ff20b9405a64d4a7b7f65ceb7d6d2959c755
+      size: 2371
+      sha256: 9b2b82291d9a5480183e81c121801cc8401fa65b54edd027087e298c9b3b1880
   original:
-    hackage: bitvec-1.0.1.2
+    hackage: bitvec-1.0.2.0
+- completed:
+    hackage: mod-0.1.0.0@sha256:63cd4e996b9453ffbe11dc515f57d762ba50276f05507b2372c6d9e733254768,1597
+    pantry-tree:
+      size: 352
+      sha256: c88ce4f9c35e18140f75d94d14a0c52fafc2944a2611a955af4757f555bd0884
+  original:
+    hackage: mod-0.1.0.0
 - completed:
     hackage: poly-0.3.2.0@sha256:2cba686238c5074d551a56375f441b18745fbc465cdc3e0acf1701ae928f3ae9,1918
     pantry-tree:
