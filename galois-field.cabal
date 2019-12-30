@@ -1,0 +1,117 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 619987dcc5568a406a6b9ef49d365fe0a54acdc0f97711cb02a59de42f8d6066
+
+name:           galois-field
+version:        1.0.1
+synopsis:       Galois field library
+description:    An efficient implementation of Galois fields used in cryptography research
+category:       Cryptography
+homepage:       https://github.com/adjoint-io/galois-field#readme
+bug-reports:    https://github.com/adjoint-io/galois-field/issues
+maintainer:     Adjoint Inc (info@adjoint.io)
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/adjoint-io/galois-field
+
+library
+  exposed-modules:
+      Data.Field.Galois
+  other-modules:
+      Data.Field.Galois.Base
+      Data.Field.Galois.Binary
+      Data.Field.Galois.Extension
+      Data.Field.Galois.Frobenius
+      Data.Field.Galois.Prime
+      Data.Field.Galois.Sqrt
+      Data.Field.Galois.Tower
+      Data.Field.Galois.Unity
+  hs-source-dirs:
+      src
+  default-extensions: LambdaCase RecordWildCards OverloadedStrings NoImplicitPrelude FlexibleInstances FlexibleContexts ScopedTypeVariables RankNTypes DataKinds DeriveFunctor DeriveGeneric GeneralizedNewtypeDeriving KindSignatures MultiParamTypeClasses OverloadedLists PatternSynonyms TypeFamilies
+  ghc-options: -freverse-errors -O2 -Wall
+  build-depends:
+      MonadRandom
+    , base >=4.10 && <5
+    , bitvec >=1.0.2
+    , groups
+    , integer-gmp
+    , mod >=0.1.0.0
+    , poly >=0.3.2
+    , protolude >=0.2 && <0.3
+    , semirings >=0.5
+    , tasty-quickcheck
+    , vector
+    , wl-pprint-text
+  default-language: Haskell2010
+
+test-suite galois-field-tests
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Test.Binary
+      Test.Extension
+      Test.Galois
+      Test.Prime
+      Paths_galois_field
+  hs-source-dirs:
+      test
+  default-extensions: LambdaCase RecordWildCards OverloadedStrings NoImplicitPrelude FlexibleInstances FlexibleContexts ScopedTypeVariables RankNTypes DataKinds DeriveFunctor DeriveGeneric GeneralizedNewtypeDeriving KindSignatures MultiParamTypeClasses OverloadedLists PatternSynonyms TypeFamilies
+  ghc-options: -freverse-errors -O2 -Wall -main-is Main
+  build-depends:
+      MonadRandom
+    , base >=4.10 && <5
+    , bitvec >=1.0.2
+    , galois-field
+    , groups
+    , integer-gmp
+    , mod >=0.1.0.0
+    , poly >=0.3.2
+    , protolude >=0.2 && <0.3
+    , semirings >=0.5
+    , tasty
+    , tasty-quickcheck
+    , vector
+    , wl-pprint-text
+  default-language: Haskell2010
+
+benchmark galois-field-benchmarks
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Bench.Binary
+      Bench.Extension
+      Bench.Galois
+      Bench.Prime
+      Paths_galois_field
+  hs-source-dirs:
+      bench
+  default-extensions: LambdaCase RecordWildCards OverloadedStrings NoImplicitPrelude FlexibleInstances FlexibleContexts ScopedTypeVariables RankNTypes DataKinds DeriveFunctor DeriveGeneric GeneralizedNewtypeDeriving KindSignatures MultiParamTypeClasses OverloadedLists PatternSynonyms TypeFamilies
+  ghc-options: -freverse-errors -O2 -Wall -main-is Main
+  build-depends:
+      MonadRandom
+    , base >=4.10 && <5
+    , bitvec >=1.0.2
+    , criterion
+    , galois-field
+    , groups
+    , integer-gmp
+    , mod >=0.1.0.0
+    , poly >=0.3.2
+    , protolude >=0.2 && <0.3
+    , semirings >=0.5
+    , tasty-quickcheck
+    , vector
+    , wl-pprint-text
+  default-language: Haskell2010

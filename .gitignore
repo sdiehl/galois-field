@@ -2,7 +2,7 @@
 *.sw[pon]
 *.prof
 *.prof.html
-*.cabal
 *~
 *.hi
 *.o
+dist-newstyle
