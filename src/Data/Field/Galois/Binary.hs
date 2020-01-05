@@ -18,7 +18,7 @@ import Data.Vector.Unboxed as V (fromList, length, toList)
 import GHC.Exts (IsList(..))
 import GHC.Natural (Natural)
 import GHC.TypeNats (natVal)
-import Test.Tasty.QuickCheck (Arbitrary(..), choose)
+import Test.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import Data.Field.Galois.Base (GaloisField(..))

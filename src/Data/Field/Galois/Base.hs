@@ -8,7 +8,7 @@ import Control.Monad.Random (Random)
 import Data.Field (Field)
 import qualified Data.Group as G (Group(..))
 import GHC.Natural (Natural)
-import Test.Tasty.QuickCheck (Arbitrary)
+import Test.QuickCheck (Arbitrary)
 import Text.PrettyPrint.Leijen.Text (Pretty)
 
 -------------------------------------------------------------------------------

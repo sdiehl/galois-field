@@ -2,7 +2,7 @@ module Test.Galois where
 
 import Protolude
 
-import Data.Field.Galois hiding (recip)
+import Data.Field.Galois
 import Test.Tasty
 import Test.Tasty.QuickCheck
 

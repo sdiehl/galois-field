@@ -25,7 +25,7 @@ import Data.Group (Group(..))
 import Data.Poly (VPoly, gcdExt, monomial, toPoly, unPoly)
 import Data.Semiring (Ring(..), Semiring(..))
 import GHC.Exts (IsList(..))
-import Test.Tasty.QuickCheck (Arbitrary(..), vector)
+import Test.QuickCheck (Arbitrary(..), vector)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 
 import Data.Field.Galois.Base (GaloisField(..))

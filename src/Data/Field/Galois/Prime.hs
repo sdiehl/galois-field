@@ -16,7 +16,7 @@ import Data.Mod (Mod, unMod, (^%))
 import Data.Semiring (Ring(..), Semiring(..))
 import GHC.Natural (Natural, naturalFromInteger, naturalToInteger)
 import GHC.TypeNats (natVal)
-import Test.Tasty.QuickCheck (Arbitrary(..), choose)
+import Test.QuickCheck (Arbitrary(..), choose)
 import Text.PrettyPrint.Leijen.Text (Pretty(..))
 import Unsafe.Coerce (unsafeCoerce)
 
