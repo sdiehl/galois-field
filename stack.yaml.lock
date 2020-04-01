@@ -19,19 +19,26 @@ packages:
   original:
     hackage: mod-0.1.0.0
 - completed:
-    hackage: poly-0.3.2.0@sha256:2cba686238c5074d551a56375f441b18745fbc465cdc3e0acf1701ae928f3ae9,1918
+    hackage: poly-0.3.3.0@sha256:49657d89a3abf9f973fe4be792103642eee9d17e32ea37339f50081c87196447,2021
     pantry-tree:
-      size: 1451
-      sha256: 0a08b17044344cfa9923aefddad623987d12ed2d25738f5acb46f2ec71f8610d
+      size: 1453
+      sha256: 785951b65ec658bbf55e10575cd921b3ade75e71147d10e59784f68e7c255163
   original:
-    hackage: poly-0.3.2.0
+    hackage: poly-0.3.3.0
 - completed:
-    hackage: semirings-0.5.1@sha256:597e4070dcb75c3e347566114e140ba343843f80f3e16a456bb2e9e9d1d09430,3743
+    hackage: semirings-0.5.3@sha256:4b0d243f88bb07c0673978a37b6b9fd16da44f15e8d552fb08795d9a88a3dc76,3791
     pantry-tree:
       size: 610
-      sha256: cc4e01176f1a56c97dc923416a6939dcdc004584cccf8a2b1c67bd156b31179a
+      sha256: 0bc3f63a3b92be1c6be2e36c7db8df62e61b2860eba7f083b84e2b16dbaa2d69
   original:
-    hackage: semirings-0.5.1
+    hackage: semirings-0.5.3
+- completed:
+    hackage: vector-algorithms-0.8.0.3@sha256:477ef5ac82fdd28a39536ed0a767faec3425802827abee485be31db5bc6f5e90,3488
+    pantry-tree:
+      size: 1439
+      sha256: 9f04ef44c2459a122f2d5c093b4a9ebc47aaa00284a7bff9793fee7c6783f979
+  original:
+    hackage: vector-algorithms-0.8.0.3
 snapshots:
 - completed:
     size: 523700
