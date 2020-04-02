@@ -19,10 +19,10 @@ module Data.Field.Galois.Extension
 import Protolude as P hiding (Semiring, rem, toList)
 
 import Control.Monad.Random (Random(..))
-import Data.Euclidean (Euclidean(..), GcdDomain)
+import Data.Euclidean (Euclidean(..), GcdDomain, gcdExt)
 import Data.Field (Field)
 import Data.Group (Group(..))
-import Data.Poly (VPoly, gcdExt, monomial, toPoly, unPoly)
+import Data.Poly (VPoly, monomial, toPoly, unPoly, scale, leading)
 import Data.Semiring (Ring(..), Semiring(..))
 import GHC.Exts (IsList(..))
 import Test.QuickCheck (Arbitrary(..), vector)
@@ -103,9 +103,11 @@ instance IrreducibleMonic p k => Semigroup (Extension p k) where
 
 -- Extension fields are fractional.
 instance IrreducibleMonic p k => Fractional (Extension p k) where
-  recip (E x)         = case gcdExt x $ poly (witness :: Extension p k) of
-    (1, y) -> E y
-    _      -> divZeroError
+  recip (E x) = case leading g of
+    Just (0, c) -> E $ scale 0 (recip c) y
+    _           -> divZeroError
+    where
+      (g, y) = gcdExt x $ poly (witness :: Extension p k)
   {-# INLINABLE recip #-}
   fromRational (x:%y) = fromInteger x / fromInteger y
   {-# INLINABLE fromRational #-}
