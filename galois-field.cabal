@@ -67,7 +67,7 @@ library
     , integer-gmp     >=1.0.2  && <1.1
     , mod             >=0.1.0  && <0.2
     , MonadRandom     >=0.5.1  && <0.6
-    , poly            >=0.3.2  && <0.4
+    , poly            >=0.3.2  && <0.5
     , protolude       >=0.2    && <0.3
     , QuickCheck      >=2.13   && <2.14
     , semirings       >=0.5.2  && <0.6
@@ -115,7 +115,7 @@ test-suite galois-field-tests
     , integer-gmp       >=1.0.2  && <1.1
     , mod               >=0.1.0  && <0.2
     , MonadRandom       >=0.5.1  && <0.6
-    , poly              >=0.3.2  && <0.4
+    , poly              >=0.3.2  && <0.5
     , protolude         >=0.2    && <0.3
     , QuickCheck        >=2.13   && <2.14
     , semirings         >=0.5    && <0.6
@@ -166,7 +166,7 @@ benchmark galois-field-benchmarks
     , integer-gmp     >=1.0.2  && <1.1
     , mod             >=0.1.0  && <0.2
     , MonadRandom     >=0.5.1  && <0.6
-    , poly            >=0.3.2  && <0.4
+    , poly            >=0.3.2  && <0.5
     , protolude       >=0.2    && <0.3
     , QuickCheck      >=2.13   && <2.14
     , semirings       >=0.5    && <0.6
