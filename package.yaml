@@ -1,5 +1,5 @@
 name:        galois-field
-version:     1.0.1
+version:     1.0.2
 synopsis:    Galois field library
 description: An efficient implementation of Galois fields used in cryptography research
 maintainer:  Adjoint Inc (info@adjoint.io)
@@ -28,7 +28,7 @@ default-extensions:
 
 dependencies:
   - base             >= 4.10   && < 5
-  - protolude        >= 0.2    && < 0.3
+  - protolude        >= 0.2    && < 0.4
   - bitvec           >= 1.0.2  && < 1.1
   - groups           >= 0.4.1  && < 0.5
   - integer-gmp      >= 1.0.2  && < 1.1

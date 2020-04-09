@@ -4,6 +4,9 @@
 
 * Add `Mod` dependency for prime fields.
 * Add minor optimisations for prime fields.
+* Remove unsafeCoerce for number coercions.
+* Bump poly dependency to 0.4.
+* Bump upper bound for protolude.
 
 ## 1.0.1
 
