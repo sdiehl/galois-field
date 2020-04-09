@@ -4,10 +4,10 @@ cabal-version:      1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c15ad396cac60d83c971b1a98463b997bd60fb7ed80b68a993bf1616a99aad1c
+-- hash: 6e378fd39c9e97ef65f38ebb65deb6472ecd45bcc160cdb881110b182f77aed0
 
 name:               galois-field
-version:            1.0.1
+version:            1.0.2
 synopsis:           Galois field library
 description:
   An efficient implementation of Galois fields used in cryptography research
@@ -68,9 +68,9 @@ library
     , mod             >=0.1.0  && <0.2
     , MonadRandom     >=0.5.1  && <0.6
     , poly            >=0.3.2  && <0.5
-    , protolude       >=0.2    && <0.3
+    , protolude       >=0.2    && <0.4
     , QuickCheck      >=2.13   && <2.14
-    , semirings       >=0.5.2  && <0.6
+    , semirings       >=0.5    && <0.6
     , vector          >=0.12.0 && <0.13
     , wl-pprint-text  >=1.2.0  && <1.3
 
@@ -116,7 +116,7 @@ test-suite galois-field-tests
     , mod               >=0.1.0  && <0.2
     , MonadRandom       >=0.5.1  && <0.6
     , poly              >=0.3.2  && <0.5
-    , protolude         >=0.2    && <0.3
+    , protolude         >=0.2    && <0.4
     , QuickCheck        >=2.13   && <2.14
     , semirings         >=0.5    && <0.6
     , tasty             >=1.2    && <1.3
@@ -167,7 +167,7 @@ benchmark galois-field-benchmarks
     , mod             >=0.1.0  && <0.2
     , MonadRandom     >=0.5.1  && <0.6
     , poly            >=0.3.2  && <0.5
-    , protolude       >=0.2    && <0.3
+    , protolude       >=0.2    && <0.4
     , QuickCheck      >=2.13   && <2.14
     , semirings       >=0.5    && <0.6
     , vector          >=0.12.0 && <0.13
