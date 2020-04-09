@@ -4,7 +4,7 @@ cabal-version:      1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6e378fd39c9e97ef65f38ebb65deb6472ecd45bcc160cdb881110b182f77aed0
+-- hash: 4f1f517ac1812c3cb4f6bd4c78c3091393d6c7708ce11feb2729ac6f871f92c4
 
 name:               galois-field
 version:            1.0.2
@@ -20,7 +20,7 @@ license:            MIT
 license-file:       LICENSE
 build-type:         Simple
 extra-source-files:
-  README.md
+  README.notex.md
   ChangeLog.md
 
 source-repository head

@@ -41,7 +41,7 @@ dependencies:
   - vector           >= 0.12.0 && <0.13
 
 extra-source-files:
-  - README.md
+  - README.notex.md
   - ChangeLog.md
 
 ghc-options:
