@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5a4ff8202103660ef153acd7e5679e59c9b53d601f6963fda79e8b2f37d5831e
+-- hash: ff961a8802a0393916ed1a5cdc25f4065f9475f69e2ddc8ced5a0a0eff98b630
 
 name:               galois-field
 version:            1.0.2
@@ -50,7 +50,7 @@ library
     , integer-gmp >=1.0.2 && <1.1
     , mod >=0.1.0 && <0.2
     , poly >=0.3.2 && <0.5
-    , protolude >=0.2 && <0.3
+    , protolude >=0.2 && <0.4
     , semirings >=0.5 && <0.6
     , vector >=0.12.0 && <0.13
     , wl-pprint-text >=1.2.0 && <1.3
@@ -79,7 +79,7 @@ test-suite galois-field-tests
     , integer-gmp >=1.0.2 && <1.1
     , mod >=0.1.0 && <0.2
     , poly >=0.3.2 && <0.5
-    , protolude >=0.2 && <0.3
+    , protolude >=0.2 && <0.4
     , semirings >=0.5 && <0.6
     , tasty >=1.2 && <1.3
     , tasty-quickcheck >=0.10 && <0.11
@@ -111,7 +111,7 @@ benchmark galois-field-benchmarks
     , integer-gmp >=1.0.2 && <1.1
     , mod >=0.1.0 && <0.2
     , poly >=0.3.2 && <0.5
-    , protolude >=0.2 && <0.3
+    , protolude >=0.2 && <0.4
     , semirings >=0.5 && <0.6
     , vector >=0.12.0 && <0.13
     , wl-pprint-text >=1.2.0 && <1.3

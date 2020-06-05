@@ -91,7 +91,7 @@ instance KnownNat p => Fractional (Binary p) where
     (1, y) -> B y
     _      -> divZeroError
   {-# INLINE recip #-}
-  fromRational (x:%y) = fromInteger x / fromInteger y
+  fromRational rat = fromInteger (numerator rat) / fromInteger (denominator rat)
   {-# INLINABLE fromRational #-}
 
 -- Binary fields are numeric.
