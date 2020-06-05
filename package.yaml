@@ -28,7 +28,7 @@ default-extensions:
 
 dependencies:
   - base             >= 4.10   && < 5
-  - protolude        >= 0.2    && < 0.4
+  - protolude        >= 0.2    && < 0.3
   - bitvec           >= 1.0.2  && < 1.1
   - groups           >= 0.4.1  && < 0.5
   - integer-gmp      >= 1.0.2  && < 1.1
