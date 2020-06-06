@@ -1,17 +1,15 @@
-cabal-version:      1.12
+cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.34.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4f1f517ac1812c3cb4f6bd4c78c3091393d6c7708ce11feb2729ac6f871f92c4
+-- hash: d489cc761a0b72219cc46f61de6816a942552d22df093c469f043793bff39ada
 
 name:               galois-field
-version:            1.0.2
+version:            1.0.3
 synopsis:           Galois field library
-description:
-  An efficient implementation of Galois fields used in cryptography research
-
+description:        An efficient implementation of Galois fields used in cryptography research
 category:           Cryptography
 homepage:           https://github.com/adjoint-io/galois-field#readme
 bug-reports:        https://github.com/adjoint-io/galois-field/issues
@@ -20,157 +18,101 @@ license:            MIT
 license-file:       LICENSE
 build-type:         Simple
 extra-source-files:
-  README.notex.md
-  ChangeLog.md
+    README.notex.md
+    ChangeLog.md
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/adjoint-io/galois-field
 
 library
-  exposed-modules:    Data.Field.Galois
+  exposed-modules:
+      Data.Field.Galois
   other-modules:
-    Data.Field.Galois.Base
-    Data.Field.Galois.Binary
-    Data.Field.Galois.Extension
-    Data.Field.Galois.Frobenius
-    Data.Field.Galois.Prime
-    Data.Field.Galois.Sqrt
-    Data.Field.Galois.Tower
-    Data.Field.Galois.Unity
-
-  hs-source-dirs:     src
-  default-extensions:
-    NoImplicitPrelude
-    DataKinds
-    DeriveFunctor
-    DeriveGeneric
-    FlexibleContexts
-    FlexibleInstances
-    GeneralizedNewtypeDeriving
-    KindSignatures
-    LambdaCase
-    MultiParamTypeClasses
-    OverloadedLists
-    OverloadedStrings
-    PatternSynonyms
-    RankNTypes
-    RecordWildCards
-    ScopedTypeVariables
-    TypeFamilies
-
-  ghc-options:        -freverse-errors -O2 -Wall
+      Data.Field.Galois.Base
+      Data.Field.Galois.Binary
+      Data.Field.Galois.Extension
+      Data.Field.Galois.Frobenius
+      Data.Field.Galois.Prime
+      Data.Field.Galois.Sqrt
+      Data.Field.Galois.Tower
+      Data.Field.Galois.Unity
+  hs-source-dirs:
+      src
+  default-extensions: LambdaCase RecordWildCards OverloadedStrings NoImplicitPrelude FlexibleInstances FlexibleContexts ScopedTypeVariables RankNTypes DataKinds DeriveFunctor DeriveGeneric GeneralizedNewtypeDeriving KindSignatures MultiParamTypeClasses OverloadedLists PatternSynonyms TypeFamilies
+  ghc-options: -freverse-errors -O2 -Wall
   build-depends:
-      base            >=4.10   && <5
-    , bitvec          >=1.0.2  && <1.1
-    , groups          >=0.4.1  && <0.5
-    , integer-gmp     >=1.0.2  && <1.1
-    , mod             >=0.1.0  && <0.2
-    , MonadRandom     >=0.5.1  && <0.6
-    , poly            >=0.3.2  && <0.5
-    , protolude       >=0.2    && <0.4
-    , QuickCheck      >=2.13   && <2.14
-    , semirings       >=0.5    && <0.6
-    , vector          >=0.12.0 && <0.13
-    , wl-pprint-text  >=1.2.0  && <1.3
-
-  default-language:   Haskell2010
+      MonadRandom >=0.5.1 && <0.6
+    , QuickCheck >=2.13 && <2.14
+    , base >=4.10 && <5
+    , bitvec >=1.0.2 && <1.1
+    , groups >=0.4.1 && <0.5
+    , integer-gmp >=1.0.2 && <1.1
+    , mod >=0.1.0 && <0.2
+    , poly >=0.3.2 && <0.5
+    , protolude >=0.2 && <0.4
+    , semirings >=0.5 && <0.6
+    , vector >=0.12.0 && <0.13
+    , wl-pprint-text >=1.2.0 && <1.3
+  default-language: Haskell2010
 
 test-suite galois-field-tests
-  type:               exitcode-stdio-1.0
-  main-is:            Main.hs
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
   other-modules:
-    Paths_galois_field
-    Test.Binary
-    Test.Extension
-    Test.Galois
-    Test.Prime
-
-  hs-source-dirs:     test
-  default-extensions:
-    NoImplicitPrelude
-    DataKinds
-    DeriveFunctor
-    DeriveGeneric
-    FlexibleContexts
-    FlexibleInstances
-    GeneralizedNewtypeDeriving
-    KindSignatures
-    LambdaCase
-    MultiParamTypeClasses
-    OverloadedLists
-    OverloadedStrings
-    PatternSynonyms
-    RankNTypes
-    RecordWildCards
-    ScopedTypeVariables
-    TypeFamilies
-
-  ghc-options:        -freverse-errors -O2 -Wall -main-is Main
+      Test.Binary
+      Test.Extension
+      Test.Galois
+      Test.Prime
+      Paths_galois_field
+  hs-source-dirs:
+      test
+  default-extensions: LambdaCase RecordWildCards OverloadedStrings NoImplicitPrelude FlexibleInstances FlexibleContexts ScopedTypeVariables RankNTypes DataKinds DeriveFunctor DeriveGeneric GeneralizedNewtypeDeriving KindSignatures MultiParamTypeClasses OverloadedLists PatternSynonyms TypeFamilies
+  ghc-options: -freverse-errors -O2 -Wall -main-is Main
   build-depends:
-      base              >=4.10   && <5
-    , bitvec            >=1.0.2  && <1.1
+      MonadRandom >=0.5.1 && <0.6
+    , QuickCheck >=2.13 && <2.14
+    , base >=4.10 && <5
+    , bitvec >=1.0.2 && <1.1
     , galois-field
-    , groups            >=0.4.1  && <0.5
-    , integer-gmp       >=1.0.2  && <1.1
-    , mod               >=0.1.0  && <0.2
-    , MonadRandom       >=0.5.1  && <0.6
-    , poly              >=0.3.2  && <0.5
-    , protolude         >=0.2    && <0.4
-    , QuickCheck        >=2.13   && <2.14
-    , semirings         >=0.5    && <0.6
-    , tasty             >=1.2    && <1.3
-    , tasty-quickcheck  >=0.10   && <0.11
-    , vector            >=0.12.0 && <0.13
-    , wl-pprint-text    >=1.2.0  && <1.3
-
-  default-language:   Haskell2010
+    , groups >=0.4.1 && <0.5
+    , integer-gmp >=1.0.2 && <1.1
+    , mod >=0.1.0 && <0.2
+    , poly >=0.3.2 && <0.5
+    , protolude >=0.2 && <0.4
+    , semirings >=0.5 && <0.6
+    , tasty >=1.2 && <1.3
+    , tasty-quickcheck >=0.10 && <0.11
+    , vector >=0.12.0 && <0.13
+    , wl-pprint-text >=1.2.0 && <1.3
+  default-language: Haskell2010
 
 benchmark galois-field-benchmarks
-  type:               exitcode-stdio-1.0
-  main-is:            Main.hs
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
   other-modules:
-    Bench.Binary
-    Bench.Extension
-    Bench.Galois
-    Bench.Prime
-    Paths_galois_field
-
-  hs-source-dirs:     bench
-  default-extensions:
-    NoImplicitPrelude
-    DataKinds
-    DeriveFunctor
-    DeriveGeneric
-    FlexibleContexts
-    FlexibleInstances
-    GeneralizedNewtypeDeriving
-    KindSignatures
-    LambdaCase
-    MultiParamTypeClasses
-    OverloadedLists
-    OverloadedStrings
-    PatternSynonyms
-    RankNTypes
-    RecordWildCards
-    ScopedTypeVariables
-    TypeFamilies
-
-  ghc-options:        -freverse-errors -O2 -Wall -main-is Main
+      Bench.Binary
+      Bench.Extension
+      Bench.Galois
+      Bench.Prime
+      Paths_galois_field
+  hs-source-dirs:
+      bench
+  default-extensions: LambdaCase RecordWildCards OverloadedStrings NoImplicitPrelude FlexibleInstances FlexibleContexts ScopedTypeVariables RankNTypes DataKinds DeriveFunctor DeriveGeneric GeneralizedNewtypeDeriving KindSignatures MultiParamTypeClasses OverloadedLists PatternSynonyms TypeFamilies
+  ghc-options: -freverse-errors -O2 -Wall -main-is Main
   build-depends:
-      base            >=4.10   && <5
-    , bitvec          >=1.0.2  && <1.1
-    , criterion       >=1.5    && <1.6
+      MonadRandom >=0.5.1 && <0.6
+    , QuickCheck >=2.13 && <2.14
+    , base >=4.10 && <5
+    , bitvec >=1.0.2 && <1.1
+    , criterion >=1.5 && <1.6
     , galois-field
-    , groups          >=0.4.1  && <0.5
-    , integer-gmp     >=1.0.2  && <1.1
-    , mod             >=0.1.0  && <0.2
-    , MonadRandom     >=0.5.1  && <0.6
-    , poly            >=0.3.2  && <0.5
-    , protolude       >=0.2    && <0.4
-    , QuickCheck      >=2.13   && <2.14
-    , semirings       >=0.5    && <0.6
-    , vector          >=0.12.0 && <0.13
-    , wl-pprint-text  >=1.2.0  && <1.3
-
-  default-language:   Haskell2010
+    , groups >=0.4.1 && <0.5
+    , integer-gmp >=1.0.2 && <1.1
+    , mod >=0.1.0 && <0.2
+    , poly >=0.3.2 && <0.5
+    , protolude >=0.2 && <0.4
+    , semirings >=0.5 && <0.6
+    , vector >=0.12.0 && <0.13
+    , wl-pprint-text >=1.2.0 && <1.3
+  default-language: Haskell2010

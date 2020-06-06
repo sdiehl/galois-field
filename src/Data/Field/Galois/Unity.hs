@@ -9,6 +9,7 @@ module Data.Field.Galois.Unity
   , isRootOfUnity
   , toU
   , toU'
+  , fromU
   ) where
 
 import Protolude hiding (natVal)
@@ -115,3 +116,7 @@ toU x = let u = U x :: RootsOfUnity n k in
 toU' :: forall n k . (KnownNat n, GaloisField k) => k -> RootsOfUnity n k
 toU' = U
 {-# INLINABLE toU' #-}
+
+fromU :: forall n k . (KnownNat n, GaloisField k) => RootsOfUnity n k -> k
+fromU (U k) = k
+{-# INLINABLE fromU #-}

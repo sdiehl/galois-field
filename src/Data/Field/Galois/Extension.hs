@@ -109,7 +109,7 @@ instance IrreducibleMonic p k => Fractional (Extension p k) where
     where
       (g, y) = gcdExt x $ poly (witness :: Extension p k)
   {-# INLINABLE recip #-}
-  fromRational (x:%y) = fromInteger x / fromInteger y
+  fromRational rat = fromInteger (numerator rat) / fromInteger (denominator rat)
   {-# INLINABLE fromRational #-}
 
 -- Extension fields are numeric.
