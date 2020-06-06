@@ -1,5 +1,10 @@
 # Change log for galois-field
 
+## 1.0.3
+
+* Add `fromU` for RootsOfUnity
+* Update to support removal of :% for Rational from Protolude 0.3
+
 ## 1.0.2
 
 * Add `Mod` dependency for prime fields.

@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ff961a8802a0393916ed1a5cdc25f4065f9475f69e2ddc8ced5a0a0eff98b630
+-- hash: d489cc761a0b72219cc46f61de6816a942552d22df093c469f043793bff39ada
 
 name:               galois-field
-version:            1.0.2
+version:            1.0.3
 synopsis:           Galois field library
 description:        An efficient implementation of Galois fields used in cryptography research
 category:           Cryptography
