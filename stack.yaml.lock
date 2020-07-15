@@ -39,9 +39,16 @@ packages:
       sha256: 9f04ef44c2459a122f2d5c093b4a9ebc47aaa00284a7bff9793fee7c6783f979
   original:
     hackage: vector-algorithms-0.8.0.3
+- completed:
+    hackage: protolude-0.3.0@sha256:8361b811b420585b122a7ba715aa5923834db6e8c36309bf267df2dbf66b95ef,2693
+    pantry-tree:
+      size: 1644
+      sha256: babf32b414f25f790b7a4ce6bae5c960bc51a11a289e7c47335b222e6762560c
+  original:
+    hackage: protolude-0.3.0
 snapshots:
 - completed:
-    size: 523700
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/7.yaml
-    sha256: 8e3f3c894be74d71fa4bf085e0a8baae7e4d7622d07ea31a52736b80f8b9bb1a
-  original: lts-14.7
+    size: 531237
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/0.yaml
+    sha256: 210e15b7043e2783115afe16b0d54914b1611cdaa73f3ca3ca7f8e0847ff54e5
+  original: lts-16.0

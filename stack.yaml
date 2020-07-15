@@ -1,7 +1,8 @@
-resolver: lts-14.7
+resolver: lts-16.0
 extra-deps:
   - bitvec-1.0.2.0
   - mod-0.1.0.0
   - poly-0.4.0.0
   - semirings-0.5.3
   - vector-algorithms-0.8.0.3
+  - protolude-0.3.0
