@@ -4,7 +4,6 @@
   </a>
 </p>
 
-[![CircleCI](https://circleci.com/gh/adjoint-io/galois-field.svg?style=svg)](https://circleci.com/gh/adjoint-io/galois-field)
 ![Stack CI](https://github.com/adjoint-io/galois-field/workflows/Stack%20CI/badge.svg)
 ![Cabal CI](https://github.com/adjoint-io/galois-field/workflows/Cabal%20CI/badge.svg)
 [![Hackage](https://img.shields.io/hackage/v/galois-field.svg)](https://hackage.haskell.org/package/galois-field)
