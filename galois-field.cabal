@@ -1,11 +1,4 @@
-cabal-version:      1.12
-
--- This file has been generated from package.yaml by hpack version 0.34.1.
---
--- see: https://github.com/sol/hpack
---
--- hash: d489cc761a0b72219cc46f61de6816a942552d22df093c469f043793bff39ada
-
+cabal-version:      3.0
 name:               galois-field
 version:            1.0.3
 synopsis:           Galois field library
@@ -61,18 +54,18 @@ library
 
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
-      base            >=4.10   && <5
-    , bitvec          >=1.0.2  && <1.1
-    , groups          >=0.4.1  && <0.5
-    , integer-gmp     >=1.0.2  && <1.1
-    , mod             >=0.1.0  && <0.2
-    , MonadRandom     >=0.5.1  && <0.6
+    , base            >=4.10   && <5
+    , bitvec          ^>=1.0.2
+    , groups          ^>=0.4.1
+    , integer-gmp     ^>=1.0.2
+    , mod             ^>=0.1.0
+    , MonadRandom     ^>=0.5.1
     , poly            >=0.3.2  && <0.5
-    , protolude       >=0.3    && <0.4
-    , QuickCheck      >=2.13   && <2.14
-    , semirings       >=0.5    && <0.6
-    , vector          >=0.12.0 && <0.13
-    , wl-pprint-text  >=1.2.0  && <1.3
+    , protolude       ^>=0.3
+    , QuickCheck      ^>=2.14
+    , semirings       ^>=0.5
+    , vector          ^>=0.12.0
+    , wl-pprint-text  ^>=1.2.0
 
   default-language:   Haskell2010
 
@@ -80,7 +73,6 @@ test-suite galois-field-tests
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
   other-modules:
-    Paths_galois_field
     Test.Binary
     Test.Extension
     Test.Galois
@@ -106,23 +98,23 @@ test-suite galois-field-tests
     ScopedTypeVariables
     TypeFamilies
 
-  ghc-options:        -freverse-errors -O2 -Wall -main-is Main
+  ghc-options:        -freverse-errors -O2 -Wall 
   build-depends:
-      base              >=4.10   && <5
-    , bitvec            >=1.0.2  && <1.1
+    , base              >=4.10   && <5
+    , bitvec            ^>=1.0.2
     , galois-field
-    , groups            >=0.4.1  && <0.5
-    , integer-gmp       >=1.0.2  && <1.1
-    , mod               >=0.1.0  && <0.2
-    , MonadRandom       >=0.5.1  && <0.6
+    , groups            ^>=0.4.1
+    , integer-gmp       ^>=1.0.2
+    , mod               ^>=0.1.0
+    , MonadRandom       ^>=0.5.1
     , poly              >=0.3.2  && <0.5
-    , protolude         >=0.3    && <0.4
-    , QuickCheck        >=2.13   && <2.14
-    , semirings         >=0.5    && <0.6
-    , tasty             >=1.2    && <1.3
-    , tasty-quickcheck  >=0.10   && <0.11
-    , vector            >=0.12.0 && <0.13
-    , wl-pprint-text    >=1.2.0  && <1.3
+    , protolude         ^>=0.3
+    , QuickCheck        ^>=2.14
+    , semirings         ^>=0.5
+    , tasty             ^>=1.3
+    , tasty-quickcheck  ^>=0.10
+    , vector            ^>=0.12.0
+    , wl-pprint-text    ^>=1.2.0
 
   default-language:   Haskell2010
 
@@ -134,7 +126,6 @@ benchmark galois-field-benchmarks
     Bench.Extension
     Bench.Galois
     Bench.Prime
-    Paths_galois_field
 
   hs-source-dirs:     bench
   default-extensions:
@@ -156,21 +147,21 @@ benchmark galois-field-benchmarks
     ScopedTypeVariables
     TypeFamilies
 
-  ghc-options:        -freverse-errors -O2 -Wall -main-is Main
+  ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
-      base            >=4.10   && <5
-    , bitvec          >=1.0.2  && <1.1
-    , criterion       >=1.5    && <1.6
+    , base            >=4.10   && <5
+    , bitvec          ^>=1.0.2
+    , criterion       ^>=1.5
     , galois-field
-    , groups          >=0.4.1  && <0.5
-    , integer-gmp     >=1.0.2  && <1.1
-    , mod             >=0.1.0  && <0.2
-    , MonadRandom     >=0.5.1  && <0.6
+    , groups          ^>=0.4.1
+    , integer-gmp     ^>=1.0.2
+    , mod             ^>=0.1.0
+    , MonadRandom     ^>=0.5.1
     , poly            >=0.3.2  && <0.5
-    , protolude       >=0.3    && <0.4
-    , QuickCheck      >=2.13   && <2.14
-    , semirings       >=0.5    && <0.6
-    , vector          >=0.12.0 && <0.13
-    , wl-pprint-text  >=1.2.0  && <1.3
+    , protolude       ^>=0.3
+    , QuickCheck      ^>=2.14
+    , semirings       ^>=0.5
+    , vector          ^>=0.12.0
+    , wl-pprint-text  ^>=1.2.0
 
   default-language:   Haskell2010
