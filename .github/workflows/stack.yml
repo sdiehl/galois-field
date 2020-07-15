@@ -1,0 +1,60 @@
+name: Stack CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: "0 0 * * 1"
+
+jobs:
+  build:
+    name: stack ${{ matrix.plan.resolver }} ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        plan:
+        - { build: stack, resolver: "lts-15"  }
+        - { build: stack, resolver: "lts-16"  }
+        #- { build: stack, resolver: "nightly" }
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install OS Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: ${{ matrix.apt-get }}
+        brew: ${{ matrix.brew }}
+    - uses: actions/checkout@v1
+
+    - name: Setup stack
+      uses: mstksg/setup-stack@v1
+
+    - uses: actions/cache@v1
+      name: Cache .stack-work
+      with:
+        path: .stack-work
+        key: stack-work
+
+    - uses: actions/cache@v1
+      name: Cache ~/.stack
+      with:
+        path: ~/.stack
+        key: stack
+
+    - name: Install dependencies
+      run: |
+        set -ex
+        stack --no-terminal --install-ghc --resolver $ARGS test --bench --only-dependencies
+        set +ex
+      env:
+        ARGS: ${{ matrix.plan.resolver }}
+        BUILD: ${{ matrix.plan.build }}
+
+    - name: Build
+      run: |
+        set -ex
+        stack --no-terminal --resolver $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps
+        set +ex
+      env:
+        ARGS: ${{ matrix.plan.resolver }}
+        BUILD: ${{ matrix.plan.build }}
