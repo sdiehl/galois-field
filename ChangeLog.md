@@ -4,6 +4,8 @@
 
 * Add `fromU` for RootsOfUnity
 * Update to support removal of :% for Rational from Protolude 0.3
+* Bump upper bound for poly.
+* Bump upper bound for groups.
 
 ## 1.0.2
 
