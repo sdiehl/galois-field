@@ -56,11 +56,11 @@ library
   build-depends:
     , base            >=4.10   && <5
     , bitvec          ^>=1.0.2
-    , groups          ^>=0.4.1
+    , groups          >=0.4.1  && <0.6
     , integer-gmp     ^>=1.0.2
     , mod             ^>=0.1.0
     , MonadRandom     ^>=0.5.1
-    , poly            >=0.3.2  && <0.5
+    , poly            >=0.3.2  && <0.6
     , protolude       ^>=0.3
     , QuickCheck      >=2.13   && <2.15
     , semirings       ^>=0.5
@@ -103,11 +103,11 @@ test-suite galois-field-tests
     , base              >=4.10   && <5
     , bitvec            ^>=1.0.2
     , galois-field
-    , groups            ^>=0.4.1
+    , groups            >=0.4.1  && <0.6
     , integer-gmp       ^>=1.0.2
     , mod               ^>=0.1.0
     , MonadRandom       ^>=0.5.1
-    , poly              >=0.3.2  && <0.5
+    , poly              >=0.3.2  && <0.6
     , protolude         ^>=0.3
     , QuickCheck        >=2.13   && <2.15
     , semirings         ^>=0.5
@@ -153,11 +153,11 @@ benchmark galois-field-benchmarks
     , bitvec          ^>=1.0.2
     , criterion       ^>=1.5
     , galois-field
-    , groups          ^>=0.4.1
+    , groups          >=0.4.1  && <0.6
     , integer-gmp     ^>=1.0.2
     , mod             ^>=0.1.0
     , MonadRandom     ^>=0.5.1
-    , poly            >=0.3.2  && <0.5
+    , poly            >=0.3.2  && <0.6
     , protolude       ^>=0.3
     , QuickCheck      >=2.13   && <2.15
     , semirings       ^>=0.5

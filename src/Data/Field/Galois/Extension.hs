@@ -199,7 +199,7 @@ instance IrreducibleMonic p k => Random (Extension p k) where
 
 -- Polynomial degree.
 deg' :: IrreducibleMonic p k => Extension p k -> Word
-deg' = pred . fromIntegral . degree . poly
+deg' = maybe 0 fst . leading . poly
 {-# INLINABLE deg' #-}
 
 -- | Complex conjugation @a+bi -> a-bi@ of quadratic extension field.
