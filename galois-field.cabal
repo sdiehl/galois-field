@@ -63,7 +63,7 @@ library
     , poly            >=0.3.2  && <0.6
     , protolude       ^>=0.3
     , QuickCheck      >=2.13   && <2.15
-    , semirings       ^>=0.5
+    , semirings       >=0.5    && <0.7
     , vector          ^>=0.12.0
     , wl-pprint-text  ^>=1.2.0
 
@@ -110,7 +110,7 @@ test-suite galois-field-tests
     , poly              >=0.3.2  && <0.6
     , protolude         ^>=0.3
     , QuickCheck        >=2.13   && <2.15
-    , semirings         ^>=0.5
+    , semirings         >=0.5   && <0.7
     , tasty             >=1.2   && <1.4
     , tasty-quickcheck  ^>=0.10
     , vector            ^>=0.12.0
@@ -160,7 +160,7 @@ benchmark galois-field-benchmarks
     , poly            >=0.3.2  && <0.6
     , protolude       ^>=0.3
     , QuickCheck      >=2.13   && <2.15
-    , semirings       ^>=0.5
+    , semirings       >=0.5    && <0.7
     , vector          ^>=0.12.0
     , wl-pprint-text  ^>=1.2.0
 
