@@ -55,7 +55,7 @@ library
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
     , base            >=4.10   && <5
-    , bitvec          ^>=1.0.2
+    , bitvec          >=1.0.2  && < 1.2
     , groups          >=0.4.1  && <0.6
     , integer-gmp     ^>=1.0.2
     , mod             ^>=0.1.0
@@ -101,7 +101,7 @@ test-suite galois-field-tests
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
     , base              >=4.10   && <5
-    , bitvec            ^>=1.0.2
+    , bitvec            >=1.0.2  && < 1.2
     , galois-field
     , groups            >=0.4.1  && <0.6
     , integer-gmp       ^>=1.0.2
@@ -150,7 +150,7 @@ benchmark galois-field-benchmarks
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
     , base            >=4.10   && <5
-    , bitvec          ^>=1.0.2
+    , bitvec          >=1.0.2  && < 1.2
     , criterion       ^>=1.5
     , galois-field
     , groups          >=0.4.1  && <0.6

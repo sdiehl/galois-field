@@ -2,7 +2,7 @@
 
 ## 1.0.4
 
-* Bump upper bound for semirings.
+* Bump upper bound for semirings and bitvec.
 
 ## 1.0.3
 
