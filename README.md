@@ -1,14 +1,6 @@
-<p align="center">
-  <a href="https://www.adjoint.io">
-    <img width="250" src="./.assets/adjoint.png" alt="Adjoint Logo" />
-  </a>
-</p>
-
-![Stack CI](https://github.com/adjoint-io/galois-field/workflows/Stack%20CI/badge.svg)
-![Cabal CI](https://github.com/adjoint-io/galois-field/workflows/Cabal%20CI/badge.svg)
-[![Hackage](https://img.shields.io/hackage/v/galois-field.svg)](https://hackage.haskell.org/package/galois-field)
-
 # Galois Field
+
+[![Hackage](https://img.shields.io/hackage/v/galois-field.svg)](https://hackage.haskell.org/package/galois-field)
 
 An efficient implementation of Galois fields used in cryptography research.
 
