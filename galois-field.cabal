@@ -55,7 +55,7 @@ library
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
     , base            >=4.10   && <5
-    , bitvec          ^>=1.0.2
+    , bitvec          >=1.0.2  && < 1.2
     , groups          >=0.4.1  && <0.6
     , integer-gmp     ^>=1.0.2
     , mod             ^>=0.1.0
@@ -63,7 +63,7 @@ library
     , poly            >=0.3.2  && <0.6
     , protolude       ^>=0.3
     , QuickCheck      >=2.13   && <2.15
-    , semirings       ^>=0.5
+    , semirings       >=0.5    && <0.7
     , vector          ^>=0.12.0
     , wl-pprint-text  ^>=1.2.0
 
@@ -101,7 +101,7 @@ test-suite galois-field-tests
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
     , base              >=4.10   && <5
-    , bitvec            ^>=1.0.2
+    , bitvec            >=1.0.2  && < 1.2
     , galois-field
     , groups            >=0.4.1  && <0.6
     , integer-gmp       ^>=1.0.2
@@ -110,7 +110,7 @@ test-suite galois-field-tests
     , poly              >=0.3.2  && <0.6
     , protolude         ^>=0.3
     , QuickCheck        >=2.13   && <2.15
-    , semirings         ^>=0.5
+    , semirings         >=0.5   && <0.7
     , tasty             >=1.2   && <1.4
     , tasty-quickcheck  ^>=0.10
     , vector            ^>=0.12.0
@@ -150,7 +150,7 @@ benchmark galois-field-benchmarks
   ghc-options:        -freverse-errors -O2 -Wall
   build-depends:
     , base            >=4.10   && <5
-    , bitvec          ^>=1.0.2
+    , bitvec          >=1.0.2  && < 1.2
     , criterion       ^>=1.5
     , galois-field
     , groups          >=0.4.1  && <0.6
@@ -160,7 +160,7 @@ benchmark galois-field-benchmarks
     , poly            >=0.3.2  && <0.6
     , protolude       ^>=0.3
     , QuickCheck      >=2.13   && <2.15
-    , semirings       ^>=0.5
+    , semirings       >=0.5    && <0.7
     , vector          ^>=0.12.0
     , wl-pprint-text  ^>=1.2.0
 
